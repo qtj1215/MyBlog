@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN,en,default">
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
@@ -17,7 +17,7 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"www.qintianjun.top","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"www.qintianjun.top","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
   <meta name="description" content="Django Rest Framework 学习笔记">
@@ -26,9 +26,9 @@
 <meta property="og:url" content="http://www.qintianjun.top/2021/06/14/DRF%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8BContent-Type/index.html">
 <meta property="og:site_name" content="Freedom_ATX Blog">
 <meta property="og:description" content="Django Rest Framework 学习笔记">
-<meta property="og:locale" content="en_US">
+<meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-06-14T12:49:20.000Z">
-<meta property="article:modified_time" content="2021-06-14T13:46:11.047Z">
+<meta property="article:modified_time" content="2022-04-19T12:54:02.102Z">
 <meta property="article:author" content="QinTianJun">
 <meta property="article:tag" content="Python">
 <meta property="article:tag" content="Django">
@@ -44,7 +44,7 @@
     sidebar: "",
     isHome : false,
     isPost : true,
-    lang   : 'en'
+    lang   : 'zh-CN'
   };
 </script>
 
@@ -79,6 +79,7 @@
   </style>
 </noscript>
 
+<link rel="alternate" href="/atom.xml" title="Freedom_ATX Blog" type="application/atom+xml">
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
@@ -88,7 +89,7 @@
     <header class="header" itemscope itemtype="http://schema.org/WPHeader">
       <div class="header-inner"><div class="site-brand-container">
   <div class="site-nav-toggle">
-    <div class="toggle" aria-label="Toggle navigation bar">
+    <div class="toggle" aria-label="切换导航栏">
       <span class="toggle-line toggle-line-first"></span>
       <span class="toggle-line toggle-line-middle"></span>
       <span class="toggle-line toggle-line-last"></span>
@@ -117,12 +118,27 @@
   <ul id="menu" class="main-menu menu">
         <li class="menu-item menu-item-home">
 
-    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
 
   </li>
   </ul>
@@ -152,11 +168,11 @@
     
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://www.qintianjun.top/2021/06/14/DRF%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8BContent-Type/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/logo.jpeg">
       <meta itemprop="name" content="QinTianJun">
       <meta itemprop="description" content="一个菜鸟的成长之路">
     </span>
@@ -174,20 +190,26 @@
               <span class="post-meta-item-icon">
                 <i class="far fa-calendar"></i>
               </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
+              <span class="post-meta-item-text">发表于</span>
 
-              <time title="Created: 2021-06-14 20:49:20 / Modified: 21:46:11" itemprop="dateCreated datePublished" datetime="2021-06-14T20:49:20+08:00">2021-06-14</time>
+              <time title="创建时间：2021-06-14 20:49:20" itemprop="dateCreated datePublished" datetime="2021-06-14T20:49:20+08:00">2021-06-14</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-04-19 20:54:02" itemprop="dateModified" datetime="2022-04-19T20:54:02+08:00">2022-04-19</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
               </span>
-              <span class="post-meta-item-text">In</span>
+              <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
                 </span>
-                  , 
+                  ，
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/Python/Django/" itemprop="url" rel="index"><span itemprop="name">Django</span></a>
                 </span>
@@ -204,20 +226,19 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="ContentType组件"><a href="#ContentType组件" class="headerlink" title="ContentType组件"></a>ContentType组件</h1><p>[TOC]</p>
-<h2 id="需求背景"><a href="#需求背景" class="headerlink" title="需求背景"></a>需求背景</h2><p>(本文来自网上看的老男孩某期学习视频做的笔记)</p>
+        <h1 id="ContentType组件"><a href="#ContentType组件" class="headerlink" title="ContentType组件"></a>ContentType组件</h1><h2 id="需求背景"><a href="#需求背景" class="headerlink" title="需求背景"></a>需求背景</h2><p>(本文来自网上看的老男孩某期学习视频做的笔记)</p>
 <p>现在我们有这样一个需求~ 我们的商城里有很多的商品~~ 节日要来了~ 我们要搞活动~~</p>
 <p>那么我们就要设计优惠券~~ 优惠券都有什么类型呢~~ 满减的~ 折扣的~ 立减的~~</p>
 <p>我们对应着我们活动类型~ 对我们的某类商品设计优惠券~~ 比如~~</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!/usr/bin/env python</span><br><span class="hljs-comment"># -*-coding:utf8-*-</span><br><span class="hljs-keyword">from</span> django.db <span class="hljs-keyword">import</span> models<br><br><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Appliance</span>():</span><br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    家用电器表</span><br><span class="hljs-string">    id		name</span><br><span class="hljs-string">    1		冰箱</span><br><span class="hljs-string">    2		电视</span><br><span class="hljs-string">    3		洗衣机    </span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>	name = models.CharField(max_length=<span class="hljs-number">64</span>)<br><br><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Food</span>(<span class="hljs-params">models.Model</span>):</span><br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    食物表</span><br><span class="hljs-string">    id		name</span><br><span class="hljs-string">    1		面包</span><br><span class="hljs-string">    2		牛奶</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    name = models.CharField(max_length=<span class="hljs-number">32</span>)<br><br><br><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Fruit</span>(<span class="hljs-params">models.Model</span>):</span><br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    水果表</span><br><span class="hljs-string">    id		name</span><br><span class="hljs-string">    1		苹果</span><br><span class="hljs-string">    2		香蕉</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    name = models.CharField(max_length=<span class="hljs-number">32</span>)<br><br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!/usr/bin/env python</span><br><span class="hljs-comment"># -*-coding:utf8-*-</span><br><span class="hljs-keyword">from</span> django.db <span class="hljs-keyword">import</span> models<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Appliance</span>():<br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    家用电器表</span><br><span class="hljs-string">    id		name</span><br><span class="hljs-string">    1		冰箱</span><br><span class="hljs-string">    2		电视</span><br><span class="hljs-string">    3		洗衣机    </span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>	name = models.CharField(max_length=<span class="hljs-number">64</span>)<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Food</span>(models.Model):<br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    食物表</span><br><span class="hljs-string">    id		name</span><br><span class="hljs-string">    1		面包</span><br><span class="hljs-string">    2		牛奶</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    name = models.CharField(max_length=<span class="hljs-number">32</span>)<br><br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Fruit</span>(models.Model):<br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    水果表</span><br><span class="hljs-string">    id		name</span><br><span class="hljs-string">    1		苹果</span><br><span class="hljs-string">    2		香蕉</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    name = models.CharField(max_length=<span class="hljs-number">32</span>)<br><br></code></pre></td></tr></table></figure>
 
 <p>好了，现在我们有这么多商品，然后我们来做优惠券模型吧：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Coupon</span>(<span class="hljs-params">models.Model</span>):</span><br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    优惠券表</span><br><span class="hljs-string">    id  name    appliance_id    food_id     fruit_id</span><br><span class="hljs-string">    1   通用优惠券   null            null        null</span><br><span class="hljs-string">    2   冰箱折扣券   1               null        null</span><br><span class="hljs-string">    3   电视折扣券   2               null        null</span><br><span class="hljs-string">    4   苹果满减卷   null            null        1</span><br><span class="hljs-string">    我每增加一张表就要多增加一个字段</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    name = models.CharField(max_length=<span class="hljs-number">32</span>)<br>    table_name = models.CharField(max_length=<span class="hljs-number">32</span>)<br>    appliance = models.ForeignKey(to=<span class="hljs-string">&quot;Appliance&quot;</span>, null=<span class="hljs-literal">True</span>, blank=<span class="hljs-literal">True</span>)<br>    food = models.ForeignKey(to=<span class="hljs-string">&quot;Food&quot;</span>, null=<span class="hljs-literal">True</span>, blank=<span class="hljs-literal">True</span>)<br>    fruit = models.ForeignKey(to=<span class="hljs-string">&quot;Fruit&quot;</span>, null=<span class="hljs-literal">True</span>, blank=<span class="hljs-literal">True</span>)<br>。。。。。。<br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Coupon</span>(models.Model):<br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    优惠券表</span><br><span class="hljs-string">    id  name    appliance_id    food_id     fruit_id</span><br><span class="hljs-string">    1   通用优惠券   null            null        null</span><br><span class="hljs-string">    2   冰箱折扣券   1               null        null</span><br><span class="hljs-string">    3   电视折扣券   2               null        null</span><br><span class="hljs-string">    4   苹果满减卷   null            null        1</span><br><span class="hljs-string">    我每增加一张表就要多增加一个字段</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    name = models.CharField(max_length=<span class="hljs-number">32</span>)<br>    table_name = models.CharField(max_length=<span class="hljs-number">32</span>)<br>    appliance = models.ForeignKey(to=<span class="hljs-string">&quot;Appliance&quot;</span>, null=<span class="hljs-literal">True</span>, blank=<span class="hljs-literal">True</span>)<br>    food = models.ForeignKey(to=<span class="hljs-string">&quot;Food&quot;</span>, null=<span class="hljs-literal">True</span>, blank=<span class="hljs-literal">True</span>)<br>    fruit = models.ForeignKey(to=<span class="hljs-string">&quot;Fruit&quot;</span>, null=<span class="hljs-literal">True</span>, blank=<span class="hljs-literal">True</span>)<br>。。。。。。<br></code></pre></td></tr></table></figure>
 
 <p> 实际上我们商品的种类会特别的多，导致我们这张表外键越来越多, 现在还好，只有三种商品，如果你有300种呢？你还能设计300个外键么？</p>
 <p>有人说那我不这么设计了，我搞<code>coupon_food, coupon_fruit, coupon_xxx....</code>每种商品我都设计一个对应的优惠券模型，外键关联到对应的商品行么？–那你每个coupon表的外键倒是不多了，但是数据模型有点多（300多个呢），看得人脑瓜子嗡嗡的…</p>
 <h2 id="解决思路"><a href="#解决思路" class="headerlink" title="解决思路"></a>解决思路</h2><p>对于这个问题你看这样设计好不好</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Coupon</span>(<span class="hljs-params">models.Model</span>):</span><br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    id      title       table_id        object_id</span><br><span class="hljs-string">    1       烤肠          1               1</span><br><span class="hljs-string">    2       芒果          2               1</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    title = models.CharField(max_length=<span class="hljs-number">32</span>)<br>    <span class="hljs-comment"># 定位我们自己的表</span><br>    table = models.ForeignKey(to=<span class="hljs-string">&quot;MyTable&quot;</span>)<br>    <span class="hljs-comment"># 定位我们那张表中的哪一个商品</span><br>    object_id = models.IntegerField()<br><br><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyTable</span>(<span class="hljs-params">models.Model</span>):</span><br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    id      app_name        table_name</span><br><span class="hljs-string">    1           Demo        food</span><br><span class="hljs-string">    2           Demo        fruit</span><br><span class="hljs-string">    3           Demo        appliance</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    app_name = models.CharField(max_length=<span class="hljs-number">32</span>)<br>    table_name = models.CharField(max_length=<span class="hljs-number">32</span>)<br><br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Coupon</span>(models.Model):<br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    id      title       table_id        object_id</span><br><span class="hljs-string">    1       烤肠          1               1</span><br><span class="hljs-string">    2       芒果          2               1</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    title = models.CharField(max_length=<span class="hljs-number">32</span>)<br>    <span class="hljs-comment"># 定位我们自己的表</span><br>    table = models.ForeignKey(to=<span class="hljs-string">&quot;MyTable&quot;</span>)<br>    <span class="hljs-comment"># 定位我们那张表中的哪一个商品</span><br>    object_id = models.IntegerField()<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyTable</span>(models.Model):<br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    id      app_name        table_name</span><br><span class="hljs-string">    1           Demo        food</span><br><span class="hljs-string">    2           Demo        fruit</span><br><span class="hljs-string">    3           Demo        appliance</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    app_name = models.CharField(max_length=<span class="hljs-number">32</span>)<br>    table_name = models.CharField(max_length=<span class="hljs-number">32</span>)<br><br></code></pre></td></tr></table></figure>
 
 <ul>
 <li>我们建立一个名叫<code>MyTable</code>的模型，里面存放一个<code>app_name</code>, 以及对应<code>app_name</code>中每个<code>table_name</code>的映射关系</li>
@@ -241,10 +262,10 @@
 <p>第三步，表以及对象id绑定关系</p>
 <p><code>content_obj = GernicForeignKey(&quot;content_type&quot;, &quot;object_id&quot;)</code></p>
 <h2 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h2><h3 id="模型对象的创建"><a href="#模型对象的创建" class="headerlink" title="模型对象的创建"></a>模型对象的创建</h3><p>设立Coupon模型对象</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> django.contrib.contenttypes.models <span class="hljs-keyword">import</span> ContentType<br><span class="hljs-keyword">from</span> django.contrib.contenttypes.fields <span class="hljs-keyword">import</span> GenericForeignKey, GenericRelation<br><br><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Coupon</span>(<span class="hljs-params">models.Model</span>):</span><br>	title = model.CharField(max_length=<span class="hljs-number">32</span>)<br>	<span class="hljs-comment"># 第一步，跟ContentType表建立外键关系 目的定位表</span><br>	content_type = models.ForeignKey(to=ContentType)<br>    <span class="hljs-comment"># 第二步，定位对象id</span><br>    object_id = models.IntegerField()<br>    <span class="hljs-comment"># 第三步，给表以及对象id绑定关系</span><br>    content_obj = GenericForeignKey(<span class="hljs-string">&#x27;content_type&#x27;</span>, <span class="hljs-string">&#x27;object_id&#x27;</span>)<br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> django.contrib.contenttypes.models <span class="hljs-keyword">import</span> ContentType<br><span class="hljs-keyword">from</span> django.contrib.contenttypes.fields <span class="hljs-keyword">import</span> GenericForeignKey, GenericRelation<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Coupon</span>(models.Model):<br>	title = model.CharField(max_length=<span class="hljs-number">32</span>)<br>	<span class="hljs-comment"># 第一步，跟ContentType表建立外键关系 目的定位表</span><br>	content_type = models.ForeignKey(to=ContentType)<br>    <span class="hljs-comment"># 第二步，定位对象id</span><br>    object_id = models.IntegerField()<br>    <span class="hljs-comment"># 第三步，给表以及对象id绑定关系</span><br>    content_obj = GenericForeignKey(<span class="hljs-string">&#x27;content_type&#x27;</span>, <span class="hljs-string">&#x27;object_id&#x27;</span>)<br></code></pre></td></tr></table></figure>
 
 <p>生成反向查询字段</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Fruit</span>(<span class="hljs-params">models.Model</span>):</span><br>    name = models.CharField(max_length=<span class="hljs-number">32</span>)<br>    <span class="hljs-comment"># 只用于反向查询，不生成字段</span><br>    coupons = GenericRelation(to=<span class="hljs-string">&quot;Coupon&quot;</span>)<br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Fruit</span>(models.Model):<br>    name = models.CharField(max_length=<span class="hljs-number">32</span>)<br>    <span class="hljs-comment"># 只用于反向查询，不生成字段</span><br>    coupons = GenericRelation(to=<span class="hljs-string">&quot;Coupon&quot;</span>)<br></code></pre></td></tr></table></figure>
 
 <h3 id="为Fruit添加Coupon记录"><a href="#为Fruit添加Coupon记录" class="headerlink" title="为Fruit添加Coupon记录"></a>为Fruit添加Coupon记录</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">In [1]: ct = ContentType.objects.get(app_label=&quot;mall&quot;, model=&quot;fruit&quot;)  # 获得对应表名的对象<br><br>In [2]: fruit = Fruit.objects.create(**&#123;&quot;name&quot;: &quot;banana&quot;&#125;)  # 获得水果对象<br>Out[2]: &lt;Fruit: Fruit object&gt;<br><br>In [3]: Coupon.objects.create(title=&quot;banana 30% discount!&quot;, content_type=ct, object_id=fruit.id)  # 添加优惠券记录<br>Out[3]: &lt;Coupon: Coupon object&gt;<br></code></pre></td></tr></table></figure>
 
@@ -262,7 +283,7 @@
 <h3 id="反向查询"><a href="#反向查询" class="headerlink" title="反向查询"></a>反向查询</h3><p>即看商品绑定了哪些优惠券</p>
 <p>反向查询分两种情况： 事先没有定义<code>GenericRelation</code>和事先定义了<code>GenericRelation</code>的</p>
 <p>怕忘了回顾一下：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Food</span>(<span class="hljs-params">models.Model</span>):</span><br>    name = models.CharField(max_length=<span class="hljs-number">32</span>)<br>    <span class="hljs-comment"># 只用于反向查询，不生成字段</span><br>    coupons = GenericRelation(to=<span class="hljs-string">&quot;Coupon&quot;</span>)<br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Food</span>(models.Model):<br>    name = models.CharField(max_length=<span class="hljs-number">32</span>)<br>    <span class="hljs-comment"># 只用于反向查询，不生成字段</span><br>    coupons = GenericRelation(to=<span class="hljs-string">&quot;Coupon&quot;</span>)<br></code></pre></td></tr></table></figure>
 
 <ul>
 <li>如果没有定义反向查询字串</li>
@@ -281,6 +302,25 @@
     
     
     
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
 
       <footer class="post-footer">
           <div class="post-tags">
@@ -351,10 +391,10 @@
 
       <ul class="sidebar-nav motion-element">
         <li class="sidebar-nav-toc">
-          Table of Contents
+          文章目录
         </li>
         <li class="sidebar-nav-overview">
-          Overview
+          站点概览
         </li>
       </ul>
 
@@ -366,6 +406,8 @@
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="QinTianJun"
+      src="/images/logo.jpeg">
   <p class="site-author-name" itemprop="name">QinTianJun</p>
   <div class="site-description" itemprop="description">一个菜鸟的成长之路</div>
 </div>
@@ -375,20 +417,34 @@
           <a href="/archives/">
         
           <span class="site-state-item-count">17</span>
-          <span class="site-state-item-name">posts</span>
+          <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
+          
         <span class="site-state-item-count">7</span>
-        <span class="site-state-item-name">categories</span></a>
+        <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
         <span class="site-state-item-count">7</span>
-        <span class="site-state-item-name">tags</span>
+        <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
 </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qtj1215" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qtj1215" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:freedom1215@foxmail.com" title="E-Mail → mailto:freedom1215@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i></a>
+      </span>
+  </div>
 
 
 
@@ -417,7 +473,7 @@
   </span>
   <span class="author" itemprop="copyrightHolder">QinTianJun</span>
 </div>
-  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
 
         
@@ -443,7 +499,7 @@
 <script src="/js/motion.js"></script>
 
 
-<script src="/js/schemes/muse.js"></script>
+<script src="/js/schemes/pisces.js"></script>
 
 
 <script src="/js/next-boot.js"></script>

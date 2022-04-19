@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN,en,default">
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
@@ -17,7 +17,7 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"www.qintianjun.top","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"www.qintianjun.top","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
   <meta name="description" content="Django Rest Framework 学习笔记">
@@ -26,7 +26,7 @@
 <meta property="og:url" content="http://www.qintianjun.top/2021/06/13/DRF%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8B%E9%A2%91%E7%8E%87%E9%99%90%E5%88%B6/index.html">
 <meta property="og:site_name" content="Freedom_ATX Blog">
 <meta property="og:description" content="Django Rest Framework 学习笔记">
-<meta property="og:locale" content="en_US">
+<meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/image-20200405225038890.png">
 <meta property="og:image" content="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/image-20200405201502560.png">
 <meta property="og:image" content="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/image-20200405224121185.png">
@@ -35,7 +35,7 @@
 <meta property="og:image" content="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/image-20200406174839645.png">
 <meta property="og:image" content="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/image-20200406212111927.png">
 <meta property="article:published_time" content="2021-06-13T15:16:34.000Z">
-<meta property="article:modified_time" content="2021-06-14T13:45:55.486Z">
+<meta property="article:modified_time" content="2022-04-19T12:53:46.845Z">
 <meta property="article:author" content="QinTianJun">
 <meta property="article:tag" content="Python">
 <meta property="article:tag" content="Django">
@@ -52,7 +52,7 @@
     sidebar: "",
     isHome : false,
     isPost : true,
-    lang   : 'en'
+    lang   : 'zh-CN'
   };
 </script>
 
@@ -87,6 +87,7 @@
   </style>
 </noscript>
 
+<link rel="alternate" href="/atom.xml" title="Freedom_ATX Blog" type="application/atom+xml">
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
@@ -96,7 +97,7 @@
     <header class="header" itemscope itemtype="http://schema.org/WPHeader">
       <div class="header-inner"><div class="site-brand-container">
   <div class="site-nav-toggle">
-    <div class="toggle" aria-label="Toggle navigation bar">
+    <div class="toggle" aria-label="切换导航栏">
       <span class="toggle-line toggle-line-first"></span>
       <span class="toggle-line toggle-line-middle"></span>
       <span class="toggle-line toggle-line-last"></span>
@@ -125,12 +126,27 @@
   <ul id="menu" class="main-menu menu">
         <li class="menu-item menu-item-home">
 
-    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
 
   </li>
   </ul>
@@ -160,11 +176,11 @@
     
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://www.qintianjun.top/2021/06/13/DRF%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8B%E9%A2%91%E7%8E%87%E9%99%90%E5%88%B6/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/logo.jpeg">
       <meta itemprop="name" content="QinTianJun">
       <meta itemprop="description" content="一个菜鸟的成长之路">
     </span>
@@ -182,26 +198,26 @@
               <span class="post-meta-item-icon">
                 <i class="far fa-calendar"></i>
               </span>
-              <span class="post-meta-item-text">Posted on</span>
+              <span class="post-meta-item-text">发表于</span>
 
-              <time title="Created: 2021-06-13 23:16:34" itemprop="dateCreated datePublished" datetime="2021-06-13T23:16:34+08:00">2021-06-13</time>
+              <time title="创建时间：2021-06-13 23:16:34" itemprop="dateCreated datePublished" datetime="2021-06-13T23:16:34+08:00">2021-06-13</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-06-14 21:45:55" itemprop="dateModified" datetime="2021-06-14T21:45:55+08:00">2021-06-14</time>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-04-19 20:53:46" itemprop="dateModified" datetime="2022-04-19T20:53:46+08:00">2022-04-19</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
               </span>
-              <span class="post-meta-item-text">In</span>
+              <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
                 </span>
-                  , 
+                  ，
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/Python/Django/" itemprop="url" rel="index"><span itemprop="name">Django</span></a>
                 </span>
@@ -218,8 +234,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>[TOC]</p>
-<h1 id="频率限制组件"><a href="#频率限制组件" class="headerlink" title="频率限制组件"></a>频率限制组件</h1><h2 id="频率控制原理"><a href="#频率控制原理" class="headerlink" title="频率控制原理"></a>频率控制原理</h2><p>以IP地址做限流，基本实现原理如下：</p>
+        <h1 id="频率限制组件"><a href="#频率限制组件" class="headerlink" title="频率限制组件"></a>频率限制组件</h1><h2 id="频率控制原理"><a href="#频率控制原理" class="headerlink" title="频率控制原理"></a>频率控制原理</h2><p>以IP地址做限流，基本实现原理如下：</p>
 <ul>
 <li>维护一个访问列表{IP: [time2, time1]}</li>
 <li>判断IP是否在我们的访问列表里</li>
@@ -229,49 +244,49 @@
 <li>判断列表长度是否是限制次数之内</li>
 </ul>
 <h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><p>在APIView类内，调用<code>self.initial()</code>方法，在它的里面调用频率控制方法： <code>self.check_throttles(request)</code>进行频率控制:</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">check_throttles</span>(<span class="hljs-params">self, request</span>):</span><br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    Check if request should be throttled.</span><br><span class="hljs-string">    Raises an appropriate exception if the request is throttled.</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    throttle_durations = []<br>    <span class="hljs-comment"># throttle 是我们在drf中配置的每一个频率控制类的实例化对象</span><br>    <span class="hljs-keyword">for</span> throttle <span class="hljs-keyword">in</span> self.get_throttles():<br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> throttle.allow_request(request, self):<br>            throttle_durations.append(throttle.wait())<br>    .......<br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">check_throttles</span>(<span class="hljs-params">self, request</span>):<br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    Check if request should be throttled.</span><br><span class="hljs-string">    Raises an appropriate exception if the request is throttled.</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    throttle_durations = []<br>    <span class="hljs-comment"># throttle 是我们在drf中配置的每一个频率控制类的实例化对象</span><br>    <span class="hljs-keyword">for</span> throttle <span class="hljs-keyword">in</span> self.get_throttles():<br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> throttle.allow_request(request, self):<br>            throttle_durations.append(throttle.wait())<br>    .......<br></code></pre></td></tr></table></figure>
 
 <p>可以看到函数从<code>self.get_throttles()</code>中获取throttle对象</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_throttles</span>(<span class="hljs-params">self</span>):</span><br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    Instantiates and returns the list of throttles that this view uses.</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    <span class="hljs-comment"># 我们在drf中配置的频率控制类的实例化对象组成的列表，返回到  check_throttle中</span><br>    <span class="hljs-keyword">return</span> [throttle() <span class="hljs-keyword">for</span> throttle <span class="hljs-keyword">in</span> self.throttle_classes]<br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_throttles</span>(<span class="hljs-params">self</span>):<br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    Instantiates and returns the list of throttles that this view uses.</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    <span class="hljs-comment"># 我们在drf中配置的频率控制类的实例化对象组成的列表，返回到  check_throttle中</span><br>    <span class="hljs-keyword">return</span> [throttle() <span class="hljs-keyword">for</span> throttle <span class="hljs-keyword">in</span> self.throttle_classes]<br></code></pre></td></tr></table></figure>
 
 <p>再回到<code>check_throttle</code>中, 调用了<code>throttle.allow_request(request, self)</code>方法用于判断是否触发频率限制，<em><strong>所以这个<code>allow_request</code>方法需要我们自己实现</strong></em></p>
 <p>接下来<code>check_throttle()</code>函数执行了如下的语句：</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> throttle.allow_request(request, self):<br>    <span class="hljs-comment"># 当触发了频率限制的时候调用了throttle.wait()方法</span><br>	throttle_durations.append(throttle.wait())<br></code></pre></td></tr></table></figure>
 
 <p>进入<code>throttle.wait()</code>方法</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">wait</span>(<span class="hljs-params">self</span>):</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">Optionally, return a recommended number of seconds to wait before</span><br><span class="hljs-string">the next request.</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">None</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">wait</span>(<span class="hljs-params">self</span>):<br><span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">Optionally, return a recommended number of seconds to wait before</span><br><span class="hljs-string">the next request.</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">None</span><br></code></pre></td></tr></table></figure>
 
 <p>看来，<em><strong>这个<code>wait()</code>方法也需要我们手动实现</strong></em>，返回一个希望下一个请求等待的时间</p>
 <h2 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h2><p>实现自己的throttle：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!/usr/bin/env python</span><br><span class="hljs-comment"># -*-coding:utf8-*-</span><br><span class="hljs-keyword">import</span> time<br><br><span class="hljs-keyword">from</span> rest_framework <span class="hljs-keyword">import</span> throttling<br><br><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyThrottle</span>(<span class="hljs-params">throttling.BaseThrottle</span>):</span><br>    VisitRecord = &#123;&#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span>(<span class="hljs-params">self</span>):</span><br>        self.history = <span class="hljs-string">&quot;&quot;</span><br><br>    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">allow_request</span>(<span class="hljs-params">self, request, view</span>):</span><br>        <span class="hljs-comment"># 做频率限流</span><br>        ip = request.META.get(<span class="hljs-string">&quot;REMOTE_ADDR&quot;</span>)<br>        now = time.time()<br>        <span class="hljs-keyword">if</span> ip <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> self.VisitRecord:<br>            self.VisitRecord[ip] = [now, ]<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">True</span><br>        history = self.VisitRecord[ip]<br>        self.history = history<br>        history.insert(<span class="hljs-number">0</span>, now)<br>        <span class="hljs-keyword">while</span> history <span class="hljs-keyword">and</span> history[<span class="hljs-number">0</span>] - history[-<span class="hljs-number">1</span>] &gt; <span class="hljs-number">60</span>:<br>            history.pop()<br>        <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(history) &gt; <span class="hljs-number">3</span>:<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">False</span><br>        <span class="hljs-keyword">else</span>:<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">True</span><br><br>    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">wait</span>(<span class="hljs-params">self</span>):</span><br>        <span class="hljs-comment"># 还有多久才能访问</span><br>        <span class="hljs-comment"># old + 60 - now</span><br>        <span class="hljs-keyword">return</span> self.history[-<span class="hljs-number">1</span>] + <span class="hljs-number">60</span> - self.history[<span class="hljs-number">0</span>]<br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!/usr/bin/env python</span><br><span class="hljs-comment"># -*-coding:utf8-*-</span><br><span class="hljs-keyword">import</span> time<br><br><span class="hljs-keyword">from</span> rest_framework <span class="hljs-keyword">import</span> throttling<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyThrottle</span>(throttling.BaseThrottle):<br>    VisitRecord = &#123;&#125;<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):<br>        self.history = <span class="hljs-string">&quot;&quot;</span><br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">allow_request</span>(<span class="hljs-params">self, request, view</span>):<br>        <span class="hljs-comment"># 做频率限流</span><br>        ip = request.META.get(<span class="hljs-string">&quot;REMOTE_ADDR&quot;</span>)<br>        now = time.time()<br>        <span class="hljs-keyword">if</span> ip <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> self.VisitRecord:<br>            self.VisitRecord[ip] = [now, ]<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">True</span><br>        history = self.VisitRecord[ip]<br>        self.history = history<br>        history.insert(<span class="hljs-number">0</span>, now)<br>        <span class="hljs-keyword">while</span> history <span class="hljs-keyword">and</span> history[<span class="hljs-number">0</span>] - history[-<span class="hljs-number">1</span>] &gt; <span class="hljs-number">60</span>:<br>            history.pop()<br>        <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(history) &gt; <span class="hljs-number">3</span>:<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">False</span><br>        <span class="hljs-keyword">else</span>:<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">True</span><br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">wait</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-comment"># 还有多久才能访问</span><br>        <span class="hljs-comment"># old + 60 - now</span><br>        <span class="hljs-keyword">return</span> self.history[-<span class="hljs-number">1</span>] + <span class="hljs-number">60</span> - self.history[<span class="hljs-number">0</span>]<br></code></pre></td></tr></table></figure>
 
-<h2 id="drf已有方法解析"><a href="#drf已有方法解析" class="headerlink" title="drf已有方法解析"></a>drf已有方法解析</h2><h3 id="SimpleRateThrottle-BaseThrottle"><a href="#SimpleRateThrottle-BaseThrottle" class="headerlink" title="SimpleRateThrottle(BaseThrottle)"></a>SimpleRateThrottle(BaseThrottle)</h3><h4 id="代码解析"><a href="#代码解析" class="headerlink" title="代码解析"></a>代码解析</h4><figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span>(<span class="hljs-params">self</span>):</span><br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> <span class="hljs-built_in">getattr</span>(self, <span class="hljs-string">&#x27;rate&#x27;</span>, <span class="hljs-literal">None</span>):<br>        self.rate = self.get_rate()<br>        self.num_requests, self.duration = self.parse_rate(self.rate)<br></code></pre></td></tr></table></figure>
+<h2 id="drf已有方法解析"><a href="#drf已有方法解析" class="headerlink" title="drf已有方法解析"></a>drf已有方法解析</h2><h3 id="SimpleRateThrottle-BaseThrottle"><a href="#SimpleRateThrottle-BaseThrottle" class="headerlink" title="SimpleRateThrottle(BaseThrottle)"></a>SimpleRateThrottle(BaseThrottle)</h3><h4 id="代码解析"><a href="#代码解析" class="headerlink" title="代码解析"></a>代码解析</h4><figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):<br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> <span class="hljs-built_in">getattr</span>(self, <span class="hljs-string">&#x27;rate&#x27;</span>, <span class="hljs-literal">None</span>):<br>        self.rate = self.get_rate()<br>        self.num_requests, self.duration = self.parse_rate(self.rate)<br></code></pre></td></tr></table></figure>
 
 <p>调<code>get_rate()</code>函数来获取rate值，<code>get_rate()</code>函数：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_rate</span>():</span><br>....<br><span class="hljs-keyword">try</span>:<br>	<span class="hljs-keyword">return</span> self.THROTTLE_RATES[self.scope]<br><span class="hljs-keyword">except</span> KeyError:<br>	msg = <span class="hljs-string">&quot;No default throttle rate set for &#x27;%s&#x27; scope&quot;</span> % self.scope<br>    <span class="hljs-keyword">raise</span> ImproperlyConfigured(msg)<br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_rate</span>():<br>....<br><span class="hljs-keyword">try</span>:<br>	<span class="hljs-keyword">return</span> self.THROTTLE_RATES[self.scope]<br><span class="hljs-keyword">except</span> KeyError:<br>	msg = <span class="hljs-string">&quot;No default throttle rate set for &#x27;%s&#x27; scope&quot;</span> % self.scope<br>    <span class="hljs-keyword">raise</span> ImproperlyConfigured(msg)<br></code></pre></td></tr></table></figure>
 
 <p>可以看到它去THROTTLE_RATE中找对应rate值，那这个THROTTLE_RATE究竟是什么呢: <code>THROTTLE_RATES = api_settings.DEFAULT_THROTTLE_RATES</code>，原来它就是从我们用户的配置中读取预先设置好的数据, <em><strong>所以要使用drf这个内建的SimpleRateThrottle类, 首先必须在settings中设置好DEFAULT_THROTTLE_RATES</strong></em></p>
 <p>可以看出DEFAULT_THROTTLE_RATES对应为一个字典，字典里应该放啥呢？接着往下走到<code>parse_rate()</code>方法：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">parse_rate</span>(<span class="hljs-params">self, rate</span>):</span><br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    Given the request rate string, return a two tuple of:</span><br><span class="hljs-string">    &lt;allowed number of requests&gt;, &lt;period of time in seconds&gt;</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    <span class="hljs-keyword">if</span> rate <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<br>        <span class="hljs-keyword">return</span> (<span class="hljs-literal">None</span>, <span class="hljs-literal">None</span>)<br>    num, period = rate.split(<span class="hljs-string">&#x27;/&#x27;</span>)<br>    num_requests = <span class="hljs-built_in">int</span>(num)<br>    duration = &#123;<span class="hljs-string">&#x27;s&#x27;</span>: <span class="hljs-number">1</span>, <span class="hljs-string">&#x27;m&#x27;</span>: <span class="hljs-number">60</span>, <span class="hljs-string">&#x27;h&#x27;</span>: <span class="hljs-number">3600</span>, <span class="hljs-string">&#x27;d&#x27;</span>: <span class="hljs-number">86400</span>&#125;[period[<span class="hljs-number">0</span>]]<br>    <span class="hljs-keyword">return</span> (num_requests, duration)<br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">parse_rate</span>(<span class="hljs-params">self, rate</span>):<br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    Given the request rate string, return a two tuple of:</span><br><span class="hljs-string">    &lt;allowed number of requests&gt;, &lt;period of time in seconds&gt;</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    <span class="hljs-keyword">if</span> rate <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<br>        <span class="hljs-keyword">return</span> (<span class="hljs-literal">None</span>, <span class="hljs-literal">None</span>)<br>    num, period = rate.split(<span class="hljs-string">&#x27;/&#x27;</span>)<br>    num_requests = <span class="hljs-built_in">int</span>(num)<br>    duration = &#123;<span class="hljs-string">&#x27;s&#x27;</span>: <span class="hljs-number">1</span>, <span class="hljs-string">&#x27;m&#x27;</span>: <span class="hljs-number">60</span>, <span class="hljs-string">&#x27;h&#x27;</span>: <span class="hljs-number">3600</span>, <span class="hljs-string">&#x27;d&#x27;</span>: <span class="hljs-number">86400</span>&#125;[period[<span class="hljs-number">0</span>]]<br>    <span class="hljs-keyword">return</span> (num_requests, duration)<br></code></pre></td></tr></table></figure>
 
 <p>可以看出DEFAULT_THROTTLE_RATES要求的字典里是这样的格式：</p>
 <ul>
-<li>需要包含s/m/h/d中的一种，分别代秒/分钟/小时/天</li>
-<li>以类似2/m这种形式展示，表示1分钟2次</li>
+<li>需要包含s&#x2F;m&#x2F;h&#x2F;d中的一种，分别代秒&#x2F;分钟&#x2F;小时&#x2F;天</li>
+<li>以类似2&#x2F;m这种形式展示，表示1分钟2次</li>
 </ul>
 <p><code>get_parse()</code>方法的返回值是一个(次数，周期)组成的元组</p>
 <p>综上所述，<em><strong>SimpleRate的配置方法如下</strong></em></p>
-<h4 id="配置方法"><a href="#配置方法" class="headerlink" title="配置方法"></a>配置方法</h4><figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ThrottleUseSimpleThrottle</span>(<span class="hljs-params">throttling.SimpleRateThrottle</span>):</span><br>    scope = <span class="hljs-string">&quot;WD&quot;</span><br><br>    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_cache_key</span>(<span class="hljs-params">self, request, view</span>):</span><br>        <span class="hljs-comment"># 返回值应为IP</span><br>        <span class="hljs-keyword">return</span> self.get_ident(request)  <span class="hljs-comment"># 调用BaseThrottle类的方法，获取对应请求IP</span><br></code></pre></td></tr></table></figure>
+<h4 id="配置方法"><a href="#配置方法" class="headerlink" title="配置方法"></a>配置方法</h4><figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">ThrottleUseSimpleThrottle</span>(throttling.SimpleRateThrottle):<br>    scope = <span class="hljs-string">&quot;WD&quot;</span><br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">get_cache_key</span>(<span class="hljs-params">self, request, view</span>):<br>        <span class="hljs-comment"># 返回值应为IP</span><br>        <span class="hljs-keyword">return</span> self.get_ident(request)  <span class="hljs-comment"># 调用BaseThrottle类的方法，获取对应请求IP</span><br></code></pre></td></tr></table></figure>
 
 <ul>
 <li>集成<code>throttling.SimpleRateThrottle</code>类，实现<code>get_cache_key()</code>方法， 设置一个scope名称</li>
 </ul>
-<figure class="highlight 1c"><table><tr><td class="code"><pre><code class="hljs 1c"><span class="hljs-string">&quot;DEFAULT_THROTTLE_RATES&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;WD&quot;</span>: <span class="hljs-string">&quot;3/m&quot;</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="code"><pre><code class="hljs json"><span class="hljs-attr">&quot;DEFAULT_THROTTLE_RATES&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;WD&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;3/m&quot;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
 
 <ul>
 <li>在<code>settings.py</code>中设置一个字典DEFAULT_THROTTLE_RATES，其为一个字典，里面包含了之前设置的scope名称，对应一个频率限制值</li>
 </ul>
-<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestView</span>(<span class="hljs-params">APIView</span>):</span><br>    throttle_classes = [ThrottleUseSimpleThrottle, ]<br><br>    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get</span>(<span class="hljs-params">self, request</span>):</span><br>        <span class="hljs-keyword">return</span> Response(<span class="hljs-string">&quot;throttle test api.&quot;</span>)<br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">TestView</span>(<span class="hljs-title class_ inherited__">APIView</span>):<br>    throttle_classes = [ThrottleUseSimpleThrottle, ]<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">get</span>(<span class="hljs-params">self, request</span>):<br>        <span class="hljs-keyword">return</span> Response(<span class="hljs-string">&quot;throttle test api.&quot;</span>)<br></code></pre></td></tr></table></figure>
 
 <ul>
 <li>在对应cbv中使用</li>
@@ -280,35 +295,35 @@
 <p><img src="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/image-20200405225038890.png" alt="image-20200405201437410"></p>
 <p>当超过频率限制时</p>
 <p><img src="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/image-20200405201502560.png" alt="image-20200405201502560"></p>
-<p>​    </p>
+<p>​	</p>
 <h1 id="分页器"><a href="#分页器" class="headerlink" title="分页器"></a>分页器</h1><h2 id="PageNumberPagination"><a href="#PageNumberPagination" class="headerlink" title="PageNumberPagination"></a>PageNumberPagination</h2><h3 id="源码解析"><a href="#源码解析" class="headerlink" title="源码解析"></a>源码解析</h3><p>分页器可以对对请求的结果做分页操作，主要是由drf的<code>PageNumberPagination</code>类实现的，怎么配看源码：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PageNumberPagination</span>(<span class="hljs-params">BasePagination</span>):</span><br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    A simple page number based style that supports page numbers as</span><br><span class="hljs-string">    query parameters. For example:</span><br><span class="hljs-string"></span><br><span class="hljs-string">    http://api.example.org/accounts/?page=4</span><br><span class="hljs-string">    http://api.example.org/accounts/?page=4&amp;page_size=100</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    page_size = api_settings.PAGE_SIZE  <span class="hljs-comment"># 老样子，看到api_settings就知道又从settings.py读取配置了</span><br><br>    django_paginator_class = DjangoPaginator<br><br>    page_query_param = <span class="hljs-string">&#x27;page&#x27;</span>  <span class="hljs-comment"># 可以设定用于分页的参数，默认是page(url中page=xxx的形式)</span><br>    page_query_description = _(<span class="hljs-string">&#x27;A page number within the paginated result set.&#x27;</span>)<br><br>    page_size_query_param = <span class="hljs-literal">None</span>  <span class="hljs-comment"># 可以设置page_size默认的大小</span><br>    page_size_query_description = _(<span class="hljs-string">&#x27;Number of results to return per page.&#x27;</span>)<br><br>    max_page_size = <span class="hljs-literal">None</span>  <span class="hljs-comment"># 可以限制前端请求的最大page_size</span><br><br>    last_page_strings = (<span class="hljs-string">&#x27;last&#x27;</span>,)<br><br>    template = <span class="hljs-string">&#x27;rest_framework/pagination/numbers.html&#x27;</span><br><br>    invalid_page_message = _(<span class="hljs-string">&#x27;Invalid page.&#x27;</span>)<br>......<br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">PageNumberPagination</span>(<span class="hljs-title class_ inherited__">BasePagination</span>):<br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    A simple page number based style that supports page numbers as</span><br><span class="hljs-string">    query parameters. For example:</span><br><span class="hljs-string"></span><br><span class="hljs-string">    http://api.example.org/accounts/?page=4</span><br><span class="hljs-string">    http://api.example.org/accounts/?page=4&amp;page_size=100</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    page_size = api_settings.PAGE_SIZE  <span class="hljs-comment"># 老样子，看到api_settings就知道又从settings.py读取配置了</span><br><br>    django_paginator_class = DjangoPaginator<br><br>    page_query_param = <span class="hljs-string">&#x27;page&#x27;</span>  <span class="hljs-comment"># 可以设定用于分页的参数，默认是page(url中page=xxx的形式)</span><br>    page_query_description = _(<span class="hljs-string">&#x27;A page number within the paginated result set.&#x27;</span>)<br><br>    page_size_query_param = <span class="hljs-literal">None</span>  <span class="hljs-comment"># 可以设置page_size默认的大小</span><br>    page_size_query_description = _(<span class="hljs-string">&#x27;Number of results to return per page.&#x27;</span>)<br><br>    max_page_size = <span class="hljs-literal">None</span>  <span class="hljs-comment"># 可以限制前端请求的最大page_size</span><br><br>    last_page_strings = (<span class="hljs-string">&#x27;last&#x27;</span>,)<br><br>    template = <span class="hljs-string">&#x27;rest_framework/pagination/numbers.html&#x27;</span><br><br>    invalid_page_message = _(<span class="hljs-string">&#x27;Invalid page.&#x27;</span>)<br>......<br></code></pre></td></tr></table></figure>
 
 <p>可以看出要想用<code>PageNumberPagination</code>, 首先需要在实现一个自己的分页类，在其中包含如下设置：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> rest_framework <span class="hljs-keyword">import</span> pagination<br><br><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyPagination</span>(<span class="hljs-params">pagination.PageNumberPagination</span>):</span>  <span class="hljs-comment"># 自己的分页类需要继承PageNumberPagination</span><br>    page_size = <span class="hljs-number">1</span>  <span class="hljs-comment"># 默认page_size</span><br>    page_query_param = <span class="hljs-string">&#x27;page&#x27;</span>  <span class="hljs-comment"># 分页参数（默认page）</span><br>    max_page_size = <span class="hljs-number">4</span>  <span class="hljs-comment"># 最大允许的page_size</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> rest_framework <span class="hljs-keyword">import</span> pagination<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyPagination</span>(pagination.PageNumberPagination):  <span class="hljs-comment"># 自己的分页类需要继承PageNumberPagination</span><br>    page_size = <span class="hljs-number">1</span>  <span class="hljs-comment"># 默认page_size</span><br>    page_query_param = <span class="hljs-string">&#x27;page&#x27;</span>  <span class="hljs-comment"># 分页参数（默认page）</span><br>    max_page_size = <span class="hljs-number">4</span>  <span class="hljs-comment"># 最大允许的page_size</span><br></code></pre></td></tr></table></figure>
 
 <h3 id="在CBV中使用"><a href="#在CBV中使用" class="headerlink" title="在CBV中使用"></a>在CBV中使用</h3><p>写好这个分页类后，在CBV中引用它：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BookView</span>(<span class="hljs-params">APIView</span>):</span><br><br>    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get</span>(<span class="hljs-params">self, request</span>):</span><br>        queryset = Book.objects.<span class="hljs-built_in">all</span>()<br>        <span class="hljs-comment"># 第一步，实例化分页器对象</span><br>        paginator = MyPagination()<br>        <span class="hljs-comment"># 第二步，调用这个分页器类的分页方法paginate_queryset</span><br>        page_queryset = paginator.paginate_queryset(queryset, request)<br>        serial_obj = BookSerializer(instance=page_queryset, many=<span class="hljs-literal">True</span>)<br>        <span class="hljs-keyword">return</span> Response(status=status.HTTP_200_OK, data=serial_obj.data)<br><br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">BookView</span>(<span class="hljs-title class_ inherited__">APIView</span>):<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">get</span>(<span class="hljs-params">self, request</span>):<br>        queryset = Book.objects.<span class="hljs-built_in">all</span>()<br>        <span class="hljs-comment"># 第一步，实例化分页器对象</span><br>        paginator = MyPagination()<br>        <span class="hljs-comment"># 第二步，调用这个分页器类的分页方法paginate_queryset</span><br>        page_queryset = paginator.paginate_queryset(queryset, request)<br>        serial_obj = BookSerializer(instance=page_queryset, many=<span class="hljs-literal">True</span>)<br>        <span class="hljs-keyword">return</span> Response(status=status.HTTP_200_OK, data=serial_obj.data)<br><br></code></pre></td></tr></table></figure>
 
 <p>在浏览器中打开：</p>
 <p><img src="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/image-20200405224121185.png" alt="image-20200405224121185"></p>
-<p>这样在浏览器上通过更改请求参数page=2、page=3就可以翻页了</p>
+<p>这样在浏览器上通过更改请求参数page&#x3D;2、page&#x3D;3就可以翻页了</p>
 <p>不过这样不太完美，最好能在返回的数据中附上返回结果的总数，上一页和下一页的链接就更好了，这样在以后前后端分离的时候也会方便前端请求，怎么做看<code>PageNumberPagination</code>类源码：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_paginated_response</span>(<span class="hljs-params">self, data</span>):</span><br>    <span class="hljs-keyword">return</span> Response(OrderedDict([<br>        (<span class="hljs-string">&#x27;count&#x27;</span>, self.page.paginator.count),<br>        (<span class="hljs-string">&#x27;next&#x27;</span>, self.get_next_link()),<br>        (<span class="hljs-string">&#x27;previous&#x27;</span>, self.get_previous_link()),<br>        (<span class="hljs-string">&#x27;results&#x27;</span>, data)<br>    ]))<br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_paginated_response</span>(<span class="hljs-params">self, data</span>):<br>    <span class="hljs-keyword">return</span> Response(OrderedDict([<br>        (<span class="hljs-string">&#x27;count&#x27;</span>, self.page.paginator.count),<br>        (<span class="hljs-string">&#x27;next&#x27;</span>, self.get_next_link()),<br>        (<span class="hljs-string">&#x27;previous&#x27;</span>, self.get_previous_link()),<br>        (<span class="hljs-string">&#x27;results&#x27;</span>, data)<br>    ]))<br></code></pre></td></tr></table></figure>
 
 <p>人家已经贴心的给你写好了，返回结果是一个字典，里面有结果总数，上一页和下一页，返回结果，改一下视图中代码：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BookView</span>(<span class="hljs-params">APIView</span>):</span><br><br>    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get</span>(<span class="hljs-params">self, request</span>):</span><br>        queryset = Book.objects.<span class="hljs-built_in">all</span>()<br>        paginator = MyPagination()<br>        page_queryset = paginator.paginate_queryset(queryset, request)<br>        serial_obj = BookSerializer(instance=page_queryset, many=<span class="hljs-literal">True</span>)<br>        <span class="hljs-comment"># return Response(status=status.HTTP_200_OK, data=serial_obj.data)</span><br>        <span class="hljs-keyword">return</span> paginator.get_paginated_response(serial_obj.data)<br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">BookView</span>(<span class="hljs-title class_ inherited__">APIView</span>):<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">get</span>(<span class="hljs-params">self, request</span>):<br>        queryset = Book.objects.<span class="hljs-built_in">all</span>()<br>        paginator = MyPagination()<br>        page_queryset = paginator.paginate_queryset(queryset, request)<br>        serial_obj = BookSerializer(instance=page_queryset, many=<span class="hljs-literal">True</span>)<br>        <span class="hljs-comment"># return Response(status=status.HTTP_200_OK, data=serial_obj.data)</span><br>        <span class="hljs-keyword">return</span> paginator.get_paginated_response(serial_obj.data)<br></code></pre></td></tr></table></figure>
 
 <p><img src="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/image-20200405225221017.png" alt="image-20200405225221017"></p>
 <p>这下返回的结果中也包含上一页下一页链接了: )</p>
 <h2 id="LimitOffsetPagination"><a href="#LimitOffsetPagination" class="headerlink" title="LimitOffsetPagination"></a>LimitOffsetPagination</h2><p>采用从当前第<strong>offset</strong>页向后找<strong>limit</strong>个元素的方式分页</p>
 <h3 id="源码解析-1"><a href="#源码解析-1" class="headerlink" title="源码解析"></a>源码解析</h3><p>看<strong>LimitOffsetPagination</strong>类是怎么实现的, 开头：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LimitOffsetPagination</span>(<span class="hljs-params">BasePagination</span>):</span>  <span class="hljs-comment"># 继承自BasePagination类，BasePagination中该有的它都有</span><br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    A limit/offset based style. For example:</span><br><span class="hljs-string"></span><br><span class="hljs-string">    http://api.example.org/accounts/?limit=100</span><br><span class="hljs-string">    http://api.example.org/accounts/?offset=400&amp;limit=100</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    default_limit = api_settings.PAGE_SIZE  <span class="hljs-comment"># 老样子又去settings.py里面找我们的配置去了</span><br>    limit_query_param = <span class="hljs-string">&#x27;limit&#x27;</span>  <span class="hljs-comment"># 用于标识每页元素的参数，默认为param</span><br>    limit_query_description = _(<span class="hljs-string">&#x27;Number of results to return per page.&#x27;</span>)<br>    offset_query_param = <span class="hljs-string">&#x27;offset&#x27;</span>  <span class="hljs-comment"># 用于标识起始元素的参数，默认为offset</span><br>    offset_query_description = _(<span class="hljs-string">&#x27;The initial index from which to return the results.&#x27;</span>)<br>    max_limit = <span class="hljs-literal">None</span>  <span class="hljs-comment"># 用于标识每页最大可以获取的元素</span><br>    template = <span class="hljs-string">&#x27;rest_framework/pagination/numbers.html&#x27;</span><br>......<br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">LimitOffsetPagination</span>(<span class="hljs-title class_ inherited__">BasePagination</span>):  <span class="hljs-comment"># 继承自BasePagination类，BasePagination中该有的它都有</span><br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    A limit/offset based style. For example:</span><br><span class="hljs-string"></span><br><span class="hljs-string">    http://api.example.org/accounts/?limit=100</span><br><span class="hljs-string">    http://api.example.org/accounts/?offset=400&amp;limit=100</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    default_limit = api_settings.PAGE_SIZE  <span class="hljs-comment"># 老样子又去settings.py里面找我们的配置去了</span><br>    limit_query_param = <span class="hljs-string">&#x27;limit&#x27;</span>  <span class="hljs-comment"># 用于标识每页元素的参数，默认为param</span><br>    limit_query_description = _(<span class="hljs-string">&#x27;Number of results to return per page.&#x27;</span>)<br>    offset_query_param = <span class="hljs-string">&#x27;offset&#x27;</span>  <span class="hljs-comment"># 用于标识起始元素的参数，默认为offset</span><br>    offset_query_description = _(<span class="hljs-string">&#x27;The initial index from which to return the results.&#x27;</span>)<br>    max_limit = <span class="hljs-literal">None</span>  <span class="hljs-comment"># 用于标识每页最大可以获取的元素</span><br>    template = <span class="hljs-string">&#x27;rest_framework/pagination/numbers.html&#x27;</span><br>......<br></code></pre></td></tr></table></figure>
 
 <p>那我们在使用时也需要按照它的要求实现如下：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyLimitOffsetPagination</span>(<span class="hljs-params">pagination.LimitOffsetPagination</span>):</span><br>    default_limit = <span class="hljs-number">2</span><br>    limit_query_param = <span class="hljs-string">&#x27;limit&#x27;</span><br>    offset_query_param = <span class="hljs-string">&#x27;offset&#x27;</span><br>    max_limit = <span class="hljs-number">4</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyLimitOffsetPagination</span>(pagination.LimitOffsetPagination):<br>    default_limit = <span class="hljs-number">2</span><br>    limit_query_param = <span class="hljs-string">&#x27;limit&#x27;</span><br>    offset_query_param = <span class="hljs-string">&#x27;offset&#x27;</span><br>    max_limit = <span class="hljs-number">4</span><br></code></pre></td></tr></table></figure>
 
-<h3 id="在CBV中使用-1"><a href="#在CBV中使用-1" class="headerlink" title="在CBV中使用"></a>在CBV中使用</h3><figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> utils.pagination <span class="hljs-keyword">import</span> MyPagination, MyLimitOffsetPagination<br><br><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BookView</span>(<span class="hljs-params">APIView</span>):</span><br><br>    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get</span>(<span class="hljs-params">self, request</span>):</span><br>        queryset = Book.objects.<span class="hljs-built_in">all</span>()<br>        paginator = MyLimitOffsetPagination()<br>        page_queryset = paginator.paginate_queryset(queryset, request)<br>        serial_obj = BookSerializer(instance=page_queryset, many=<span class="hljs-literal">True</span>)<br>        <span class="hljs-keyword">return</span> paginator.get_paginated_response(serial_obj.data)<br></code></pre></td></tr></table></figure>
+<h3 id="在CBV中使用-1"><a href="#在CBV中使用-1" class="headerlink" title="在CBV中使用"></a>在CBV中使用</h3><figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> utils.pagination <span class="hljs-keyword">import</span> MyPagination, MyLimitOffsetPagination<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">BookView</span>(<span class="hljs-title class_ inherited__">APIView</span>):<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">get</span>(<span class="hljs-params">self, request</span>):<br>        queryset = Book.objects.<span class="hljs-built_in">all</span>()<br>        paginator = MyLimitOffsetPagination()<br>        page_queryset = paginator.paginate_queryset(queryset, request)<br>        serial_obj = BookSerializer(instance=page_queryset, many=<span class="hljs-literal">True</span>)<br>        <span class="hljs-keyword">return</span> paginator.get_paginated_response(serial_obj.data)<br></code></pre></td></tr></table></figure>
 
 <p>实现的效果：</p>
 <p><img src="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/image-20200406174811661.png" alt="image-20200406174811661"></p>
@@ -320,7 +335,7 @@
 <p><img src="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/image-20200406212111927.png" alt="image-20200406212111927"></p>
 <p>此时next和previous连接变成了一个加密的字符串，使访问者不可读</p>
 <p>使用以及实现的方法可以看源码，其实和前面两种差的八九不离十：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyCursorPagination</span>(<span class="hljs-params">pagination.CursorPagination</span>):</span><br>    cursor_query_param = <span class="hljs-string">&#x27;cursor&#x27;</span><br>    page_size = <span class="hljs-number">1</span><br>    ordering = <span class="hljs-string">&#x27;-id&#x27;</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyCursorPagination</span>(pagination.CursorPagination):<br>    cursor_query_param = <span class="hljs-string">&#x27;cursor&#x27;</span><br>    page_size = <span class="hljs-number">1</span><br>    ordering = <span class="hljs-string">&#x27;-id&#x27;</span><br></code></pre></td></tr></table></figure>
 
 <p>唯一注意有所不同是多了一个对返回结果排序的字段<code>ordering</code>，以及返回的结果里没有<code>count</code>字段了（本来就不想被人知道实际数据库里数据数量的）。</p>
 
@@ -329,6 +344,25 @@
     
     
     
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
 
       <footer class="post-footer">
           <div class="post-tags">
@@ -399,10 +433,10 @@
 
       <ul class="sidebar-nav motion-element">
         <li class="sidebar-nav-toc">
-          Table of Contents
+          文章目录
         </li>
         <li class="sidebar-nav-overview">
-          Overview
+          站点概览
         </li>
       </ul>
 
@@ -414,6 +448,8 @@
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="QinTianJun"
+      src="/images/logo.jpeg">
   <p class="site-author-name" itemprop="name">QinTianJun</p>
   <div class="site-description" itemprop="description">一个菜鸟的成长之路</div>
 </div>
@@ -423,20 +459,34 @@
           <a href="/archives/">
         
           <span class="site-state-item-count">17</span>
-          <span class="site-state-item-name">posts</span>
+          <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
+          
         <span class="site-state-item-count">7</span>
-        <span class="site-state-item-name">categories</span></a>
+        <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
         <span class="site-state-item-count">7</span>
-        <span class="site-state-item-name">tags</span>
+        <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
 </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qtj1215" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qtj1215" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:freedom1215@foxmail.com" title="E-Mail → mailto:freedom1215@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i></a>
+      </span>
+  </div>
 
 
 
@@ -465,7 +515,7 @@
   </span>
   <span class="author" itemprop="copyrightHolder">QinTianJun</span>
 </div>
-  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
 
         
@@ -491,7 +541,7 @@
 <script src="/js/motion.js"></script>
 
 
-<script src="/js/schemes/muse.js"></script>
+<script src="/js/schemes/pisces.js"></script>
 
 
 <script src="/js/next-boot.js"></script>
