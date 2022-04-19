@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.qintianjun.top","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="SaltStack学习笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SaltStack学习笔记-深入salt内部">
+<meta property="og:url" content="http://www.qintianjun.top/2021/07/11/SaltStack%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E6%B7%B1%E5%85%A5salt%E5%86%85%E9%83%A8/index.html">
+<meta property="og:site_name" content="Freedom_ATX Blog">
+<meta property="og:description" content="SaltStack学习笔记">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-07-11T07:29:30.000Z">
+<meta property="article:modified_time" content="2021-07-11T07:32:40.509Z">
+<meta property="article:author" content="QinTianJun">
+<meta property="article:tag" content="Ops">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://www.qintianjun.top/2021/07/11/SaltStack%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E6%B7%B1%E5%85%A5salt%E5%86%85%E9%83%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>SaltStack学习笔记-深入salt内部 | Freedom_ATX Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Freedom_ATX Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://www.qintianjun.top/2021/07/11/SaltStack%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E6%B7%B1%E5%85%A5salt%E5%86%85%E9%83%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="QinTianJun">
+      <meta itemprop="description" content="一个菜鸟的成长之路">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Freedom_ATX Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SaltStack学习笔记-深入salt内部
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-07-11 15:29:30 / Modified: 15:32:40" itemprop="dateCreated datePublished" datetime="2021-07-11T15:29:30+08:00">2021-07-11</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Ops/" itemprop="url" rel="index"><span itemprop="name">Ops</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>[TOC]</p>
+<h1 id="6-继续深入salt内部"><a href="#6-继续深入salt内部" class="headerlink" title="6 继续深入salt内部"></a>6 继续深入salt内部</h1><h2 id="6-1-salt配置"><a href="#6-1-salt配置" class="headerlink" title="6.1 salt配置"></a>6.1 salt配置</h2><p>在<code>/etc/salt</code>目录下通常会看到有master和minion文件，分别对应其配置。<br>有一些用户由于组织需要，需要将这些配置划分到更小的配置文件中。更重要的原因是Salt能够管理自身，相对于使用一个超大的配置文件来说，将它们按照需要划分到更小的、独立的、模板化的文件中更容易管理。<br>因此Master也会默认引入在<code>/etc/salt/master.d/</code>目录（Minion对应的是 minion.d目录）中以.conf为扩展名的文件。这和很多其他服务的设计一样，使用类似的目录结构。</p>
+<p>和Salt其他地方的配置格式一样，这些核心配置文件的格式必须是YAML格式的。</p>
+<h2 id="6-2-管理salt密钥"><a href="#6-2-管理salt密钥" class="headerlink" title="6.2 管理salt密钥"></a>6.2 管理salt密钥</h2><p>在<code>/etc/salt</code>目录下有一个pki目录，下面会有master/和minion目录，分别用来存放对应的公钥和私钥。</p>
+<p>minion上的<code>/etc/salt/pki/minion</code>目录下只会有3个文件:</p>
+<ul>
+<li>minion.pem minion的RSA私钥</li>
+<li>minion.pub minion的RSA公钥</li>
+<li>minion_master.pub master的RSA公钥</li>
+</ul>
+<p>master端也会将它的RSA密钥存放在<code>/etc/salt/pki/master/</code>目录下（master.pem和master.pub），同时这个目录下对应还有至少三个目录：</p>
+<ul>
+<li>minoins.pre 还未被接受的minion端RSA公钥</li>
+<li>minions 被接受的minion端RSA公钥</li>
+<li>minions_rejected 被拒绝的minion端RSA公钥</li>
+</ul>
+<h2 id="6-3-salt缓存"><a href="#6-3-salt缓存" class="headerlink" title="6.3 salt缓存"></a>6.3 salt缓存</h2><p>salt同时也维护了一个缓存目录，通常在<code>/var/cache/salt/</code>下。</p>
+<h3 id="master端任务缓存"><a href="#master端任务缓存" class="headerlink" title="master端任务缓存"></a>master端任务缓存</h3><p>你每天可能最常用的第一个缓存目录是jobs/录在默认配置中，该目录存储所有Master执行的任务数据。</p>
+<p>这个目录使用hash映射（hashmap）样式存储。hash映射样式是指每条信息（本例中是任务ID或JID）通过hash算法进行运算，然后按照hash值的全部或一部分内容创建目录或目录结构。在本例中，使用分片hash模式，使用hash值的前两个字符创建父目录，子目录以切除前两个字符后的hash内容进行创建。<br>Salt默认使用的hash类型是MD5，算法可以通过修改 Master hash type的值进行调整:<code>hash type: md5</code></p>
+<h3 id="minion端缓存的两个重要目录"><a href="#minion端缓存的两个重要目录" class="headerlink" title="minion端缓存的两个重要目录"></a>minion端缓存的两个重要目录</h3><p>minion端主要维护缓存两个目录:</p>
+<ul>
+<li>proc目录<br>这个目录主要是维护当前minion正在运行的任务数据<br>通过给minion下发一个sleep命令操作，可以非常容易地看到这个目录<figure class="highlight autoit"><table><tr><td class="code"><pre><code class="hljs autoit">salt <span class="hljs-string">&#x27;salt-minion2&#x27;</span> test.<span class="hljs-built_in">sleep</span> <span class="hljs-number">20</span> --async <span class="hljs-meta"># async参数表示异步，master端会立即返回一个jid后退出</span><br></code></pre></td></tr></table></figure>
+此时查看minion端：<figure class="highlight awk"><table><tr><td class="code"><pre><code class="hljs awk">[root@salt-minion2 minion]<span class="hljs-comment"># find . -type f -mmin -1</span><br>.<span class="hljs-regexp">/proc/</span><span class="hljs-number">20190414155119820447</span><br></code></pre></td></tr></table></figure>
+可以清楚看到任务文件被创建，执行完成后消失。</li>
+</ul>
+<ul>
+<li>extendmods目录<br>这个目录是用于存放从master上同步到minion上的用户自定义模块，在master上的<code>/srv/salt</code>创建一个_modules目录，写入如下内容：<figure class="highlight autoit"><table><tr><td class="code"><pre><code class="hljs autoit">[root<span class="hljs-symbol">@salt</span>-minion2 modules]<span class="hljs-meta"># cat mytest.py </span><br>def <span class="hljs-built_in">ping</span>():<br>  <span class="hljs-keyword">return</span> <span class="hljs-literal">True</span><br></code></pre></td></tr></table></figure>
+接下来使用命令同步模块到minion:<figure class="highlight crmsh"><table><tr><td class="code"><pre><code class="hljs crmsh">[root@salt-<span class="hljs-keyword">master</span> <span class="hljs-title">_modules</span>]<span class="hljs-comment"># salt &#x27;salt-minion2&#x27;  saltutil.sync_modules</span><br>salt-minion2:<br>    - modules.mytest  <span class="hljs-comment"># 返回同步完成</span><br></code></pre></td></tr></table></figure>
+接下来可以在minion端extmods/modules目录下看到这个文件，同时可以在master上执行自定义方法：<figure class="highlight crmsh"><table><tr><td class="code"><pre><code class="hljs crmsh">[root@salt-<span class="hljs-keyword">master</span> <span class="hljs-title">_modules</span>]<span class="hljs-comment"># salt &#x27;salt-minion2&#x27; mytest.ping</span><br>salt-minion2:<br>    <span class="hljs-literal">True</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="6-4-事件系统"><a href="#6-4-事件系统" class="headerlink" title="6.4 事件系统"></a>6.4 事件系统</h2><h3 id="6-4-1-通用事件"><a href="#6-4-1-通用事件" class="headerlink" title="6.4.1 通用事件"></a>6.4.1 通用事件</h3><p>在salt内部有一些非常通用的事件，一部分只应用在salt内部的子模块中，了解这些事件以及它们如何工作将会在构建反应器（Reactor）时非常有益。</p>
+<h4 id="salt-auth"><a href="#salt-auth" class="headerlink" title="salt/auth"></a>salt/auth</h4><p>minion会使用该事件定期完成与master的重认证，payload中包含：</p>
+<ul>
+<li>act: 指定该minion当前的状态</li>
+<li>id: 表示该minion的ID</li>
+<li>pub：指定该minion的RSA公钥</li>
+<li>result：指定该请求是否成功</li>
+</ul>
+<h4 id="salt-key"><a href="#salt-key" class="headerlink" title="salt/key"></a>salt/key</h4><p>master端发送给minion端，告诉它密钥被ACCEPT或者REJECT的状态</p>
+<ul>
+<li>id: 指定该minion的ID</li>
+<li>act: 表示该minion的新状态</li>
+</ul>
+<h4 id="salt-minion-start"><a href="#salt-minion-start" class="headerlink" title="salt/minion//start"></a>salt/minion/<minion_id>/start</h4><p>当salt-minion进程启动时,会在接收命令前做一些工作，一旦进程启动完毕可以处理任务时就会发送这个事件，这是一个老事件，可期待未来的版本移除。</p>
+<ul>
+<li>cmd: 用于告诉salt这是一个什么类型事件</li>
+<li>data: 指定salt什么时候启动</li>
+<li>id: 指定该minion的id</li>
+<li>pretag：salt内部用于产生命名空间</li>
+<li>tag: 事件标签的副本</li>
+</ul>
+<h4 id="salt-job-new"><a href="#salt-job-new" class="headerlink" title="salt/job//new"></a>salt/job/<job_id>/new</h4><p>当创建一个新任务时，将发送该时间，包含任务的元数据，payload包含：</p>
+<ul>
+<li>arg: 指定要传递给方法的参数</li>
+<li>fun: 指定要调用哪个方法</li>
+<li>jid: 指定任务的ID</li>
+<li>minions: 表示需要执行该任务的minion列表</li>
+<li>tgt：指定该任务的target</li>
+<li>tgt_type: 指定该任务的target类型</li>
+<li>user: 指定初始化该任务的用户，如果用户使用sudo,将在用户名称前增加sudo</li>
+</ul>
+<h4 id="salt-job-ret"><a href="#salt-job-ret" class="headerlink" title="salt/job//ret/"></a>salt/job/<job_id>/ret/<minion_id></h4><p>一旦minion完成了任务, 它会发送一个返回数据的事件，payload包含：</p>
+<ul>
+<li>cmd: 这是另一个告诉salt这是什么类型事件的指标</li>
+<li>func: 类似于salt/job/<job_id>/new,指定当时调用的是哪个方法</li>
+<li>func_args: 类似于之前的args, 指定传递给该方法的参数</li>
+<li>id: 指定是哪个minion返回的数据</li>
+<li>jid: 指定任务ID</li>
+<li>retcode: 指定在处理任务时进程的返回代码</li>
+<li>return：指定任务所有的返回数据，跟据执行任务的不同或长或短。</li>
+<li>success：任务是否成功完成</li>
+</ul>
+<h4 id="salt-presence-present"><a href="#salt-presence-present" class="headerlink" title="salt/presence/present"></a>salt/presence/present</h4><p>只有当master配置文件中presence_events设置为True时才会有这个事件，会定期发送包含当前连接到master上的minion列表的事件。</p>
+<ul>
+<li>present：指定当前连接到master上的minion列表</li>
+</ul>
+<h4 id="salt-presence-change"><a href="#salt-presence-change" class="headerlink" title="salt/presence/change"></a>salt/presence/change</h4><p>只有当master配置文件中presence_events设置哪位True才有这个事件，有新的minion连接到master或从master上断开连接，会发送该事件。</p>
+<ul>
+<li>new: 指定从上次出现事件起已经连接的minion列表</li>
+<li>lost: 指定从上次出现的事件起已经断开连接的minion列表</li>
+</ul>
+<h3 id="6-4-2-通用云事件"><a href="#6-4-2-通用云事件" class="headerlink" title="6.4.2 通用云事件"></a>6.4.2 通用云事件</h3><h4 id="salt-cloud-creating"><a href="#salt-cloud-creating" class="headerlink" title="salt/cloud//creating"></a>salt/cloud/<vm_name>/creating</h4><p>该事件关于虚拟机创建的，payload包含：</p>
+<ul>
+<li>name: 要创建虚拟机的名字</li>
+<li>provider：指定要应用云供应商的名字</li>
+<li>profile： 指定要使用profile的配置</li>
+</ul>
+<h4 id="salt-cloud-requesting"><a href="#salt-cloud-requesting" class="headerlink" title="salt/cloud//requesting"></a>salt/cloud/<vm_name>/requesting</h4><p>当所有用于创建虚拟机需要的信息收集后，salt clou会从云供应商处产生一个虚拟机创建完毕的请求，payload包含：</p>
+<ul>
+<li>kwargs: 指定来自于云供应商的所有参数，使用profile，用于搜集该请求的云拓扑</li>
+</ul>
+<h4 id="salt-cloud-querying"><a href="#salt-cloud-querying" class="headerlink" title="salt/cloud//querying"></a>salt/cloud/<vm_name>/querying</h4><p>云供应商开始处理创建一个虚拟机并返回 Salt Cloud能够用于指向的ID。然而，它井不返回 Salt Cloud Salt Cloud会等待虚拟机的IP地址变成可状态。有效装载中将包含如下数据：</p>
+<ul>
+<li>instance_id:指定云供应商需要知道的创建的虚拟机ID。它可能并不会对正的虚拟机名称或 Minion ID</li>
+</ul>
+<h4 id="salt-cloud-＜vm-name＞-waiting-for-ssh"><a href="#salt-cloud-＜vm-name＞-waiting-for-ssh" class="headerlink" title="salt/cloud/＜vm_name＞/waiting_for_ssh"></a>salt/cloud/＜vm_name＞/waiting_for_ssh</h4><p>当返回一个虚拟机IP地址时，并不代表虚拟机可用 Salt Cloud会等待虚拟机变成可用并且可以响应SSH连接。有效装载中将包含如下数据：</p>
+<ul>
+<li>ip_address:表示用于连接该虚拟机的主机名或IP地址。</li>
+</ul>
+<h4 id="salt-cloud-＜vm-name＞-deploying"><a href="#salt-cloud-＜vm-name＞-deploying" class="headerlink" title="salt/cloud/＜vm_name＞/deploying"></a>salt/cloud/＜vm_name＞/deploying</h4><p>虚拟机现在可以通过SSH访问（Windows WinRM）。部署（或 Windows Minion配置）会上传上去后部署脚本（或Windows安装器）会执行。有效装载中将包含如下数据。</p>
+<ul>
+<li>name:指定已经创建的虚拟机名字。</li>
+<li>kwargs:用于部署Salt到目标系统上的参数。它会是非常长的列表，有一些项部署脚本的内容）会非常长。</li>
+</ul>
+<h4 id="salt-cloud-＜vm-name＞-created"><a href="#salt-cloud-＜vm-name＞-created" class="headerlink" title="salt/cloud/＜vm_name＞/created"></a>salt/cloud/＜vm_name＞/created</h4><p>虚拟机已成功创建。这并不一定表示salt- minion进程已经可以接收连接，有可能现在还在启动阶段。此时有可能因为防火墙问题，或者其他原因导致部署脚本或 Windows安装器安装失败。如果你想等到 Minionminion/minionid＞ startscloud/＜ name＞/created标签。有效装载中将包含如下数据。</p>
+<ul>
+<li>name:指定已经创建的虚拟机名字。</li>
+<li>provider:表示使用的供应商配置的名字。 </li>
+<li>profile Profile配置的名字。</li>
+<li>instanceidMinionID不一致。</li>
+</ul>
+<h4 id="salt-cloud-＜vm-name-destorying"><a href="#salt-cloud-＜vm-name-destorying" class="headerlink" title="salt/cloud/＜vm_name/destorying"></a>salt/cloud/＜vm_name/destorying</h4><p>Salt Cloud可以产生一个请求给云供应商用来销毁一个虚拟机。每个云供应商驱动都必须支持该标签。有效装载中将包含如下数据。</p>
+<ul>
+<li>name: 指定需要销毁的虚拟机名字。</li>
+</ul>
+<h4 id="salt-cloud-＜vm-name＞-destoryed"><a href="#salt-cloud-＜vm-name＞-destoryed" class="headerlink" title="salt/cloud/＜vm_name＞/destoryed"></a>salt/cloud/＜vm_name＞/destoryed</h4><p>Salt Cloud已经销毁该虚拟机。每个云供应商驱动都必须支持该标签。有效装载中将包含女下数据。</p>
+<ul>
+<li>name: 表示刚刚完成销毁的虚拟机的名字。</li>
+</ul>
+<h3 id="6-1-3-salt-API-事件"><a href="#6-1-3-salt-API-事件" class="headerlink" title="6.1.3 salt API 事件"></a>6.1.3 salt API 事件</h3><p>Salt API是Salt内置的API守护进程，它为取代命令行方式来控制Salt提供了REST接需要注意的是 Salt APIwebhook发送自定义事件的特性。稍后将在 Salt API部分做详细描述。</p>
+<h4 id="salt-netapi"><a href="#salt-netapi" class="headerlink" title="salt/netapi/"></a>salt/netapi/<url_path></h4><p>真实的URL路径依赖于salt api的配置，通常情况下会包含一个hook-to单词来表示它是个webhook，随后跟着一个斜线及任意的命令，payload:</p>
+<ul>
+<li>data: 表示用于POST给salt API URL的自定义数据。</li>
+</ul>
+<h2 id="6-5-反应器（Reactor）"><a href="#6-5-反应器（Reactor）" class="headerlink" title="6.5 反应器（Reactor）"></a>6.5 反应器（Reactor）</h2><p>salt与其他类似的系统的一个重大区别特性是，它不仅能发送事件，而且master能够基于时间中的事件来产生新的任务，为用户提供一个构件异步和自主式的系统。</p>
+<h3 id="6-5-1-配置反应器"><a href="#6-5-1-配置反应器" class="headerlink" title="6.5.1 配置反应器"></a>6.5.1 配置反应器</h3><p>反应器是master端进程，不需要直接在master端做任何配置，事实上反应器需要监听事件总线来确定它需要执行什么。一般情况下，反应器存放在<code>/srv/reactor/</code>目录下。</p>
+<p>反应器需要在master配置文件中配置，它包含<strong>标签映射</strong>以及<strong>当发现标签时应该执行的SLS文件列表</strong>，例如:</p>
+<figure class="highlight arcade"><table><tr><td class="code"><pre><code class="hljs arcade">reactor:<br>  - <span class="hljs-string">&#x27;salt/minion/*/start/&#x27;</span>:<br>    - <span class="hljs-regexp">/srv/</span>reactor/highstate.sls<br></code></pre></td></tr></table></figure>
+<p>这是一个简单的反应器，它会等待minion完全启动并且准备接受指令时，调用highstate文件以响应。</p>
+<p>一些注意事项：</p>
+<ul>
+<li>在反应器系统中，事件标签会以glob通配方式进行解析，允许利用命令空间标签，基于来自特定minion事件的生成任务进行处理</li>
+<li>标签（tag）和sls文件列表样式的，反应器系统中有多少需要关注的标签以及一个标签对应多少sls文件并没有什么硬性限制，但反应器是顶级声明，不能在master配置文件里配置多个反应器。</li>
+</ul>
+<h3 id="6-5-2-编写反应器"><a href="#6-5-2-编写反应器" class="headerlink" title="6.5.2 编写反应器"></a>6.5.2 编写反应器</h3><p>反应器默认采用YAML格式，也允许salt支持的其他格式，反应器sls文件包含三个部分：<code>一个ID起始</code>,<code>指定方法</code>,<code>该方法的参数</code>，如下：</p>
+<figure class="highlight pf"><table><tr><td class="code"><pre><code class="hljs pf">highstate_run:  <span class="hljs-comment"># ID</span><br>  cmd.<span class="hljs-keyword">state</span>.highstate  <span class="hljs-comment"># 功能模块</span><br>    - tgt: &#123;&#123;id&#125;&#125;  <span class="hljs-comment"># 功能模块需要的参数</span><br></code></pre></td></tr></table></figure>
+
+<p>其中功能模块支持三种不同种类的方法：</p>
+<ul>
+<li>执行模块</li>
+<li>runner</li>
+<li>wheel</li>
+</ul>
+<p>使用时需要在方法名字前分别加上cmd\runner\wheel</p>
+<h3 id="6-5-3-调用执行模块"><a href="#6-5-3-调用执行模块" class="headerlink" title="6.5.3 调用执行模块"></a>6.5.3 调用执行模块</h3><p>执行模块作为salt的基础是反应器中最长用的类型。执行模块运行在minion端，需要在salt命令中指出有哪些minion作为目标(target)需要执行。这个目标对应到反应器中是<code>tgt</code>。如果不想使用默认的<code>glob</code>，需要通过<code>tgt_type</code>来声明目标类型。</p>
+<p>在反应中支持如下目标类型：</p>
+<ul>
+<li>glob</li>
+<li>pcre</li>
+<li>list</li>
+<li>grain</li>
+<li>grain_pcre</li>
+<li>pillar</li>
+<li>nodegroup</li>
+<li>range</li>
+<li>compound</li>
+</ul>
+<p>大多数执行模块需要指定参数列表，在反应器中可以通过arg或kwargs进行声明，arg参数包括需要传递给方法的参数列表，通过顺序来指定传递的位置。</p>
+<figure class="highlight haml"><table><tr><td class="code"><pre><code class="hljs haml">kilroy:<br>  cmd.cmd.run:<br>    -<span class="ruby"> <span class="hljs-symbol">tgt:</span> &#123;&#123; id &#125;&#125;</span><br><span class="ruby"></span>    -<span class="ruby"> <span class="hljs-symbol">arg:</span></span><br><span class="ruby"></span>      -<span class="ruby"> <span class="hljs-string">&#x27;touch /tmp/kilroy_was_herer&#x27;</span></span><br></code></pre></td></tr></table></figure>
+<p>kwargs参数包含一个需要传递给方法的参数名称以及对应值的字典。</p>
+<figure class="highlight haml"><table><tr><td class="code"><pre><code class="hljs haml">kilroy:<br>  cmd.cmd.run:<br>    -<span class="ruby"> <span class="hljs-symbol">tgt:</span> &#123;&#123; id &#125;&#125;</span><br><span class="ruby"></span>    -<span class="ruby"> <span class="hljs-symbol">kwarg:</span></span><br><span class="ruby"></span>      -<span class="ruby"> <span class="hljs-string">&#x27;touch /tmp/kilroy_was_herer&#x27;</span></span><br></code></pre></td></tr></table></figure>
+
+<h3 id="6-5-4-调用runner模块"><a href="#6-5-4-调用runner模块" class="headerlink" title="6.5.4 调用runner模块"></a>6.5.4 调用runner模块</h3><p>runner模块运行在master端，因此不需要指定运行目标（target）,但是arg参数和kwarg参数依然可用，使用方法和执行模块一样：</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><code class="hljs awk">webhook1:<br>  runner.http.query:<br>    - arg:<br>      - http:<span class="hljs-regexp">//</span>example.com<span class="hljs-regexp">/path/</span>to/webhook<br>webhook2:<br>  runner.http.query:<br>    - arg:<br>      - http:<span class="hljs-regexp">//</span>example.com<span class="hljs-regexp">/path/</span>toanother/webhook<br></code></pre></td></tr></table></figure>
+
+<h3 id="6-5-5-调用wheel模块"><a href="#6-5-5-调用wheel模块" class="headerlink" title="6.5.5 调用wheel模块"></a>6.5.5 调用wheel模块</h3><p>wheel模块设计用于管理master自身，因此也不需要指定运行目标。</p>
+<p>在wheel反应器中最常见的用法是接收或删除master上minion的key:</p>
+<figure class="highlight handlebars"><table><tr><td class="code"><pre><code class="hljs handlebars"><span class="xml">accept_minion:</span><br><span class="xml">  wheel.key.accept:</span><br><span class="xml">    - match: </span><span class="hljs-template-variable">&#123;&#123; <span class="hljs-name">data</span>[&#x27;name&#x27;] &#125;&#125;</span><br></code></pre></td></tr></table></figure>
+<p>使用wheel反应器时需要格外小心，尤其是接收minion key的操作。</p>
+<p>当通过python来编写反应器时要尽可能地保持简单，因为slat每次只能执行一个反应器，复杂的反应器会导致其他反应器排队等待它的返回。</p>
+<h2 id="6-6-编写更复杂的反应器"><a href="#6-6-编写更复杂的反应器" class="headerlink" title="6.6 编写更复杂的反应器"></a>6.6 编写更复杂的反应器</h2><p>salt内置了丰富的模块，在反应器系统中可以实现强大的功能。接下来我们学习反应器如何使用这些模块。</p>
+<h4 id="发送告警"><a href="#发送告警" class="headerlink" title="发送告警"></a>发送告警</h4><p>salt内置了一些模块用于对外发送告警，如smpt和http执行模块，下面我们来看一个设置简单监控的例子，它会检查minion端的磁盘使用情况，如果指定的磁盘满了，会发送一个告警。</p>
+<ul>
+<li><p>首先看看如何建立一个监控磁盘状态的监控state<br>创建<code>/srv/salt/monitor/disks.sls</code>文件并包含如下内容：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">root_device_size:</span><br>  <span class="hljs-attr">disk.status:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">/</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">maxium:</span> <span class="hljs-string">&#x27;90%&#x27;</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">onfail_in:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">event:</span> <span class="hljs-string">alert_admins_disk</span><br><br><br><span class="hljs-attr">alert_admins_disk:</span><br>  <span class="hljs-attr">event.send:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">alert/admins/disk</span><br></code></pre></td></tr></table></figure></li>
+<li><p>接下来我们在master的配置文件中映射该事件标签给反应器以及pagerduty服务的配置：</p>
+<figure class="highlight basic"><table><tr><td class="code"><pre><code class="hljs basic"><span class="hljs-symbol">739 </span>reactor:<br><span class="hljs-symbol">740 </span>  - alert/admins/disk:<br><span class="hljs-symbol">741 </span>      - /srv/reactor/disk_alert.sls<br><span class="hljs-symbol">742 </span><br><span class="hljs-symbol">743 </span>my-pagerduty-account:<br><span class="hljs-symbol">744 </span>  pagerduty.subdomain: mysubdomain<br><span class="hljs-symbol">745 </span>  pagerduty.api_key: <span class="hljs-number">1234567890</span>ABCDEF1234<br></code></pre></td></tr></table></figure></li>
+<li><p>接下来我们会创建使用pagerduty服务的事件来创建/srv/reacotr/disk_alert.sls:</p>
+<figure class="highlight basic"><table><tr><td class="code"><pre><code class="hljs basic"><span class="hljs-symbol">1 </span>  new_instance_alert:<br><span class="hljs-symbol">2 </span>    runner.pagerduty.create_event:<br><span class="hljs-symbol">3 </span>      - kwarg:<br><span class="hljs-symbol">4 </span>          description: <span class="hljs-string">&quot;Low Disk Space: &#123;&#123; id &#125;&#125;&quot;</span><br><span class="hljs-symbol">5 </span>          details: <span class="hljs-string">&quot;Salt has detected low disk space on &#123;&#123; id &#125;&#125;&quot;</span><br><span class="hljs-symbol">6 </span>          service_key: <span class="hljs-number">01234567890</span>ABCDEF0123456789abcde<br><span class="hljs-symbol">7 </span>          profile: my-pagerduty-account<br></code></pre></td></tr></table></figure>
+<p>此时，当salt检测到根设备使用率超过90%, 我们将会看到它产生alert_admins_disk事件。但我们看不到触发了disk_alert反应器，以及它会在pagerDuty中创建一个事件。</p>
+</li>
+</ul>
+<p>我们可以使用<code>salt调度器（scheduler）</code>来创建自动运行这个进程，只需在minion配置中加入如下代码块：</p>
+<figure class="highlight dts"><table><tr><td class="code"><pre><code class="hljs dts"><span class="hljs-symbol">schedule:</span><br><span class="hljs-symbol">  disk_monitoring:</span><br><span class="hljs-symbol">    function:</span> state.sls<br><span class="hljs-symbol">    seconds:</span> <span class="hljs-number">360</span><br><span class="hljs-symbol">    args:</span><br>      - monitor.disks<br></code></pre></td></tr></table></figure>
+<p>配置完毕后重启minion，minion会每6分钟执行一次minion_disks.sls。</p>
+<h2 id="6-7-使用webhook"><a href="#6-7-使用webhook" class="headerlink" title="6.7 使用webhook"></a>6.7 使用webhook</h2><p>salt API提供一个REST接口，它能够用于接收webhook,这些webhook可以转换为事件，被反应器接收。</p>
+<p>在我们接收webhok前，需要先进行salt API配置。</p>
+<ul>
+<li><p>首先需要编辑master配置以使salt API能接收口webhook:</p>
+<figure class="highlight dts"><table><tr><td class="code"><pre><code class="hljs dts"><span class="hljs-symbol">rest_chaerrypy:</span><br><span class="hljs-symbol">  port:</span> <span class="hljs-number">8080</span><br><span class="hljs-symbol">  host:</span> <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span><br><span class="hljs-symbol">  ssl_srt:</span> <span class="hljs-meta-keyword">/etc/</span>pki<span class="hljs-meta-keyword">/tls/</span>certs/localhost.crt<br><span class="hljs-symbol">  ssl_key:</span> <span class="hljs-meta-keyword">/etc/</span>pki<span class="hljs-meta-keyword">/tls/</span>certs/localhost.key<br><span class="hljs-symbol">  webhook_url:</span> /hook<br><span class="hljs-symbol">  webhook_disable_auth:</span> True<br></code></pre></td></tr></table></figure></li>
+<li><p>接下来我们可以创建事件来映射来对应我们想要执行的sls文件。添加如下内容到master的配置中：</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><code class="hljs awk">reactor:<br>  - salt<span class="hljs-regexp">/netapi/</span>hook/customevent<br>      - <span class="hljs-regexp">/srv/</span>reactor/webhook.sls<br><br></code></pre></td></tr></table></figure></li>
+</ul>
+<p>（部分内容实验有误暂时略过，待补充）</p>
+<h2 id="6-8-使用队列系统"><a href="#6-8-使用队列系统" class="headerlink" title="6.8 使用队列系统"></a>6.8 使用队列系统</h2><p>队列系统是另外一个具有发送事件能力的salt组件，它可以在反应器中使用。</p>
+<h3 id="队列如何工作"><a href="#队列如何工作" class="headerlink" title="队列如何工作"></a>队列如何工作</h3><p>从基本的层面上讲，队列是非常简单的，我们能够在队列中添加项目，能在稍后按照添加的顺序处理这些项目。依赖于所使用的队列模块，项目可能唯一也可能不唯一。</p>
+<p>在我们的例子中，我们将使用默认的 sqlite 队列模块。sqlite3内置于 Python中，因此该模块可以工作在任何基础设施中。该模块将会在数据库文件不存在时自动创建数据库文件。需要注意的是， sqlite需要项目是唯一的。如果你想使用其他模块，只需要在队列命令后添加 backend sqlite中存放的队列列表，需要使用如下命令:</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><code class="hljs routeros">＃salt-<span class="hljs-builtin-name">run</span><span class="hljs-built_in"> queue </span>list queues backend＝sqlite<br></code></pre></td></tr></table></figure>
+
+<p>队列系统通过 runner进行管理，这意味着队列数据库只能被Master访问。当然稍后我们将看到它也用于在 Minion上管理任务。</p>
+<h4 id="添加项目到队列中"><a href="#添加项目到队列中" class="headerlink" title="添加项目到队列中"></a>添加项目到队列中</h4><p>在通过队列处理之前，我们需要先添加一些项目到队列中，以便之后处理。现在我们将用一个叫作myqueue的队列，接下来的命令会添加一个项目到该队列中</p>
+<figure class="highlight crmsh"><table><tr><td class="code"><pre><code class="hljs crmsh">[root@salt-<span class="hljs-keyword">master</span> <span class="hljs-title">reactor</span>]<span class="hljs-comment"># salt-run queue.insert myqueue item1</span><br><span class="hljs-literal">True</span><br></code></pre></td></tr></table></figure>
+<p>也可以一次性添加多个项目</p>
+<figure class="highlight crmsh"><table><tr><td class="code"><pre><code class="hljs crmsh">[root@salt-<span class="hljs-keyword">master</span> <span class="hljs-title">reactor</span>]<span class="hljs-comment"># salt-run queue.insert myqueue &#x27;[&quot;item2&quot;, &quot;item3&quot;]&#x27;</span><br><span class="hljs-literal">True</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="列出队列和队列中项目"><a href="#列出队列和队列中项目" class="headerlink" title="列出队列和队列中项目"></a>列出队列和队列中项目</h4><p>下列命令列出队列：</p>
+<figure class="highlight crmsh"><table><tr><td class="code"><pre><code class="hljs crmsh">[root@salt-<span class="hljs-keyword">master</span> <span class="hljs-title">reactor</span>]<span class="hljs-comment"># salt-run queue.list_queues</span><br>- myqueue<br></code></pre></td></tr></table></figure>
+
+<p>下面命令列出队列中所有项目:</p>
+<figure class="highlight crmsh"><table><tr><td class="code"><pre><code class="hljs crmsh">[root@salt-<span class="hljs-keyword">master</span> <span class="hljs-title">reactor</span>]<span class="hljs-comment"># salt-run queue.list_items myqueue</span><br>- item1<br>- item2<br>- item3<br><br><span class="hljs-comment"># 如下命令可以列出队列中项目个数</span><br>[root@salt-<span class="hljs-keyword">master</span> <span class="hljs-title">reactor</span>]<span class="hljs-comment"># salt-run queue.list_length myqueue</span><br><span class="hljs-number">3</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="处理队列中项目"><a href="#处理队列中项目" class="headerlink" title="处理队列中项目"></a>处理队列中项目</h4><p>弹出(pop)队列中项目：</p>
+<figure class="highlight crmsh"><table><tr><td class="code"><pre><code class="hljs crmsh">[root@salt-<span class="hljs-keyword">master</span> <span class="hljs-title">reactor</span>]<span class="hljs-comment"># salt-run queue.pop myqueue</span><br>- item1<br></code></pre></td></tr></table></figure>
+
+<p>弹出队列中多个项目：</p>
+<figure class="highlight crmsh"><table><tr><td class="code"><pre><code class="hljs crmsh">[root@salt-<span class="hljs-keyword">master</span> <span class="hljs-title">reactor</span>]<span class="hljs-comment"># salt-run queue.pop myqueue 2</span><br>- item2<br>- item3<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>然而它并不能提供系统的自动化功能，如果想实现自动化，我们需要给反应器系统发送事件。下面的命令从队列中弹出一个项目并为它发送一个事件</p>
+</blockquote>
+<figure class="highlight arduino"><table><tr><td class="code"><pre><code class="hljs arduino">salt-run queue.process_queue myqueue<br>item1<br></code></pre></td></tr></table></figure>
+
+<h4 id="从队列中删除项目"><a href="#从队列中删除项目" class="headerlink" title="从队列中删除项目"></a>从队列中删除项目</h4><figure class="highlight crmsh"><table><tr><td class="code"><pre><code class="hljs crmsh">[root@salt-<span class="hljs-keyword">master</span> <span class="hljs-title">~]# salt-run</span> queue.delete myqueue item1<br><span class="hljs-literal">True</span><br>[root@salt-<span class="hljs-keyword">master</span> <span class="hljs-title">~]# salt-run</span> queue.list_items myqueue<br>- item2<br>- item3<br></code></pre></td></tr></table></figure>
+<p>也可以用列表形式一次性删除多个项目：</p>
+<figure class="highlight crmsh"><table><tr><td class="code"><pre><code class="hljs crmsh">[root@salt-<span class="hljs-keyword">master</span> <span class="hljs-title">~]# salt-run</span> queue.delete myqueue &#x27;[<span class="hljs-string">&quot;item2&quot;</span>, <span class="hljs-string">&quot;item3&quot;</span>]&#x27;<br><span class="hljs-literal">True</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="7-用highstate复合主机状态"><a href="#7-用highstate复合主机状态" class="headerlink" title="7 用highstate复合主机状态"></a>7 用highstate复合主机状态</h1><h2 id="7-1-highstate组织多个状态配置"><a href="#7-1-highstate组织多个状态配置" class="headerlink" title="7.1 highstate组织多个状态配置"></a>7.1 highstate组织多个状态配置</h2><p>之前我们都是使用state.sls模块来运行状态文件，通过单一的状态文件我们可以完成诸如Apache的部署，配置文件的下发，LAMP环境安装等等。但实际的生产环境中会存在大量的主机角色，我们需要通过拆分和复用让状态文件更加模块化。同时需要能整体性组织和管理这些模块，salt为我们提供了highstate模块让我们完成这个任务。</p>
+<h2 id="7-2-用top-sls文件管理状态文件"><a href="#7-2-用top-sls文件管理状态文件" class="headerlink" title="7.2 用top.sls文件管理状态文件"></a>7.2 用top.sls文件管理状态文件</h2><p>top.sls也可以用来在状态系统中将不同的状态定位到不同的minion中。highstate函数正是通过top.sls文件作为入口对模块和主机进行管理的，下面首先学习用highstate函数配合top.sls文件来管理状态文件。</p>
+<p>把lamp环境和Nginx代理状态配置文件整合：</p>
+<figure class="highlight gherkin"><table><tr><td class="code"><pre><code class="hljs gherkin">|<span class="hljs-string"></span><br><span class="hljs-string"></span>|<span class="hljs-string">---lamp</span><br><span class="hljs-string"></span>|<span class="hljs-string">     </span>|<span class="hljs-string">--- httpd.conf/ lamp.sls / my.cnf /php.ini</span><br><span class="hljs-string"></span>|<br>|<span class="hljs-string">--- nginx</span><br><span class="hljs-string"></span>|<span class="hljs-string">     </span>|<span class="hljs-string"> --- nginx.j2</span><br><span class="hljs-string"></span>|<br>|<span class="hljs-string">--- nginx.sls / test_vhost.conf</span><br></code></pre></td></tr></table></figure>
+
+<p>编写top.sls:</p>
+<figure class="highlight fsharp"><table><tr><td class="code"><pre><code class="hljs fsharp"><span class="hljs-keyword">base</span>:<br>  <span class="hljs-string">&quot;minion-one&quot;</span>:<br>    - nginx.nginx<br>  <span class="hljs-string">&quot;minion-two&quot;</span>:<br>    - <span class="hljs-keyword">match</span>: list<br>    - lamp.lamp<br></code></pre></td></tr></table></figure>
+
+<p>(以下略，待补充)</p>
+<h2 id="7-3-状态文件的拆分复用"><a href="#7-3-状态文件的拆分复用" class="headerlink" title="7.3 状态文件的拆分复用"></a>7.3 状态文件的拆分复用</h2><p>通过对状态文件的拆分和配置top.sls文件可以灵活地组合各种复用模块来管理minion。<br>(以下略，待补充)</p>
+<h2 id="7-4-多环境配置和管理"><a href="#7-4-多环境配置和管理" class="headerlink" title="7.4 多环境配置和管理"></a>7.4 多环境配置和管理</h2><p>前面我们通过top.sls配置文件和模块的拆分已经可以对多种状态和多组minion进行同时管理了，只需要执行一条<code>#salt state.highstate</code>就能完成base环境内所有minion的管理。前面的top.sls都会包含一个base:配置项，这个其实是salt配置文件中默认的环境目录，可以看一下/etc/salt/master中对应的部分：</p>
+<figure class="highlight vala"><table><tr><td class="code"><pre><code class="hljs vala"><span class="hljs-meta"># file_roots:</span><br><span class="hljs-meta">#   base:</span><br><span class="hljs-meta">#     - /srv/salt/</span><br><span class="hljs-meta">#   dev:</span><br><span class="hljs-meta">#     - /srv/salt/dev/services</span><br><span class="hljs-meta">#     - /srv/salt/dev/states</span><br><span class="hljs-meta">#   prod:</span><br><span class="hljs-meta">#     - /srv/salt/prod/services</span><br><span class="hljs-meta">#     - /srv/salt/prod/states</span><br><span class="hljs-meta">#</span><br><span class="hljs-meta">#file_roots:</span><br><span class="hljs-meta">#  base:</span><br><span class="hljs-meta">#    - /srv/salt</span><br><span class="hljs-meta">#</span><br></code></pre></td></tr></table></figure>
+
+<p>file_roots这个配置项指明了我们的环境目录在哪里，salt执行对应的sls状态文件都会从默认的目录去找。一般企业都会有开发环境、测试环境和生产环境。这些环境如果都放在base目录内进行管理就会比较混乱，为了区分和便于管理，可以对不同的环境配置不同的目录：</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><code class="hljs awk"><span class="hljs-comment">#   base:</span><br>     - <span class="hljs-regexp">/srv/</span>salt/<br><span class="hljs-comment">#   dev:</span><br>      - <span class="hljs-regexp">/src/</span>salt<span class="hljs-regexp">/dev/</span><br><span class="hljs-comment">#   prod:</span><br>      - <span class="hljs-regexp">/srv/</span>salt<span class="hljs-regexp">/prod/</span><br></code></pre></td></tr></table></figure>
+
+<p>重启salt-master，建立了多个环境目录后我们可以通过维护多个top.sls配置文件来管理各自的环境，也可以通过维护一个top.sls来进行管理。多个环境的top.sls在最终执行salt ‘*’ state.highstate 命令时也会合成为一个文件。</p>
+<p>举例说明：</p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><code class="hljs markdown">[root@saltmaster highstate]# vim top.sls<br><br>base:<br>  &quot;minion-one&quot;:<br><span class="hljs-bullet">    -</span> nginx<br>  &quot;minion-two&quot;:<br><span class="hljs-bullet">    -</span> match: list<br><span class="hljs-bullet">    -</span> httpd<br><span class="hljs-bullet">    -</span> php<br><span class="hljs-bullet">    -</span> mysql<br><br>dev:<br>  &quot;test-<span class="hljs-emphasis">*&quot;:</span><br><span class="hljs-emphasis">    - httpd</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">prod:</span><br><span class="hljs-emphasis">  &quot;prod-*</span>&quot;：<br><span class="hljs-bullet">    -</span> httpd<br><span class="hljs-bullet">    -</span> php<br><span class="hljs-bullet">    -</span> mysql<br></code></pre></td></tr></table></figure>
+<p>分别在file_roots: 指定目录中建立对应的状态配置模块，在/src/salt/top.sls中对所有环境的管理做统一入口，这样就可以完成不同环境的管理和隔离。</p>
+<h2 id="7-5-实践：keepalived-redis-高可用架构部署"><a href="#7-5-实践：keepalived-redis-高可用架构部署" class="headerlink" title="7.5 实践：keepalived + redis 高可用架构部署"></a>7.5 实践：keepalived + redis 高可用架构部署</h2><p>文件列表如下：</p>
+<figure class="highlight mipsasm"><table><tr><td class="code"><pre><code class="hljs mipsasm">[root@saltmaster keepalived]<span class="hljs-comment"># tree .</span><br>.<br>├── keepalived<br>│   ├── file<br>│   ├── init.sls<br>│   ├── <span class="hljs-keyword">install_keepalived.sls</span><br><span class="hljs-keyword"></span>│   ├── keepalived_conf.sls<br>│   ├── keepalived_running.sls<br>│   └── templates<br>│       ├── keepalived.conf<br>│       └── <span class="hljs-keyword">scripts</span><br><span class="hljs-keyword"></span>│           ├── redis_backup.<span class="hljs-keyword">sh</span><br><span class="hljs-keyword"></span>│           ├── redis_check.<span class="hljs-keyword">sh</span><br><span class="hljs-keyword"></span>│           ├── redis_fault.<span class="hljs-keyword">sh</span><br><span class="hljs-keyword"></span>│           ├── redis_master.<span class="hljs-keyword">sh</span><br><span class="hljs-keyword"></span>│           └── redis_stop.<span class="hljs-keyword">sh</span><br><span class="hljs-keyword"></span>├── redis<br>│   ├── file<br>│   ├── init.sls<br>│   ├── <span class="hljs-keyword">install_redis.sls</span><br><span class="hljs-keyword"></span>│   ├── redis_conf.sls<br>│   ├── redis_running.sls<br>│   └── templates<br>│       └── redis.<span class="hljs-keyword">j2</span><br><span class="hljs-keyword"></span>└── top.sls<br></code></pre></td></tr></table></figure>
+
+<p>设置master的grains,指定role、vip、redis的masterip:</p>
+<figure class="highlight csp"><table><tr><td class="code"><pre><code class="hljs csp">[root@saltmaster keepalived]# salt &quot;minion-two&quot; grains.setvals &quot;&#123;<span class="hljs-string">&#x27;role&#x27;</span>: <span class="hljs-string">&#x27;master&#x27;</span>, <span class="hljs-string">&#x27;vip&#x27;</span>: <span class="hljs-string">&#x27;192.168.58.200&#x27;</span>, <span class="hljs-string">&#x27;master_ip&#x27;</span>: <span class="hljs-string">&#x27;192.168.58.128&#x27;</span>&#125;&quot; <br>minion-two:<br>    ----------<br>    master_ip:<br>        192.168.58.128<br>    role:<br>        master<br>    vip:<br>        192.168.58.200<br></code></pre></td></tr></table></figure>
+
+<p>设置slave的grains,指定role、vip、redis的masterip:</p>
+<figure class="highlight csp"><table><tr><td class="code"><pre><code class="hljs csp">[root@saltmaster keepalived]# salt &quot;minion-one&quot; grains.setvals &quot;&#123;<span class="hljs-string">&#x27;role&#x27;</span>: <span class="hljs-string">&#x27;slave&#x27;</span>, <span class="hljs-string">&#x27;vip&#x27;</span>: <span class="hljs-string">&#x27;192.168.58.200&#x27;</span>, <span class="hljs-string">&#x27;master_ip&#x27;</span>: <span class="hljs-string">&#x27;192.168.58.128&#x27;</span>&#125;&quot;<br>minion-one:<br>    ----------<br>    master_ip:<br>        192.168.58.128<br>    role:<br>        slave<br>    vip:<br>        192.168.58.200<br></code></pre></td></tr></table></figure>
+
+<p>设置入口文件:<br>以list匹配的方式对两台主机应用对应的模块</p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><code class="hljs markdown">base:<br>  &quot;192.168.58.128,192.168.58.129&quot;:<br><span class="hljs-bullet">    -</span> match: list<br><span class="hljs-bullet">    -</span> redis<br><span class="hljs-bullet">    -</span> keepalived<br></code></pre></td></tr></table></figure>
+
+<p>部署Redis<br>安装Redis并且根据角色下发配置模板文件：<br>Redis安装入口文件</p>
+<figure class="highlight jboss-cli"><table><tr><td class="code"><pre><code class="hljs jboss-cli">[root@saltmaster redis]<span class="hljs-comment"># cat init.sls </span><br>include:<br>  - <span class="hljs-string">.install_redis</span><br>  - <span class="hljs-string">.redis_running</span><br>  - <span class="hljs-string">.redis_conf</span><br></code></pre></td></tr></table></figure>
+
+<p>Redis软件包的安装：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml">[<span class="hljs-string">root@saltmaster</span> <span class="hljs-string">redis</span>]<span class="hljs-comment"># cat install_redis.sls </span><br><span class="hljs-attr">install_redis:</span><br>  <span class="hljs-attr">pkg.installed:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">redis</span><br></code></pre></td></tr></table></figure>
+
+<p>Redis配置下发以及创建目录：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml">[<span class="hljs-string">root@saltmaster</span> <span class="hljs-string">redis</span>]<span class="hljs-comment"># cat redis_conf.sls</span><br><span class="hljs-attr">redis_conf:</span><br>  <span class="hljs-attr">file.managed:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">/etc/redis.conf</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">source:</span> <span class="hljs-string">salt://redis/templates/redis.j2</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">user:</span> <span class="hljs-string">root</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">group:</span> <span class="hljs-string">root</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">template:</span> <span class="hljs-string">jinjia</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">mode:</span> <span class="hljs-number">644</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">require:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">pkg:</span> <span class="hljs-string">install_redis</span><br><br><span class="hljs-attr">redis_dir:</span><br>  <span class="hljs-attr">cmd.run:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">mkdir</span> <span class="hljs-string">-pv</span> <span class="hljs-string">/data/redis</span> <span class="hljs-string">&amp;&amp;chown</span> <span class="hljs-string">redis.redis</span> <span class="hljs-string">/data/redis</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">unless:</span> <span class="hljs-string">test</span> <span class="hljs-string">-d</span> <span class="hljs-string">/data/redis</span><br></code></pre></td></tr></table></figure>
+
+<p>Redis服务启动控制：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml">[<span class="hljs-string">root@saltmaster</span> <span class="hljs-string">keepalived</span>]<span class="hljs-comment"># cat ../redis/redis_running.sls </span><br><span class="hljs-attr">redis_running:</span><br>  <span class="hljs-attr">service.running:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">redis</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">enable:</span> <span class="hljs-literal">True</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">require:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">pkg:</span> <span class="hljs-string">install_redis</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">watch:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">file:</span> <span class="hljs-string">redis_conf</span><br></code></pre></td></tr></table></figure>
+
+<p>部署keepalived<br>keepalived安装入口文件：</p>
+<figure class="highlight jboss-cli"><table><tr><td class="code"><pre><code class="hljs jboss-cli">[root@saltmaster keepalived]<span class="hljs-comment"># cat init.sls </span><br>include:<br>  - <span class="hljs-string">.install_keepalived</span><br>  - <span class="hljs-string">.keepalived_running</span><br>  - <span class="hljs-string">.keepalived_conf</span><br></code></pre></td></tr></table></figure>
+
+<p>keepalived软件包的安装：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml">[<span class="hljs-string">root@saltmaster</span> <span class="hljs-string">keepalived</span>]<span class="hljs-comment"># cat install_keepalived.sls </span><br><span class="hljs-attr">install_keepalived:</span><br>  <span class="hljs-attr">pkg.installed:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">keepalived</span><br></code></pre></td></tr></table></figure>
+
+<p>keepalived配置下发以及创建目录：</p>
+<figure class="highlight haml"><table><tr><td class="code"><pre><code class="hljs haml">[root@saltmaster keepalived]# vim keepalived_conf.sls <br><br>keepalived_conf:<br>  file.managed:<br>    -<span class="ruby"> <span class="hljs-symbol">name:</span>  /etc/keepalived/keepalived.conf</span><br><span class="ruby"></span>    -<span class="ruby"> <span class="hljs-symbol">source:</span> <span class="hljs-symbol">salt:</span>/<span class="hljs-regexp">/keepalived/templates</span><span class="hljs-regexp">/keepalived.conf</span></span><br><span class="hljs-regexp"><span class="ruby"></span></span>    -<span class="ruby"><span class="hljs-regexp"> user: root</span></span><br><span class="hljs-regexp"><span class="ruby"></span></span>    -<span class="ruby"><span class="hljs-regexp"> group: root</span></span><br><span class="hljs-regexp"><span class="ruby"></span></span>    -<span class="ruby"><span class="hljs-regexp"> template: jinja</span></span><br><span class="hljs-regexp"><span class="ruby"></span></span>    -<span class="ruby"><span class="hljs-regexp"> mode: 644</span></span><br><span class="hljs-regexp"><span class="ruby"></span></span>    -<span class="ruby"><span class="hljs-regexp"> require:</span></span><br><span class="hljs-regexp"><span class="ruby"></span></span>        -<span class="ruby"><span class="hljs-regexp"> pkg: install_keepalived</span></span><br><span class="hljs-regexp"><span class="ruby"></span></span>        -<span class="ruby"><span class="hljs-regexp"> cmd: scripts_dir</span></span><br><span class="hljs-regexp"><span class="ruby"></span></span><br>   scripts_dir:<br>     cmd.run:<br>       -<span class="ruby"><span class="hljs-regexp"> name: mkdir -pv /etc</span><span class="hljs-regexp">/keepalived/scripts</span><span class="hljs-regexp">/</span></span><br><span class="hljs-regexp"><span class="ruby"></span></span>       -<span class="ruby"><span class="hljs-regexp"> unless: test -d /etc</span><span class="hljs-regexp">/keepalived/scripts</span><span class="hljs-regexp">/</span></span><br><span class="hljs-regexp"><span class="ruby"></span></span><br>  &#123;% for s in [&quot;redis_backup.sh&quot;, &quot;redis_check.sh&quot;, &quot;redis_fault.sh&quot;, &quot;redis_master.sh&quot;, &quot;redis_stop.sh&quot;] %&#125;<br>  keepalived_&#123;&#123; s &#125;&#125;:<br>    file.managed:<br>      -<span class="ruby"><span class="hljs-regexp"> name: /etc</span><span class="hljs-regexp">/keepalived/scripts</span><span class="hljs-regexp">/&#123;&#123; s &#125;&#125;</span></span><br><span class="hljs-regexp"><span class="ruby"></span></span>      -<span class="ruby"><span class="hljs-regexp"> source: salt:/</span><span class="hljs-regexp">/keepalived/templates</span><span class="hljs-regexp">/scripts/</span>&#123;&#123; s &#125;&#125;</span><br><span class="ruby"></span>      -<span class="ruby"> <span class="hljs-symbol">user:</span> root</span><br><span class="ruby"></span>      -<span class="ruby"> <span class="hljs-symbol">group:</span> root</span><br><span class="ruby"></span>      -<span class="ruby"> <span class="hljs-symbol">template:</span> jinja</span><br><span class="ruby"></span>      -<span class="ruby"> <span class="hljs-symbol">mode:</span> <span class="hljs-number">755</span></span><br><span class="ruby"></span>      -<span class="ruby"> <span class="hljs-symbol">require:</span></span><br><span class="ruby"></span>          -<span class="ruby"> <span class="hljs-symbol">pkg:</span> install_keepalived</span><br><span class="ruby"></span>  &#123;% endfor %&#125;<br></code></pre></td></tr></table></figure>
+
+<p>keepalived服务启动控制:</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml">[<span class="hljs-string">root@saltmaster</span> <span class="hljs-string">keepalived</span>]<span class="hljs-comment"># cat keepalived_running.sls</span><br><span class="hljs-attr">keepalived_running:</span><br>  <span class="hljs-attr">service.running:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">keepalived</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">enable:</span> <span class="hljs-literal">True</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">require:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">pkg:</span> <span class="hljs-string">install_keepalive</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">watch:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">file:</span> <span class="hljs-string">keepalived_conf</span><br></code></pre></td></tr></table></figure>
+
+
+<h1 id="8-实战案例解析"><a href="#8-实战案例解析" class="headerlink" title="8 实战案例解析"></a>8 实战案例解析</h1><h2 id="8-1-LAMP环境搭建"><a href="#8-1-LAMP环境搭建" class="headerlink" title="8.1 LAMP环境搭建"></a>8.1 LAMP环境搭建</h2><h3 id="Apache安装配置"><a href="#Apache安装配置" class="headerlink" title="Apache安装配置"></a>Apache安装配置</h3><p>目录结构大致如下所示：</p>
+<figure class="highlight vim"><table><tr><td class="code"><pre><code class="hljs vim">[root@salt-master prod]# tree .<br>.<br>├── apache<br>│   ├── apache.sls<br>│   └── <span class="hljs-keyword">files</span><br>│       └── httpd.<span class="hljs-keyword">conf</span><br>├── mysql<br>│   ├── <span class="hljs-keyword">files</span><br>│   │   └── my.<span class="hljs-keyword">cnf</span><br>│   └── mysql.sls<br>└── php<br>    ├── <span class="hljs-keyword">files</span><br>    └── php.sls<br><br></code></pre></td></tr></table></figure>
+<p>apache.sls:</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"> <span class="hljs-attr">1 apache-install:</span><br> <span class="hljs-attr">2   pkg.installed:</span><br> <span class="hljs-attr">3     - name:</span> <span class="hljs-string">httpd</span><br> <span class="hljs-number">4</span> <br> <span class="hljs-number">5</span> <br> <span class="hljs-attr">6 apache-config:</span><br> <span class="hljs-attr">7   file.managed:</span><br> <span class="hljs-attr">8     - name:</span> <span class="hljs-string">/etc/httpd/conf/httpd.conf</span><br> <span class="hljs-attr">9     - source:</span> <span class="hljs-string">salt://apache/files/httpd.conf</span><br><span class="hljs-attr">10     - user:</span> <span class="hljs-string">root</span><br><span class="hljs-attr">11     - group:</span> <span class="hljs-string">root</span><br><span class="hljs-attr">12     - mode:</span> <span class="hljs-number">644</span><br><span class="hljs-number">13</span> <br><span class="hljs-number">14</span> <br><span class="hljs-attr">15 apache-service:</span><br><span class="hljs-attr">16   service.running:</span><br><span class="hljs-attr">17     - name:</span> <span class="hljs-string">httpd</span><br><span class="hljs-attr">18     - enable:</span> <span class="hljs-literal">True</span><br></code></pre></td></tr></table></figure>
+<p>测试：</p>
+<figure class="highlight asciidoc"><table><tr><td class="code"><pre><code class="hljs asciidoc"><span class="hljs-section">salt-minion1:</span><br><span class="hljs-section">----------</span><br><span class="hljs-code">          ID: apache-install</span><br><span class="hljs-code">    Function: pkg.installed</span><br><span class="hljs-code">        Name: httpd</span><br><span class="hljs-code">      Result: True</span><br><span class="hljs-code">     Comment: The following packages were installed/updated: httpd</span><br><span class="hljs-code">     Started: 22:17:01.328948</span><br><span class="hljs-code">    Duration: 11801.141 ms</span><br><span class="hljs-code">     Changes:   </span><br><span class="hljs-code">              ----------</span><br><span class="hljs-code">              httpd:</span><br><span class="hljs-code">                  ----------</span><br><span class="hljs-code">                  new:</span><br><span class="hljs-code">                      2.4.6-88.el7.centos</span><br><span class="hljs-section">                  old:</span><br><span class="hljs-section">----------</span><br><span class="hljs-code">          ID: apache-config</span><br><span class="hljs-code">    Function: file.managed</span><br><span class="hljs-code">        Name: /etc/httpd/conf/httpd.conf</span><br><span class="hljs-code">      Result: True</span><br><span class="hljs-code">     Comment: File /etc/httpd/conf/httpd.conf is in the correct state</span><br><span class="hljs-code">     Started: 22:17:13.141829</span><br><span class="hljs-code">    Duration: 63.056 ms</span><br><span class="hljs-section">     Changes:   </span><br><span class="hljs-section">----------</span><br><span class="hljs-code">          ID: apache-service</span><br><span class="hljs-code">    Function: service.running</span><br><span class="hljs-code">        Name: httpd</span><br><span class="hljs-code">      Result: True</span><br><span class="hljs-code">     Comment: Service httpd has been enabled, and is running</span><br><span class="hljs-code">     Started: 22:17:14.723947</span><br><span class="hljs-code">    Duration: 375.309 ms</span><br><span class="hljs-code">     Changes:   </span><br><span class="hljs-code">              ----------</span><br><span class="hljs-code">              httpd:</span><br><span class="hljs-code">                  True</span><br><br><span class="hljs-section">Summary for salt-minion1</span><br><span class="hljs-section">------------</span><br>Succeeded: 3 (changed=2)<br><span class="hljs-section">Failed:    0</span><br><span class="hljs-section">------------</span><br>Total states run:     3<br>Total run time:  12.240 s<br></code></pre></td></tr></table></figure>
+<p>apache已正确安装</p>
+<h3 id="PHP安装"><a href="#PHP安装" class="headerlink" title="PHP安装"></a>PHP安装</h3><p>同理：<br>php.sls</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"> <span class="hljs-attr">1 php-install:</span><br> <span class="hljs-attr">2   pkg.installed:</span><br> <span class="hljs-attr">3     - pkgs:</span><br> <span class="hljs-number">4</span>       <span class="hljs-bullet">-</span> <span class="hljs-string">php</span><br> <span class="hljs-number">5</span>       <span class="hljs-bullet">-</span> <span class="hljs-string">php-pdo</span><br> <span class="hljs-number">6</span>       <span class="hljs-bullet">-</span> <span class="hljs-string">php-mysql</span><br> <span class="hljs-number">7</span> <br> <span class="hljs-number">8</span> <br> <span class="hljs-attr">9 php-config:</span><br><span class="hljs-attr">10   file.managed:</span><br><span class="hljs-attr">11     - name:</span> <span class="hljs-string">/etc/php.ini</span><br><span class="hljs-attr">12     - source:</span> <span class="hljs-string">salt://php/files/php.ini</span><br><span class="hljs-attr">13     - user:</span> <span class="hljs-string">root</span><br><span class="hljs-attr">14     - group:</span> <span class="hljs-string">root</span><br><span class="hljs-attr">15     - mode:</span> <span class="hljs-number">644</span><br></code></pre></td></tr></table></figure>
+<h3 id="MySQL安装"><a href="#MySQL安装" class="headerlink" title="MySQL安装"></a>MySQL安装</h3><p>mysql.sls:</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"> <span class="hljs-attr">1 mysql-install:</span><br> <span class="hljs-attr">2   pkg.installed:</span><br> <span class="hljs-attr">3     - pkgs:</span><br> <span class="hljs-number">4</span>       <span class="hljs-bullet">-</span> <span class="hljs-string">mariadb</span><br> <span class="hljs-number">5</span>       <span class="hljs-bullet">-</span> <span class="hljs-string">mariadb-server</span><br> <span class="hljs-number">6</span>       <span class="hljs-bullet">-</span> <span class="hljs-string">mariadb-devel</span><br> <span class="hljs-number">7</span> <br> <span class="hljs-number">8</span> <br> <span class="hljs-attr">9 mysql-config:</span><br><span class="hljs-attr">10   file.managed:</span><br><span class="hljs-attr">11     - name:</span> <span class="hljs-string">/etc/my.cnf</span><br><span class="hljs-attr">12     - source:</span> <span class="hljs-string">salt://mysql/files/my.cnf</span><br><span class="hljs-attr">13     - user:</span> <span class="hljs-string">root</span><br><span class="hljs-attr">14     - group:</span> <span class="hljs-string">root</span><br><span class="hljs-attr">15     - mode:</span> <span class="hljs-number">644</span><br><span class="hljs-number">16</span> <br><span class="hljs-number">17</span> <br><span class="hljs-attr">18 mysql-service:</span><br><span class="hljs-attr">19   service.running:</span><br><span class="hljs-attr">20     - name:</span> <span class="hljs-string">mariadb</span><br><span class="hljs-attr">21     - enable:</span> <span class="hljs-literal">True</span><br></code></pre></td></tr></table></figure>
+<p>(待续)</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Ops/" rel="tag"># Ops</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/07/09/SaltStack%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E6%A6%82%E5%BF%B5%E5%8F%8A%E5%85%A5%E9%97%A8/" rel="prev" title="SaltStack学习笔记-概念及入门">
+      <i class="fa fa-chevron-left"></i> SaltStack学习笔记-概念及入门
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/04/16/K8s%E7%8E%AF%E5%A2%83%E9%83%A8%E7%BD%B2%E5%8F%8A%E5%AE%89%E8%A3%85/" rel="next" title="K8s环境部署及安装(一)">
+      K8s环境部署及安装(一) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#6-%E7%BB%A7%E7%BB%AD%E6%B7%B1%E5%85%A5salt%E5%86%85%E9%83%A8"><span class="nav-number">1.</span> <span class="nav-text">6 继续深入salt内部</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#6-1-salt%E9%85%8D%E7%BD%AE"><span class="nav-number">1.1.</span> <span class="nav-text">6.1 salt配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-2-%E7%AE%A1%E7%90%86salt%E5%AF%86%E9%92%A5"><span class="nav-number">1.2.</span> <span class="nav-text">6.2 管理salt密钥</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-3-salt%E7%BC%93%E5%AD%98"><span class="nav-number">1.3.</span> <span class="nav-text">6.3 salt缓存</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#master%E7%AB%AF%E4%BB%BB%E5%8A%A1%E7%BC%93%E5%AD%98"><span class="nav-number">1.3.1.</span> <span class="nav-text">master端任务缓存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#minion%E7%AB%AF%E7%BC%93%E5%AD%98%E7%9A%84%E4%B8%A4%E4%B8%AA%E9%87%8D%E8%A6%81%E7%9B%AE%E5%BD%95"><span class="nav-number">1.3.2.</span> <span class="nav-text">minion端缓存的两个重要目录</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-4-%E4%BA%8B%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="nav-number">1.4.</span> <span class="nav-text">6.4 事件系统</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-4-1-%E9%80%9A%E7%94%A8%E4%BA%8B%E4%BB%B6"><span class="nav-number">1.4.1.</span> <span class="nav-text">6.4.1 通用事件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#salt-auth"><span class="nav-number">1.4.1.1.</span> <span class="nav-text">salt&#x2F;auth</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#salt-key"><span class="nav-number">1.4.1.2.</span> <span class="nav-text">salt&#x2F;key</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#salt-minion-start"><span class="nav-number">1.4.1.3.</span> <span class="nav-text">salt&#x2F;minion&#x2F;&#x2F;start</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#salt-job-new"><span class="nav-number">1.4.1.4.</span> <span class="nav-text">salt&#x2F;job&#x2F;&#x2F;new</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#salt-job-ret"><span class="nav-number">1.4.1.5.</span> <span class="nav-text">salt&#x2F;job&#x2F;&#x2F;ret&#x2F;</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#salt-presence-present"><span class="nav-number">1.4.1.6.</span> <span class="nav-text">salt&#x2F;presence&#x2F;present</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#salt-presence-change"><span class="nav-number">1.4.1.7.</span> <span class="nav-text">salt&#x2F;presence&#x2F;change</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-4-2-%E9%80%9A%E7%94%A8%E4%BA%91%E4%BA%8B%E4%BB%B6"><span class="nav-number">1.4.2.</span> <span class="nav-text">6.4.2 通用云事件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#salt-cloud-creating"><span class="nav-number">1.4.2.1.</span> <span class="nav-text">salt&#x2F;cloud&#x2F;&#x2F;creating</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#salt-cloud-requesting"><span class="nav-number">1.4.2.2.</span> <span class="nav-text">salt&#x2F;cloud&#x2F;&#x2F;requesting</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#salt-cloud-querying"><span class="nav-number">1.4.2.3.</span> <span class="nav-text">salt&#x2F;cloud&#x2F;&#x2F;querying</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#salt-cloud-%EF%BC%9Cvm-name%EF%BC%9E-waiting-for-ssh"><span class="nav-number">1.4.2.4.</span> <span class="nav-text">salt&#x2F;cloud&#x2F;＜vm_name＞&#x2F;waiting_for_ssh</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#salt-cloud-%EF%BC%9Cvm-name%EF%BC%9E-deploying"><span class="nav-number">1.4.2.5.</span> <span class="nav-text">salt&#x2F;cloud&#x2F;＜vm_name＞&#x2F;deploying</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#salt-cloud-%EF%BC%9Cvm-name%EF%BC%9E-created"><span class="nav-number">1.4.2.6.</span> <span class="nav-text">salt&#x2F;cloud&#x2F;＜vm_name＞&#x2F;created</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#salt-cloud-%EF%BC%9Cvm-name-destorying"><span class="nav-number">1.4.2.7.</span> <span class="nav-text">salt&#x2F;cloud&#x2F;＜vm_name&#x2F;destorying</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#salt-cloud-%EF%BC%9Cvm-name%EF%BC%9E-destoryed"><span class="nav-number">1.4.2.8.</span> <span class="nav-text">salt&#x2F;cloud&#x2F;＜vm_name＞&#x2F;destoryed</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-3-salt-API-%E4%BA%8B%E4%BB%B6"><span class="nav-number">1.4.3.</span> <span class="nav-text">6.1.3 salt API 事件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#salt-netapi"><span class="nav-number">1.4.3.1.</span> <span class="nav-text">salt&#x2F;netapi&#x2F;</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-5-%E5%8F%8D%E5%BA%94%E5%99%A8%EF%BC%88Reactor%EF%BC%89"><span class="nav-number">1.5.</span> <span class="nav-text">6.5 反应器（Reactor）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-5-1-%E9%85%8D%E7%BD%AE%E5%8F%8D%E5%BA%94%E5%99%A8"><span class="nav-number">1.5.1.</span> <span class="nav-text">6.5.1 配置反应器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-5-2-%E7%BC%96%E5%86%99%E5%8F%8D%E5%BA%94%E5%99%A8"><span class="nav-number">1.5.2.</span> <span class="nav-text">6.5.2 编写反应器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-5-3-%E8%B0%83%E7%94%A8%E6%89%A7%E8%A1%8C%E6%A8%A1%E5%9D%97"><span class="nav-number">1.5.3.</span> <span class="nav-text">6.5.3 调用执行模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-5-4-%E8%B0%83%E7%94%A8runner%E6%A8%A1%E5%9D%97"><span class="nav-number">1.5.4.</span> <span class="nav-text">6.5.4 调用runner模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-5-5-%E8%B0%83%E7%94%A8wheel%E6%A8%A1%E5%9D%97"><span class="nav-number">1.5.5.</span> <span class="nav-text">6.5.5 调用wheel模块</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-6-%E7%BC%96%E5%86%99%E6%9B%B4%E5%A4%8D%E6%9D%82%E7%9A%84%E5%8F%8D%E5%BA%94%E5%99%A8"><span class="nav-number">1.6.</span> <span class="nav-text">6.6 编写更复杂的反应器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%91%E9%80%81%E5%91%8A%E8%AD%A6"><span class="nav-number">1.6.0.1.</span> <span class="nav-text">发送告警</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-7-%E4%BD%BF%E7%94%A8webhook"><span class="nav-number">1.7.</span> <span class="nav-text">6.7 使用webhook</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-8-%E4%BD%BF%E7%94%A8%E9%98%9F%E5%88%97%E7%B3%BB%E7%BB%9F"><span class="nav-number">1.8.</span> <span class="nav-text">6.8 使用队列系统</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%9F%E5%88%97%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C"><span class="nav-number">1.8.1.</span> <span class="nav-text">队列如何工作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E9%A1%B9%E7%9B%AE%E5%88%B0%E9%98%9F%E5%88%97%E4%B8%AD"><span class="nav-number">1.8.1.1.</span> <span class="nav-text">添加项目到队列中</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%97%E5%87%BA%E9%98%9F%E5%88%97%E5%92%8C%E9%98%9F%E5%88%97%E4%B8%AD%E9%A1%B9%E7%9B%AE"><span class="nav-number">1.8.1.2.</span> <span class="nav-text">列出队列和队列中项目</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%84%E7%90%86%E9%98%9F%E5%88%97%E4%B8%AD%E9%A1%B9%E7%9B%AE"><span class="nav-number">1.8.1.3.</span> <span class="nav-text">处理队列中项目</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%8E%E9%98%9F%E5%88%97%E4%B8%AD%E5%88%A0%E9%99%A4%E9%A1%B9%E7%9B%AE"><span class="nav-number">1.8.1.4.</span> <span class="nav-text">从队列中删除项目</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#7-%E7%94%A8highstate%E5%A4%8D%E5%90%88%E4%B8%BB%E6%9C%BA%E7%8A%B6%E6%80%81"><span class="nav-number">2.</span> <span class="nav-text">7 用highstate复合主机状态</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#7-1-highstate%E7%BB%84%E7%BB%87%E5%A4%9A%E4%B8%AA%E7%8A%B6%E6%80%81%E9%85%8D%E7%BD%AE"><span class="nav-number">2.1.</span> <span class="nav-text">7.1 highstate组织多个状态配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-2-%E7%94%A8top-sls%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86%E7%8A%B6%E6%80%81%E6%96%87%E4%BB%B6"><span class="nav-number">2.2.</span> <span class="nav-text">7.2 用top.sls文件管理状态文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-3-%E7%8A%B6%E6%80%81%E6%96%87%E4%BB%B6%E7%9A%84%E6%8B%86%E5%88%86%E5%A4%8D%E7%94%A8"><span class="nav-number">2.3.</span> <span class="nav-text">7.3 状态文件的拆分复用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-4-%E5%A4%9A%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE%E5%92%8C%E7%AE%A1%E7%90%86"><span class="nav-number">2.4.</span> <span class="nav-text">7.4 多环境配置和管理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-5-%E5%AE%9E%E8%B7%B5%EF%BC%9Akeepalived-redis-%E9%AB%98%E5%8F%AF%E7%94%A8%E6%9E%B6%E6%9E%84%E9%83%A8%E7%BD%B2"><span class="nav-number">2.5.</span> <span class="nav-text">7.5 实践：keepalived + redis 高可用架构部署</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#8-%E5%AE%9E%E6%88%98%E6%A1%88%E4%BE%8B%E8%A7%A3%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">8 实战案例解析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#8-1-LAMP%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">3.1.</span> <span class="nav-text">8.1 LAMP环境搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Apache%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE"><span class="nav-number">3.1.1.</span> <span class="nav-text">Apache安装配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PHP%E5%AE%89%E8%A3%85"><span class="nav-number">3.1.2.</span> <span class="nav-text">PHP安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MySQL%E5%AE%89%E8%A3%85"><span class="nav-number">3.1.3.</span> <span class="nav-text">MySQL安装</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">QinTianJun</p>
+  <div class="site-description" itemprop="description">一个菜鸟的成长之路</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QinTianJun</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

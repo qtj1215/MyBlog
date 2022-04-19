@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.qintianjun.top","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="PMM数据库监控工具调研">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PMM数据库监控工具调研">
+<meta property="og:url" content="http://www.qintianjun.top/2021/06/26/PMM%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9B%91%E6%8E%A7%E5%B7%A5%E5%85%B7%E8%B0%83%E7%A0%94/index.html">
+<meta property="og:site_name" content="Freedom_ATX Blog">
+<meta property="og:description" content="PMM数据库监控工具调研">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://www.ywnds.com/wp-content/uploads/2017/05/2017051706555873.png">
+<meta property="og:image" content="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/pmm/image-20200406150905561.png">
+<meta property="og:image" content="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/pmm/image-20200406150943887.png">
+<meta property="og:image" content="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/pmm/image-20200326134530370.png">
+<meta property="og:image" content="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/pmm/image-20200326135222587.png">
+<meta property="og:image" content="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/pmm/image-20200326143341547.png">
+<meta property="og:image" content="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/pmm/image-20200326143433685.png">
+<meta property="og:image" content="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/pmm/image-20200326144006820.png">
+<meta property="og:image" content="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/pmm/image-20200326143955972.png">
+<meta property="article:published_time" content="2021-06-26T02:03:51.000Z">
+<meta property="article:modified_time" content="2021-06-26T02:07:31.349Z">
+<meta property="article:author" content="QinTianJun">
+<meta property="article:tag" content="Ops">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://www.ywnds.com/wp-content/uploads/2017/05/2017051706555873.png">
+
+<link rel="canonical" href="http://www.qintianjun.top/2021/06/26/PMM%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9B%91%E6%8E%A7%E5%B7%A5%E5%85%B7%E8%B0%83%E7%A0%94/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>PMM数据库监控工具调研 | Freedom_ATX Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Freedom_ATX Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://www.qintianjun.top/2021/06/26/PMM%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9B%91%E6%8E%A7%E5%B7%A5%E5%85%B7%E8%B0%83%E7%A0%94/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="QinTianJun">
+      <meta itemprop="description" content="一个菜鸟的成长之路">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Freedom_ATX Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          PMM数据库监控工具调研
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-06-26 10:03:51 / Modified: 10:07:31" itemprop="dateCreated datePublished" datetime="2021-06-26T10:03:51+08:00">2021-06-26</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Ops/" itemprop="url" rel="index"><span itemprop="name">Ops</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>[TOC]</p>
+<h1 id="PMM数据库性能监控工具调研"><a href="#PMM数据库性能监控工具调研" class="headerlink" title="PMM数据库性能监控工具调研"></a>PMM数据库性能监控工具调研</h1><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>Percona Monitoring and Management (PMM)是一款开源的用于管理和监控MySQL和MongoDB性能的开源平台，通过PMM客户端收集到的DB监控数据用第三方软件Grafana画图展示出来。</p>
+<p>PMM提供了对MyISAM、InnoDB、TokuDB和PXC/Glarera的监控，另外也提供了Query Analytics的功能，可以检视执行了哪些SQL指令，并对执行效能较差的语法进行优化。另外在新版本还支持了MySQL复制拓扑图结构构造。Demo官网：<a target="_blank" rel="noopener" href="http://pmmdemo.percona.com/">http://pmmdemo.percona.com</a></p>
+<p>PMM针对操作系统的部份也提供了硬盘、网络、CPU和RAM的监控，特别的是它提供了Context switches、Processes和interrupts的监控，Context Switches可以看到CPU上下切换文的状况，Processes可以方便了解系统有多少程序在等待I/O。</p>
+<h2 id="架构解析"><a href="#架构解析" class="headerlink" title="架构解析"></a>架构解析</h2><p><img src="http://www.ywnds.com/wp-content/uploads/2017/05/2017051706555873.png" alt="img"></p>
+<p><strong>Server组件</strong></p>
+<p>Query Analytics(QAN)是用来搜集指令并作性能分析的，其组件分别说明如下：</p>
+<ul>
+<li><p>QAN API：作为percona-qan-agent后端储存和读取Query资料用。</p>
+</li>
+<li><p>QAN APP：提供图形化分析介面。</p>
+</li>
+</ul>
+<p>Metrics Monitor(MM)组件提供了MySQL和MongoDB历史监控信息，其组件分别说明如下：</p>
+<ul>
+<li><p>Prometheus：一个开源的服务监控系统和时间序列数据库，它连接到PMM Client上的exporter聚集DB的监控数据。</p>
+</li>
+<li><p>Consul：提供API让PMM Client可以远端替Prometheus新增、移除hosts，同时它也储存了监控的metadata。</p>
+</li>
+<li><p>Grafana：这是一个第三方Dashboard和图形构建器，用于可视化Prometheus中聚合的数据，以Web呈现。</p>
+</li>
+<li><p>Percona Dashboards：是由Percona开发的一组用于Grafana的仪表板。</p>
+</li>
+</ul>
+<p>上述的2个Web页面都能从PMM Landing Page(就是PMM首页)直接连结。</p>
+<p><strong>Client组件</strong></p>
+<ul>
+<li>ppm-admin：命令行的PMM Client管理工具，用来新增、移除监控的资料Instance。</li>
+<li>percona-qan-agent：用于搜集QAN查询效能性能资料，同时连结和传送资料给PMM Server中的QAN API。</li>
+<li>node_exporter：Prometheus exporter用于搜集一般系统信息（<a target="_blank" rel="noopener" href="https://github.com/prometheus/node_exporter%EF%BC%89%E3%80%82">https://github.com/prometheus/node_exporter）。</a></li>
+<li>mysqld_exporter：Prometheus exporter用于搜集MySQL Server的信息（<a target="_blank" rel="noopener" href="https://github.com/percona/mysqld_exporter%EF%BC%89%E3%80%82">https://github.com/percona/mysqld_exporter）。</a></li>
+<li>mongodb_exporter：Prometheus exporter用于搜集MongoDB server的信息（<a target="_blank" rel="noopener" href="https://github.com/percona/mongodb_exporter%EF%BC%89%E3%80%82">https://github.com/percona/mongodb_exporter）。</a></li>
+</ul>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><h3 id="安装准备"><a href="#安装准备" class="headerlink" title="安装准备"></a>安装准备</h3><p>PMM Server需要docker环境，所以必须先安装docker，以下以CentOS 7为例,安装Docker CE</p>
+<figure class="highlight vala"><table><tr><td class="code"><pre><code class="hljs vala">CentOS <span class="hljs-number">7</span>（使用 yum 进行安装）<br><br><span class="hljs-meta"># step 1: 安装必要的一些系统工具</span><br>sudo yum install -y yum-utils device-mapper-persistent-data lvm2<br><span class="hljs-meta"># Step 2: 添加软件源信息</span><br>sudo yum-config-manager --add-repo https:<span class="hljs-comment">//mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo</span><br><span class="hljs-meta"># Step 3: 更新并安装Docker-CE</span><br>sudo yum makecache fast<br>sudo yum -y install docker-ce<br><span class="hljs-meta"># Step 4: 开启Docker服务</span><br>sudo service docker start<br><br><span class="hljs-meta"># 注意：</span><br><span class="hljs-meta"># 官方软件源默认启用了最新的软件，您可以通过编辑软件源的方式获取各个版本的软件包。例如官方并没有将测试版本的软件源置为可用，您可以通过以下方式开启。同理可以开启各种测试版本等。</span><br><span class="hljs-meta"># vim /etc/yum.repos.d/docker-ee.repo</span><br><span class="hljs-meta">#   将[docker-ce-test]下方的enabled=0修改为enabled=1</span><br><span class="hljs-meta">#</span><br><span class="hljs-meta"># 安装指定版本的Docker-CE:</span><br><span class="hljs-meta"># Step 1: 查找Docker-CE的版本:</span><br><span class="hljs-meta"># yum list docker-ce.x86_64 --showduplicates | sort -r</span><br><span class="hljs-meta">#   Loading mirror speeds from cached hostfile</span><br><span class="hljs-meta">#   Loaded plugins: branch, fastestmirror, langpacks</span><br><span class="hljs-meta">#   docker-ce.x86_64            17.03.1.ce-1.el7.centos            docker-ce-stable</span><br><span class="hljs-meta">#   docker-ce.x86_64            17.03.1.ce-1.el7.centos            @docker-ce-stable</span><br><span class="hljs-meta">#   docker-ce.x86_64            17.03.0.ce-1.el7.centos            docker-ce-stable</span><br><span class="hljs-meta">#   Available Packages</span><br><span class="hljs-meta"># Step2: 安装指定版本的Docker-CE: (VERSION例如上面的17.03.0.ce.1-1.el7.centos)</span><br><span class="hljs-meta"># sudo yum -y install docker-ce-[VERSION]</span><br></code></pre></td></tr></table></figure>
+
+<p>待以上操作完成后需要如下配置：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@localhost ~]# mkdir /docker<br><br>[root@localhost ~]# sed -i &#x27;s/ExecStart\=\/usr\/bin\/dockerd -H unix:\/\//ExecStart\=\/usr\/bin\/dockerd -H unix:\/\/ --data-root=\/docker --log-level=warn/g&#x27; /usr/lib/systemd/system/docker.service<br></code></pre></td></tr></table></figure>
+
+<p>说明：由于docker默认使用的日志等级为info、默认的镜像及其相关信息生成在/var/lib/docker下，所以用以上两条命令将日志等级改为warn、将镜像及其相关信息生成的路径指定到/docker下</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@localhost ~]# mkdir /etc/docker<br><br>[root@localhost ~]# cat&gt;/etc/docker/daemon.json&lt;&lt;EOF<br>&#123;<br>    &quot;registry-mirrors&quot;: [&quot;https://hub-mirror.c.163.com&quot;,&quot;https://docker.mirrors.ustc.edu.cn&quot;]<br>&#125;<br>EOF<br></code></pre></td></tr></table></figure>
+
+<p>说明：由于docker参数–config-file的默认值为/etc/docker/docker-daemon.json，所以我们直接创建并修改registry-mirrors为国内加速站点，并且将最大并发下载数由5提高20</p>
+<figure class="highlight autoit"><table><tr><td class="code"><pre><code class="hljs autoit">[root<span class="hljs-symbol">@localhost</span> ~]<span class="hljs-meta"># yum install -y conntrack ipvsadm ipset jq sysstat curl iptables libseccomp</span><br><br>[root<span class="hljs-symbol">@localhost</span> ~]<span class="hljs-meta"># modprobe br_netfilter</span><br><br>[root<span class="hljs-symbol">@localhost</span> ~]<span class="hljs-meta"># modprobe ip_vs</span><br><br>下载相关依赖包并加载br_netfilter和ip_vs模块<br><br>[root<span class="hljs-symbol">@localhost</span> ~]<span class="hljs-meta"># cat&gt;&gt;/etc/sysctl.d/99-sysctl.conf&lt;&lt;EOF</span><br>net.bridge.bridge-nf-<span class="hljs-built_in">call</span>-iptables=<span class="hljs-number">1</span><br>net.bridge.bridge-nf-<span class="hljs-built_in">call</span>-ip6tables=<span class="hljs-number">1</span><br>net.ipv4.ip_forward=<span class="hljs-number">1</span><br>vm.swappiness=<span class="hljs-number">0</span><br>vm.overcommit_memory=<span class="hljs-number">1</span><br>vm.panic_on_oom=<span class="hljs-number">0</span><br>net.ipv6.conf.all.disable_ipv6=<span class="hljs-number">1</span><br>EOF<br><br>[root<span class="hljs-symbol">@localhost</span> ~]<span class="hljs-meta"># sysctl -p</span><br><br>修改相应内核参数，并使之生效<br><br>[root<span class="hljs-symbol">@localhost</span> ~]<span class="hljs-meta"># iptables -P FORWARD ACCEPT</span><br><br>[root<span class="hljs-symbol">@localhost</span> ~]<span class="hljs-meta"># echo <span class="hljs-string">&#x27;/sbin/iptables -P FORWARD ACCEPT&#x27;</span>&gt;&gt;/etc/rc.local</span><br><br>由于Docker默认将iptables的Chain FORWARD设置为drop,我们将其改为accept，允许其转发<br><br>[root<span class="hljs-symbol">@localhost</span> ~]<span class="hljs-meta"># systemctl daemon-reload &amp;&amp; systemctl enable docker &amp;&amp; systemctl restart docker</span><br><br>[root<span class="hljs-symbol">@localhost</span> ~]<span class="hljs-meta"># systemctl status docker</span><br><br>启动并查看Docker服务是否正常<br><br>[root<span class="hljs-symbol">@localhost</span> ~]<span class="hljs-meta"># journalctl -u docker</span><br><br>查看docker日志，会有一些关于文件系统的告警，由于centos7下使用的是overlay2存储驱动，其他存储的驱动的告警可以忽略<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="错误处理"><a href="#错误处理" class="headerlink" title="错误处理"></a>错误处理</h3><ol>
+<li><p>Docker 启动报错： Error starting daemon: Error initializing network controller: list bridge addresses failed: no available network</p>
+<p>看到这样一句话：</p>
+<p><code>failed to start daemon: Error initializing network controller: list bridge addresses failed: PredefinedLocalScopeDefaultNetworks List: [172.17.0.0/16 172.18.0.0/16 172.19.0.0/16 172.20.0.0/16 172.21.0.0/16 172.22.0.0/16 172.23.0.0/16 172.24.0 May 19 17:21:44 game143 systemd[1]: docker.service: main process exited, code=exited, status=1/FAILURE</code></p>
+<p>查看本地网络：</p>
+<figure class="highlight pf"><table><tr><td class="code"><pre><code class="hljs pf">`[root@game143 export]<span class="hljs-comment"># ip a</span><br><span class="hljs-number">1</span>: lo: <span class="hljs-variable">&lt;LOOPBACK,UP,LOWER_UP&gt;</span> mtu <span class="hljs-number">65536</span> qdisc noqueue <span class="hljs-keyword">state</span> UNKNOWN <span class="hljs-keyword">group</span> <span class="hljs-keyword">default</span> qlen <span class="hljs-number">1000</span><br>    link/loopback <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> brd <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span><br>    <span class="hljs-keyword">inet</span> <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>/<span class="hljs-number">8</span> scope host lo<br>       valid_lft forever preferred_lft forever<br><span class="hljs-number">2</span>: eth0: <span class="hljs-variable">&lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt;</span> mtu <span class="hljs-number">1500</span> qdisc mq <span class="hljs-keyword">state</span> UP <span class="hljs-keyword">group</span> <span class="hljs-keyword">default</span> qlen <span class="hljs-number">1000</span><br>    link/ether d4:ae:<span class="hljs-number">52</span>:ae:fc:<span class="hljs-number">57</span> brd ff:ff:ff:ff:ff:ff<br><span class="hljs-number">6</span>: br1: <span class="hljs-variable">&lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt;</span> mtu <span class="hljs-number">1500</span> qdisc noqueue <span class="hljs-keyword">state</span> UP <span class="hljs-keyword">group</span> <span class="hljs-keyword">default</span> qlen <span class="hljs-number">1000</span><br>    link/ether d4:ae:<span class="hljs-number">52</span>:ae:fc:<span class="hljs-number">58</span> brd ff:ff:ff:ff:ff:ff<br>    <span class="hljs-keyword">inet</span> <span class="hljs-number">124.244</span>.<span class="hljs-number">251.11</span>/<span class="hljs-number">25</span> brd <span class="hljs-number">124.244</span>.<span class="hljs-number">251.255</span> scope <span class="hljs-keyword">global</span> br1<br>       valid_lft forever preferred_lft forever<br><span class="hljs-number">7</span>: br0: <span class="hljs-variable">&lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt;</span> mtu <span class="hljs-number">1500</span> qdisc noqueue <span class="hljs-keyword">state</span> UP <span class="hljs-keyword">group</span> <span class="hljs-keyword">default</span> qlen <span class="hljs-number">1000</span><br>    link/ether d4:ae:<span class="hljs-number">52</span>:ae:fc:<span class="hljs-number">59</span> brd ff:ff:ff:ff:ff:ff<br>    <span class="hljs-keyword">inet</span> <span class="hljs-number">10.154</span>.<span class="hljs-number">21.143</span>/<span class="hljs-number">24</span> brd <span class="hljs-number">10.154</span>.<span class="hljs-number">21.255</span> scope <span class="hljs-keyword">global</span> br0<br>       valid_lft forever preferred_lft forever<br><span class="hljs-number">8</span>: br2: <span class="hljs-variable">&lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt;</span> mtu <span class="hljs-number">1500</span> qdisc noqueue <span class="hljs-keyword">state</span> UP <span class="hljs-keyword">group</span> <span class="hljs-keyword">default</span> qlen <span class="hljs-number">1000</span><br>    link/ether d4:ae:<span class="hljs-number">52</span>:ae:fc:<span class="hljs-number">5</span>a brd ff:ff:ff:ff:ff:ff`<br></code></pre></td></tr></table></figure>
+<p>没有 docker0 的桥接网络, 手动加一个即可</p>
+</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">ip link add name docker0 type bridge<br>ip addr add dev docker0 172.17.0.1/16<br></code></pre></td></tr></table></figure>
+
+<p>此时多了一个docker0：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">9: docker0: &lt;BROADCAST,MULTICAST&gt; mtu 1500 qdisc noop state DOWN group default qlen 1000<br>    link/ether ee:9a:89:b1:b5:05 brd ff:ff:ff:ff:ff:ff<br>    inet 172.17.0.1/16 scope global docker0<br>       valid_lft forever preferred_lft forever<br></code></pre></td></tr></table></figure>
+
+<p>重启docker即可</p>
+<h3 id="安装PMM-Server"><a href="#安装PMM-Server" class="headerlink" title="安装PMM Server"></a>安装PMM Server</h3><p>PMM安装有三种方式：docker、虚拟机和AWS marketplace，推荐使用docker方式安装。pmm server容器镜像发布在<a target="_blank" rel="noopener" href="https://hub.docker.com/r/percona/pmm-server/tags/%EF%BC%8Cdocker%E7%89%88%E6%9C%AC%E5%BF%85%E9%A1%BB%E9%AB%98%E4%BA%8E1.12.6%E3%80%82">https://hub.docker.com/r/percona/pmm-server/tags/，docker版本必须高于1.12.6。</a></p>
+<blockquote>
+<p>注意事项：对于每个受监视的数据库节点将数据保留时间设置为一周，PMM大约需要1GB的存储空间。每添加 一个受监视的数据库节点需要的最小内存为2 GB，但是当您添加更多节点时它不是线性增加的。 例如，应使用16 GB轻松处理来自20个节点的数据。</p>
+</blockquote>
+<p>PMM Server部署范围三步：获取镜像，创建持久化的pmm data镜像以及创建启动pmm server镜像。</p>
+<ol>
+<li><p>拉取PMM Server的Docker镜像</p>
+<p>从docker hub拉取最新的镜像版本</p>
+<figure class="highlight axapta"><table><tr><td class="code"><pre><code class="hljs axapta">docker pull percona/pmm-<span class="hljs-keyword">server</span>:latest<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：由于某些原因导致速度缓慢，可以修改docker源到国内镜像加速<br><code>curl -sSL https://get.daocloud.io/daotools/set_mirror.sh | sh -s [http://396e823a.m.daocloud.io](http://396e823a.m.daocloud.io/) </code></p>
+</blockquote>
+</li>
+<li><p>创建持久化的pmm-data镜像</p>
+<figure class="highlight gradle"><table><tr><td class="code"><pre><code class="hljs gradle">docker create -v <span class="hljs-regexp">/opt/</span>prometheus<span class="hljs-regexp">/data -v /</span>opt<span class="hljs-regexp">/consul-data -v /</span>var<span class="hljs-regexp">/lib/my</span>sql -v <span class="hljs-regexp">/var/</span>lib<span class="hljs-regexp">/grafana --name pmm-data percona/</span>pmm-server:latest <span class="hljs-regexp">/bin/</span><span class="hljs-keyword">true</span><br></code></pre></td></tr></table></figure>
+
+<p>参数说明：</p>
+<figure class="highlight pgsql"><table><tr><td class="code"><pre><code class="hljs pgsql">docker <span class="hljs-keyword">create</span>：该命令指示Docker守护程序从映像创建容器。<br>-v：该选项初始化数据卷的容器。<br><span class="hljs-comment">--name：该选项为你可以用于引用Docker网络中的容器的容器分配一个自定义名称。</span><br>percona/pmm-<span class="hljs-keyword">server</span>:latest ：是导出容器的镜像名称和版本标签。<br>/bin/<span class="hljs-keyword">true</span> ：是容器运行的命令。<br>注：该镜像不启动，只为了保证pmm <span class="hljs-keyword">server</span>的数据持久化以用于版本升级等场景。注意不要移动或者重新创建该镜像，除非确保数据不再需要。<br>注：确保镜像-v的数据卷存在，并最好是单独绑定挂载。<br></code></pre></td></tr></table></figure></li>
+<li><p>创建并启动PMM-Server容器</p>
+</li>
+</ol>
+<figure class="highlight axapta"><table><tr><td class="code"><pre><code class="hljs axapta">docker run -d -p <span class="hljs-number">80</span>:<span class="hljs-number">80</span> --volumes-<span class="hljs-keyword">from</span> pmm-data --name pmm-<span class="hljs-keyword">server</span> --restart always percona/pmm-<span class="hljs-keyword">server</span>:latest<br></code></pre></td></tr></table></figure>
+
+<p>此容器不运行，它只是存在，以确保您在升级到较新的pmm-server时保留所有PMM数据。不要删除或重新创建此容器，除非您打算清除所有PMM数据并重新开始。</p>
+<p>下面解释一下docker参数的具体意义：</p>
+<figure class="highlight haml"><table><tr><td class="code"><pre><code class="hljs haml">docker run：该命令指示守护程序从镜像运行容器。<br>    -<span class="ruby">d：该选项在分离模式（即后台）中启动容器。</span><br><span class="ruby"></span>    -<span class="ruby">p：该选项映射用于访问PMM服务器 Web UI的端口。例如-p <span class="hljs-number">8080</span><span class="hljs-symbol">:</span><span class="hljs-number">80</span>，如果端口<span class="hljs-number">80</span>不可用，则可以使用登陆页面映射到端口<span class="hljs-number">8080</span> 。</span><br><span class="ruby"></span>    -<span class="ruby">-volumes-from：该选项从pmm-date容器中装入卷。</span><br><span class="ruby"></span>    -<span class="ruby">-name：该选项为你可以用于引用Docker网络中的容器分配一个自定义名称。</span><br><span class="ruby"></span>    -<span class="ruby">-restart：该选项定义容器的重新启动策略，设置它以always确保Docker守护程序在启动时启动容器，并在容器退出时重新启动它。</span><br></code></pre></td></tr></table></figure>
+
+<p>其他参数说明：<br>通过docker run的-e参数可以增加pmm-server启动的额外功能</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><code class="hljs routeros">启用Orchestrator复制拓扑：<br>docker <span class="hljs-builtin-name">run</span> <span class="hljs-built_in">..</span>. -e <span class="hljs-attribute">ORCHESTRATOR_ENABLED</span>=<span class="hljs-literal">true</span> <span class="hljs-built_in">..</span>. percona/pmm-server:latest<br>关闭telemetry（pmm server数据每24小时会上报percona.com,包括pmm<span class="hljs-built_in"> server </span>ID、pmm version、操作系统、数据库版本、perl版本等）：<br>docker <span class="hljs-builtin-name">run</span> <span class="hljs-built_in">..</span>. -e <span class="hljs-attribute">DISABLE_TELEMETRY</span>=<span class="hljs-literal">true</span> <span class="hljs-built_in">..</span>. percona/pmm-server:latest<br>关闭更新，可以通过web界面关闭，也可以通过命令行关闭：<br>docker <span class="hljs-builtin-name">run</span> <span class="hljs-built_in">..</span>. -e <span class="hljs-attribute">DISABLE_UPDATES</span>=<span class="hljs-literal">true</span> <span class="hljs-built_in">..</span>. percona/pmm-server:latest<br></code></pre></td></tr></table></figure>
+
+<p>露个脸：</p>
+<p><img src="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/pmm/image-20200406150905561.png" alt="image-20200406150905561"></p>
+<p><img src="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/pmm/image-20200406150943887.png" alt="image-20200406150943887"></p>
+<h3 id="安装PMM-Client"><a href="#安装PMM-Client" class="headerlink" title="安装PMM Client"></a>安装PMM Client</h3><p> PMM Client支持yum安装或者源码安装，方便起见推荐CentOS系统使用yum添加repository安装：</p>
+<ol>
+<li><p>下载安装对应源的rpm包（巨慢，建议翻墙或者上官网直接下RPM包）</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><code class="hljs awk">yum install https:<span class="hljs-regexp">//</span>repo.percona.com<span class="hljs-regexp">/yum/</span>percona-release-latest.noarch.rpm<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>notes: 如果您以前启用过实验性或测试性Percona存储库，请不要忘记禁用它们并启用原始存储库的发布组件，如下所示：</p>
+<figure class="highlight pgsql"><table><tr><td class="code"><pre><code class="hljs pgsql">sudo percona-<span class="hljs-keyword">release</span> <span class="hljs-keyword">disable</span> <span class="hljs-keyword">all</span><br>sudo percona-<span class="hljs-keyword">release</span> <span class="hljs-keyword">enable</span> original <span class="hljs-keyword">release</span><br></code></pre></td></tr></table></figure></blockquote>
+</li>
+<li><p>安装<code>pmm2-client</code>包</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">yum</span> install pmm<span class="hljs-number">2</span>-client<br></code></pre></td></tr></table></figure></li>
+<li><p>一旦PMM Client安装完成后，使用<code>pmm-admin config</code>命令设置你的PMM Sercer IP来把你的client节点注册到对应的PMM Server上</p>
+</li>
+</ol>
+<figure class="highlight axapta"><table><tr><td class="code"><pre><code class="hljs axapta">pmm-admin config --<span class="hljs-keyword">server</span>-insecure-tls --<span class="hljs-keyword">server</span>-url=https:<span class="hljs-comment">//admin:admin@&lt;IP Address&gt;:443</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="安装PMM-Client后的配置"><a href="#安装PMM-Client后的配置" class="headerlink" title="安装PMM Client后的配置"></a>安装PMM Client后的配置</h3><ul>
+<li><p>安装好MySQL后修改监听地址：</p>
+<figure class="highlight fortran"><table><tr><td class="code"><pre><code class="hljs fortran">将<span class="hljs-keyword">bind</span>改为：<br><span class="hljs-keyword">bind</span>-address            = <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span><br></code></pre></td></tr></table></figure></li>
+<li><p>开启慢查询</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">slow_query_log</span>=<span class="hljs-number">1</span><br><span class="hljs-attr">long_query_time</span>=<span class="hljs-number">1</span><br><span class="hljs-attr">slow_query_log_file</span>=/var/lib/mysql/mysql-slow.log<br></code></pre></td></tr></table></figure></li>
+<li><p>对root用户做授权，允许远程访问</p>
+<figure class="highlight pgsql"><table><tr><td class="code"><pre><code class="hljs pgsql">mysql&gt; <span class="hljs-keyword">grant</span> <span class="hljs-keyword">all</span> <span class="hljs-keyword">PRIVILEGES</span> <span class="hljs-keyword">on</span> *.* <span class="hljs-keyword">to</span> root@<span class="hljs-string">&#x27;%&#x27;</span> identified <span class="hljs-keyword">by</span> <span class="hljs-string">&#x27;root&#x27;</span>;<br>mysql&gt; flush <span class="hljs-keyword">privileges</span>;<br></code></pre></td></tr></table></figure></li>
+<li><p>使用pmm-admin config –server命令添加客户端</p>
+<p>参数说明：</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><code class="hljs routeros">Usage:<br>  pmm-admin<span class="hljs-built_in"> config </span>[flags]<br><br>Examples:<br>  pmm-admin<span class="hljs-built_in"> config </span>--server 192.168.56.100<br>  pmm-admin<span class="hljs-built_in"> config </span>--server 192.168.56.100:8000<br>  pmm-admin<span class="hljs-built_in"> config </span>--server 192.168.56.100 --server-password abc123<br><br>Flags:<br>      --bind-address string      bind address, also local/private<span class="hljs-built_in"> address </span>that is mapped <span class="hljs-keyword">from</span><span class="hljs-built_in"> client address </span>via NAT<span class="hljs-built_in">/port </span>forwarding (defaults <span class="hljs-keyword">to</span> the<span class="hljs-built_in"> client </span>address)<br>      --client-address string   <span class="hljs-built_in"> client </span>address, also remote/public<span class="hljs-built_in"> address </span><span class="hljs-keyword">for</span> this<span class="hljs-built_in"> system </span>(<span class="hljs-keyword">if</span> omitted it will be automatically detected by asking server)<br>      --client-name string      <span class="hljs-built_in"> client </span>name (defaults <span class="hljs-keyword">to</span> the<span class="hljs-built_in"> system </span>hostname)<br>      --force                    force <span class="hljs-keyword">to</span> <span class="hljs-builtin-name">set</span><span class="hljs-built_in"> client </span>name on initial setup after uninstall with unreachable<span class="hljs-built_in"> server</span><br><span class="hljs-built_in"></span>  -h, --help                     help <span class="hljs-keyword">for</span><span class="hljs-built_in"> config</span><br><span class="hljs-built_in"></span>      --server string            PMM<span class="hljs-built_in"> server </span>address, optionally following with the :port (default<span class="hljs-built_in"> port </span>80 <span class="hljs-keyword">or</span> 443 <span class="hljs-keyword">if</span> using SSL)<br>      --server-insecure-ssl      <span class="hljs-builtin-name">enable</span> insecure SSL (self-signed certificate) <span class="hljs-keyword">to</span> communicate with PMM<span class="hljs-built_in"> Server</span><br><span class="hljs-built_in"></span>      --server-password string   define HTTP password configured on PMM<span class="hljs-built_in"> Server</span><br><span class="hljs-built_in"></span>      --server-ssl               <span class="hljs-builtin-name">enable</span> SSL <span class="hljs-keyword">to</span> communicate with PMM<span class="hljs-built_in"> Server</span><br><span class="hljs-built_in"></span>      --server-user string       define HTTP<span class="hljs-built_in"> user </span>configured on PMM<span class="hljs-built_in"> Server </span>(default <span class="hljs-string">&quot;pmm&quot;</span>)<br><br>Global Flags:<br>  -c, --config-file string   PMM<span class="hljs-built_in"> config </span>file (default <span class="hljs-string">&quot;/usr/local/percona/pmm-client/pmm.yml&quot;</span>)<br>      --skip-root            skip UID check (experimental)<br>      --timeout duration     timeout (default 5s)<br>      --verbose              verbose output<br><br></code></pre></td></tr></table></figure>
+
+<p>看到以下输出说明正确连接</p>
+<p><img src="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/pmm/image-20200326134530370.png" alt="image-20200326134530370"></p>
+</li>
+</ul>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><h3 id="配置PMM-Client"><a href="#配置PMM-Client" class="headerlink" title="配置PMM  Client"></a>配置PMM  Client</h3><p>在未添加任何监控的状态下，<code>pmm-admin list</code>应有如下输出: </p>
+<p><img src="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/pmm/image-20200326135222587.png" alt="image-20200326135222587"></p>
+<h4 id="添加监控实例到PMM"><a href="#添加监控实例到PMM" class="headerlink" title="添加监控实例到PMM"></a>添加监控实例到PMM</h4><p>可以在PMM Client端使用命令</p>
+<p><code>pmm-admin add mysql --query-source=slowlog --username=root --password=PASSWORD sl-mysql 127.0.0.1:3306</code></p>
+<p><img src="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/pmm/image-20200326143341547.png" alt="image-20200326143341547"></p>
+<p>此时<code>pmm-admin list</code>输出：</p>
+<p><img src="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/pmm/image-20200326143433685.png" alt="image-20200326143433685"></p>
+<p>查看dashboard, 可以看到对应client已经添加到PMM Server</p>
+<p><img src="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/pmm/image-20200326144006820.png" alt="image-20200326144006820"></p>
+<p><img src="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/pmm/image-20200326143955972.png" alt="image-20200326143955972"></p>
+<h4 id="添加远程MongoDB实例到PMM"><a href="#添加远程MongoDB实例到PMM" class="headerlink" title="添加远程MongoDB实例到PMM"></a>添加远程MongoDB实例到PMM</h4><p><strong>客户端配置</strong></p>
+<figure class="highlight axapta"><table><tr><td class="code"><pre><code class="hljs axapta">pmm-admin config --<span class="hljs-keyword">server</span> SERVERIP --<span class="hljs-keyword">server</span>-user SERVERUSER --<span class="hljs-keyword">server</span>-password PASSWORD --<span class="hljs-keyword">client</span>-name HOSTNAME<br></code></pre></td></tr></table></figure>
+
+<p><strong>mongo服务器配置</strong></p>
+<figure class="highlight vim"><table><tr><td class="code"><pre><code class="hljs vim">pmm-admin <span class="hljs-built_in">add</span> mongodb --cluster cluster1 --uri mongod<span class="hljs-variable">b:</span>//roo<span class="hljs-variable">t:passwd</span>@localhos<span class="hljs-variable">t:27017</span>/admin<br></code></pre></td></tr></table></figure>
+
+<h4 id="对访问容器IP做限制"><a href="#对访问容器IP做限制" class="headerlink" title="对访问容器IP做限制"></a>对访问容器IP做限制</h4><p>查看Docker对应chain的规则</p>
+<figure class="highlight vim"><table><tr><td class="code"><pre><code class="hljs vim">[root@test sysconfig]# iptables -L DOCKER -n --<span class="hljs-built_in">line</span>-<span class="hljs-keyword">number</span><br>Chain DOCKER (<span class="hljs-number">1</span> references)<br>num  target     prot <span class="hljs-keyword">opt</span> <span class="hljs-keyword">source</span>               destination         <br><span class="hljs-number">1</span>    ACCEPT     tcp  --  <span class="hljs-number">0.0</span>.<span class="hljs-number">0.0</span>/<span class="hljs-number">0</span>            <span class="hljs-number">172.17</span>.<span class="hljs-number">0.2</span>           tcp <span class="hljs-keyword">dp</span><span class="hljs-variable">t:443</span><br><span class="hljs-number">2</span>    ACCEPT     tcp  --  <span class="hljs-number">1.1</span>.<span class="hljs-number">1.1</span>/<span class="hljs-number">26</span>     <span class="hljs-number">0.0</span>.<span class="hljs-number">0.0</span>/<span class="hljs-number">0</span>            tcp <span class="hljs-keyword">dp</span><span class="hljs-variable">t:80</span><br><span class="hljs-number">3</span>    ACCEPT     tcp  --  <span class="hljs-number">2.2</span>.<span class="hljs-number">2.2</span>       <span class="hljs-number">0.0</span>.<span class="hljs-number">0.0</span>/<span class="hljs-number">0</span>            tcp <span class="hljs-keyword">dp</span><span class="hljs-variable">t:80</span><br></code></pre></td></tr></table></figure>
+
+<p>默认情况下Docker对应容器是对公网开的，为了安全考虑可以对访问IP做限制，限制不能直接在iptables的INPUT链里面加，需要在对应Docker的chain中做限制</p>
+<p>输入<code>iptables -R DOCKER N</code>（N为规则num）可以修改对应规则</p>
+<figure class="highlight autoit"><table><tr><td class="code"><pre><code class="hljs autoit">[root<span class="hljs-symbol">@test</span> sysconfig]<span class="hljs-meta"># iptables -R DOCKER 1 -p tcp -s 1.1.1.1/26 --dport 443 -j ACCEPT</span><br></code></pre></td></tr></table></figure>
+
+<p>，同理<code>iptables -I DOCKER xxx</code>添加规则。</p>
+<h2 id="附件"><a href="#附件" class="headerlink" title="附件"></a>附件</h2><h3 id="从文件导入导出镜像"><a href="#从文件导入导出镜像" class="headerlink" title="从文件导入导出镜像"></a>从文件导入导出镜像</h3><p><strong>保存镜像为文件</strong></p>
+<figure class="highlight fortran"><table><tr><td class="code"><pre><code class="hljs fortran">docker <span class="hljs-keyword">save</span> -o 要保存的文件名  要保存的镜像<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@iZbp16cdvzk4rhl0vn1gedZ ~]# ls<br>aaa.cap  install.sh  mobile-1.0.0-SNAPSHOT.jar  sa_recovery.log<br>[root@iZbp16cdvzk4rhl0vn1gedZ ~]# docker images<br>REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE<br>bb                  v1.0                3b8d26737bcb        10 minutes ago      202MB<br>centos              latest              9f38484d220f        3 weeks ago         202MB<br>java                latest              d23bdf5b1b1b        2 years ago         643MB<br>[root@iZbp16cdvzk4rhl0vn1gedZ ~]# docker save -o cc.tar bb:v1.0<br>[root@iZbp16cdvzk4rhl0vn1gedZ ~]# ls<br>aaa.cap  cc.tar  install.sh  mobile-1.0.0-SNAPSHOT.jar  sa_recovery.log<br></code></pre></td></tr></table></figure>
+
+<p><strong>导入文件为镜像</strong></p>
+<figure class="highlight livecodeserver"><table><tr><td class="code"><pre><code class="hljs livecodeserver">docker <span class="hljs-built_in">load</span> <span class="hljs-comment">--input 文件</span><br>或者<br>docker <span class="hljs-built_in">load</span> &lt; 文件名<br></code></pre></td></tr></table></figure>
+
+<h3 id="给镜像打标签"><a href="#给镜像打标签" class="headerlink" title="给镜像打标签"></a>给镜像打标签</h3><p>使用<code>docker tag</code>命令：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[2020/6/1 16:30:47] [root@game143 export]# docker image ls<br>[2020/6/1 16:30:47] REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE<br>[2020/6/1 16:30:47] &lt;none&gt;              &lt;none&gt;              d48b8d6edded        2 months ago        1.49GB<br>[2020/6/1 16:31:06] [root@game143 export]# docker tag d48b percona/pmm-server:2<br>[2020/6/1 16:31:06] You have new mail in /var/spool/mail/root<br>[2020/6/1 16:31:08] [root@game143 export]# docker image ls<br>[2020/6/1 16:31:08] REPOSITORY           TAG                 IMAGE ID            CREATED             SIZE<br>[2020/6/1 16:31:08] percona/pmm-server   2                   d48b8d6edded        2 months ago        1.49GB<br></code></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Ops/" rel="tag"># Ops</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/06/24/Vue%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/" rel="prev" title="Vue学习笔记（五）- Promise和VueX">
+      <i class="fa fa-chevron-left"></i> Vue学习笔记（五）- Promise和VueX
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/07/08/ansible%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="next" title="ansible学习笔记">
+      ansible学习笔记 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#PMM%E6%95%B0%E6%8D%AE%E5%BA%93%E6%80%A7%E8%83%BD%E7%9B%91%E6%8E%A7%E5%B7%A5%E5%85%B7%E8%B0%83%E7%A0%94"><span class="nav-number">1.</span> <span class="nav-text">PMM数据库性能监控工具调研</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%B6%E6%9E%84%E8%A7%A3%E6%9E%90"><span class="nav-number">1.2.</span> <span class="nav-text">架构解析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85"><span class="nav-number">1.3.</span> <span class="nav-text">安装</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E5%87%86%E5%A4%87"><span class="nav-number">1.3.1.</span> <span class="nav-text">安装准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86"><span class="nav-number">1.3.2.</span> <span class="nav-text">错误处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85PMM-Server"><span class="nav-number">1.3.3.</span> <span class="nav-text">安装PMM Server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85PMM-Client"><span class="nav-number">1.3.4.</span> <span class="nav-text">安装PMM Client</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85PMM-Client%E5%90%8E%E7%9A%84%E9%85%8D%E7%BD%AE"><span class="nav-number">1.3.5.</span> <span class="nav-text">安装PMM Client后的配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8"><span class="nav-number">1.4.</span> <span class="nav-text">使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AEPMM-Client"><span class="nav-number">1.4.1.</span> <span class="nav-text">配置PMM  Client</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E7%9B%91%E6%8E%A7%E5%AE%9E%E4%BE%8B%E5%88%B0PMM"><span class="nav-number">1.4.1.1.</span> <span class="nav-text">添加监控实例到PMM</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E8%BF%9C%E7%A8%8BMongoDB%E5%AE%9E%E4%BE%8B%E5%88%B0PMM"><span class="nav-number">1.4.1.2.</span> <span class="nav-text">添加远程MongoDB实例到PMM</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AF%B9%E8%AE%BF%E9%97%AE%E5%AE%B9%E5%99%A8IP%E5%81%9A%E9%99%90%E5%88%B6"><span class="nav-number">1.4.1.3.</span> <span class="nav-text">对访问容器IP做限制</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%99%84%E4%BB%B6"><span class="nav-number">1.5.</span> <span class="nav-text">附件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8E%E6%96%87%E4%BB%B6%E5%AF%BC%E5%85%A5%E5%AF%BC%E5%87%BA%E9%95%9C%E5%83%8F"><span class="nav-number">1.5.1.</span> <span class="nav-text">从文件导入导出镜像</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%99%E9%95%9C%E5%83%8F%E6%89%93%E6%A0%87%E7%AD%BE"><span class="nav-number">1.5.2.</span> <span class="nav-text">给镜像打标签</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">QinTianJun</p>
+  <div class="site-description" itemprop="description">一个菜鸟的成长之路</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QinTianJun</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.qintianjun.top","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="ansible学习笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ansible学习笔记">
+<meta property="og:url" content="http://www.qintianjun.top/2021/07/08/ansible%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="Freedom_ATX Blog">
+<meta property="og:description" content="ansible学习笔记">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://www.qintianjun.top/2021/07/08/ansible%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ansible%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.assets/image-20210219183051942.png">
+<meta property="og:image" content="http://www.qintianjun.top/2021/07/08/ansible%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ansible%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.assets/image-20210220172828318.png">
+<meta property="og:image" content="http://www.qintianjun.top/2021/07/08/ansible%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ansible%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.assets/image-20210222200644300.png">
+<meta property="og:image" content="https://note.youdao.com/yws/res/56284/31BB6620C07C4E8DAEC14CB20CF8C573">
+<meta property="og:image" content="https://note.youdao.com/yws/res/56283/B2206BA3F50D46ACBCC941F778A2C845">
+<meta property="article:published_time" content="2021-07-08T00:11:26.000Z">
+<meta property="article:modified_time" content="2021-07-08T00:31:44.726Z">
+<meta property="article:author" content="QinTianJun">
+<meta property="article:tag" content="Ops">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://www.qintianjun.top/2021/07/08/ansible%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ansible%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.assets/image-20210219183051942.png">
+
+<link rel="canonical" href="http://www.qintianjun.top/2021/07/08/ansible%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>ansible学习笔记 | Freedom_ATX Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Freedom_ATX Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://www.qintianjun.top/2021/07/08/ansible%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="QinTianJun">
+      <meta itemprop="description" content="一个菜鸟的成长之路">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Freedom_ATX Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ansible学习笔记
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-07-08 08:11:26 / Modified: 08:31:44" itemprop="dateCreated datePublished" datetime="2021-07-08T08:11:26+08:00">2021-07-08</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Ops/" itemprop="url" rel="index"><span itemprop="name">Ops</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>[TOC]</p>
+<h1 id="1-安装和入门"><a href="#1-安装和入门" class="headerlink" title="1 安装和入门"></a>1 安装和入门</h1><h2 id="1-1-ansible安装"><a href="#1-1-ansible安装" class="headerlink" title="1.1 ansible安装"></a>1.1 ansible安装</h2><h3 id="1-1-1-rpm包安装"><a href="#1-1-1-rpm包安装" class="headerlink" title="1.1.1 rpm包安装"></a>1.1.1 rpm包安装</h3><p>EPEL源</p>
+<p>yum -y install ansible</p>
+<h3 id="1-1-2-编译安装1-1-3-Git方式"><a href="#1-1-2-编译安装1-1-3-Git方式" class="headerlink" title="1.1.2 编译安装1.1.3 Git方式"></a>1.1.2 编译安装1.1.3 Git方式</h3><figure class="highlight awk"><table><tr><td class="code"><pre><code class="hljs awk">git clone git:<span class="hljs-regexp">//gi</span>thub.com<span class="hljs-regexp">/ansible/</span>ansible.git --recursive<br><br>cd ./ansible<br><br>source .<span class="hljs-regexp">/hacking/</span>env-setup<br></code></pre></td></tr></table></figure>
+
+<h3 id="1-1-4-pip-安装"><a href="#1-1-4-pip-安装" class="headerlink" title="1.1.4 pip 安装"></a>1.1.4 pip 安装</h3><p>pip安装：pip是安装python包的管理器，类似于yum</p>
+<figure class="highlight mipsasm"><table><tr><td class="code"><pre><code class="hljs mipsasm">yum -y <span class="hljs-keyword">install </span>python-pip python-devel<br><br>yum -y <span class="hljs-keyword">install </span>gcc glib-devel zlibl-devel rpm-<span class="hljs-keyword">build </span>openssl-devel<br><br>pip <span class="hljs-keyword">install </span>--upgrade pip<br><br>pip <span class="hljs-keyword">install </span>ansible --upgrade<br></code></pre></td></tr></table></figure>
+
+<p>确认安装：ansible –version</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><code class="hljs awk">ansible <span class="hljs-number">2.9</span>.<span class="hljs-number">15</span><br>  config file = <span class="hljs-regexp">/etc/</span>ansible/ansible.cfg<br>  configured module search path = [<span class="hljs-string">u&#x27;/root/.ansible/plugins/modules&#x27;</span>, <span class="hljs-string">u&#x27;/usr/share/ansible/plugins/modules&#x27;</span>]<br>  ansible python module location = <span class="hljs-regexp">/usr/</span>lib<span class="hljs-regexp">/python2.7/</span>site-packages/ansible<br>  executable location = <span class="hljs-regexp">/usr/</span>bin/ansible<br>  python version = <span class="hljs-number">2.7</span>.<span class="hljs-number">5</span> (default, Apr  <span class="hljs-number">2</span> <span class="hljs-number">2020</span>, <span class="hljs-number">13</span>:<span class="hljs-number">16</span>:<span class="hljs-number">51</span>) [GCC <span class="hljs-number">4.8</span>.<span class="hljs-number">5</span> <span class="hljs-number">20150623</span> (Red Hat <span class="hljs-number">4.8</span>.<span class="hljs-number">5</span>-<span class="hljs-number">39</span>)]<br></code></pre></td></tr></table></figure>
+
+<h2 id="1-2-ansible-相关文件"><a href="#1-2-ansible-相关文件" class="headerlink" title="1.2 ansible 相关文件"></a>1.2 ansible 相关文件</h2><h3 id="1-2-1-配置文件"><a href="#1-2-1-配置文件" class="headerlink" title="1.2.1 配置文件"></a>1.2.1 配置文件</h3><p>/etc/ansible/ansible.cfg 主配置文件，配置ansible工作特性</p>
+<p>/etc/ansible/hosts 主机清单</p>
+<p>/etc/ansible/roles/ 存放角色的目录</p>
+<h3 id="1-2-2-ansible主配置文件"><a href="#1-2-2-ansible主配置文件" class="headerlink" title="1.2.2 ansible主配置文件"></a>1.2.2 ansible主配置文件</h3><p>ansible 配置文件<code>/etc/ansible/ansible.cfg</code>(一般保持默认), 其中大部分的配置内容无需进行修改</p>
+<figure class="highlight vala"><table><tr><td class="code"><pre><code class="hljs vala">[defaults]<br><span class="hljs-meta">#inventory      = /etc/ansible/hosts  #主机列表配置文件</span><br><span class="hljs-meta">#library        = /usr/share/my_modules/ #库文件存放目录</span><br><span class="hljs-meta">#module_utils   = /usr/share/my_module_utils/ </span><br><span class="hljs-meta">#remote_tmp     = ~/.ansible/tmp #临时py命令文件存放在远程主机目录</span><br><span class="hljs-meta">#local_tmp      = ~/.ansible/tmp #本机临时命令执行目录</span><br><span class="hljs-meta">#forks          = 5 #默认并发数（同时执行5个操作，eg五台主机五台的执行）</span><br><span class="hljs-meta">#poll_interval  = 15 </span><br><span class="hljs-meta">#sudo_user      = root #默认sudo用户</span><br><span class="hljs-meta">#ask_sudo_pass = True #每次执行ansible命令是否询问ssh密码</span><br><span class="hljs-meta">#ask_pass      = True</span><br><span class="hljs-meta">#transport      = smart</span><br><span class="hljs-meta">#remote_port    = 22</span><br><span class="hljs-meta">#module_lang    = C</span><br><span class="hljs-meta">#module_set_locale = False</span><br><span class="hljs-meta">#host_key_checking = False #检查对应服务的的host_key，建议取消注释</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="1-2-3-主机清单文件"><a href="#1-2-3-主机清单文件" class="headerlink" title="1.2.3 主机清单文件"></a>1.2.3 主机清单文件</h3><p>主机清单inventory</p>
+<p>inventory主机清单：ansible的主要功用在于批量主机操作，为了方便的使用其中的部分主机，可以在inventory file中将其分组命名</p>
+<p>默认的inventory file为<code>/etc/ansible/hosts</code></p>
+<p>inventory file可以有多个，且也可以通过Dynamic Inventory来动态完成</p>
+<p><code>/etc/ansible/hosts</code>文件格式</p>
+<p>inventory文件遵循INI文件风格，中括号的字符为组名。可以将同一个主机同事归并到不通的组中；此外，当如若目标主机使用了非默认的ssh端口，还可以在主机名称之后使用冒号加端口号来标明</p>
+<p>eg：</p>
+<figure class="highlight stylus"><table><tr><td class="code"><pre><code class="hljs stylus">ntp<span class="hljs-selector-class">.magedu</span><span class="hljs-selector-class">.com</span><br><br><span class="hljs-selector-attr">[webservers]</span><br><br>www1<span class="hljs-selector-class">.magedu</span><span class="hljs-selector-class">.com</span>:<span class="hljs-number">2222</span><br><br>www2<span class="hljs-selector-class">.magedu</span><span class="hljs-selector-class">.com</span><br><br><span class="hljs-selector-attr">[dbservers]</span><br><br>db1<span class="hljs-selector-class">.magedu</span><span class="hljs-selector-class">.com</span><br><br>db2<span class="hljs-selector-class">.magedu</span>.com<br></code></pre></td></tr></table></figure>
+
+<p>如果主机名称遵相似的命名模式，还可以使用列表的方式标识个主机</p>
+<figure class="highlight stylus"><table><tr><td class="code"><pre><code class="hljs stylus"><span class="hljs-selector-attr">[wedservers]</span><br><br>www<span class="hljs-selector-attr">[01:100]</span><span class="hljs-selector-class">.example</span><span class="hljs-selector-class">.com</span><br><br><span class="hljs-selector-attr">[dbservers]</span><br><br>db-<span class="hljs-selector-attr">[a:f]</span><span class="hljs-selector-class">.example</span>.com<br></code></pre></td></tr></table></figure>
+
+<h2 id="1-3-ansible-系列命令"><a href="#1-3-ansible-系列命令" class="headerlink" title="1.3 ansible 系列命令"></a>1.3 ansible 系列命令</h2><p><strong>ansible 系列命令</strong></p>
+<p>ansible ansible-doc  ansible-playbook  ansible-vault  ansible-console  ansible-galaxy ansible-pull</p>
+<p><strong>1、ansible-doc 显示模块帮助</strong></p>
+<p>ansible-doc [options][module]</p>
+<p>-a  显示所有模块文档</p>
+<p>-l，–list 列出可用模块</p>
+<p>-s，–snippet 显示指定模块的playbook片段</p>
+<p>实例：</p>
+<p>ansible-doc -l 列出所有模块</p>
+<p>ansible-doc ping 查看指定模块的帮助用法</p>
+<p>ansible-doc -s ping 查看指定模块的帮助用法</p>
+<p>ansible通过ssh实现配置管理、应用部署，任务执行等功能，建议配置ansible段能基于密钥认证的方式联系各被管理节点</p>
+<p><strong>2、ansible<host-pattern>[-m module_name] [-a args]</strong></p>
+<p>–version 显示版本</p>
+<p>-m module 指定模块，默认为command</p>
+<p>-v 详细过程 -vv -vvv 更详细</p>
+<p>–list-host 显示主机列表，可简写–list</p>
+<p>-k ，–ask-pass 提示输入ssh连接密码。默认key验证</p>
+<p>-K， –ask-become-pass  提示输入sudo时的口令</p>
+<p>-C，–check 检查不执行</p>
+<p>-T –timeout=TIMEOUT 执行命令的超时时间，默认10s</p>
+<p>-u –user=REMOTE——USER 执行远程执行的用户</p>
+<p>-b， –become 代替旧版本的sudo切换</p>
+<p><strong>3、ansible的Host-pattern  匹配主机的列表</strong></p>
+<p>all：表示所有Inventory中的所有主机</p>
+<p>*：通配符</p>
+<p>ansible “*” -m ping</p>
+<p>ansible 192.168.1.* -m ping</p>
+<p>ansible “*srvs” -m ping</p>
+<p>或关系</p>
+<p>ansible “webserver:dbserver” -m ping</p>
+<p>ansible “webserver:dbserver” -m ping #执行在web组并且在dbserver组中的主机（忽略重复的）</p>
+<p>与关系</p>
+<p>ansible “webserver:&amp;dbserver” -m ping</p>
+<p>只执行在web组并且也在dbserver组中的主机</p>
+<p>逻辑非</p>
+<p>ansible ‘webserver:!dbserver’ -m ping  <strong>【注意此处只能使用单引号！】</strong></p>
+<p>综合逻辑</p>
+<p>ansible ‘webserver:dbserver:&amp;webserver:!dbserver’ -m ping</p>
+<p>正则表达式</p>
+<p>ansible “webserver:&amp;dbserver” -m ping</p>
+<p>ansible “~(web|db).*.magedu.\com” -m ping</p>
+<p><strong>4、ansible命令执行过程</strong></p>
+<p>a 加载自己的配置文件 默认/etc/ansible/ansible.cfg</p>
+<p>b 加载自己对应的模块 如command</p>
+<p>c 通过ansible将模块或命令生成对应的临时py文件，并将改文件传输至远程服务器的对应执行用户SHOME/.ansible/tmp/ansible-tmp-数字/XXX.py文件</p>
+<p>d 文件见+x执行</p>
+<p>e 执行并返回结果</p>
+<p>f 删除临时py文件，sleep 0退出</p>
+<p><strong>5、执行状态</strong></p>
+<p>绿色：执行成功并且不需要做改变的操作</p>
+<p>黄色：执行成功并且对目标主机做变更</p>
+<p>红色：执行失败</p>
+<h1 id="2-ansible常用模块"><a href="#2-ansible常用模块" class="headerlink" title="2 ansible常用模块"></a>2 ansible常用模块</h1><h2 id="2-1-command"><a href="#2-1-command" class="headerlink" title="2.1 command"></a>2.1 command</h2><p>在远程主机执行命令，默认模块。可忽略-m选项</p>
+<figure class="highlight jboss-cli"><table><tr><td class="code"><pre><code class="hljs jboss-cli">ansible srvs -m <span class="hljs-keyword">command</span> -a ‘systemctl restart sshd’<br><br>ansible srvs -m <span class="hljs-keyword">command</span> -a &#x27;<span class="hljs-keyword">echo</span> magedu | passwd <span class="hljs-params">--stdin</span> wang &#x27;不成功<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p> 此命令不支持$VRNAME&lt; &gt;  | ; &amp; 等，需要用shell模块实现</p>
+</blockquote>
+<h2 id="2-2-shell"><a href="#2-2-shell" class="headerlink" title="2.2 shell"></a>2.2 shell</h2><p>和command相似，用shell执行命令</p>
+<figure class="highlight livecodeserver"><table><tr><td class="code"><pre><code class="hljs livecodeserver">ansible srv -m <span class="hljs-built_in">shell</span> -<span class="hljs-keyword">a</span> ‘echo magedu | passwd <span class="hljs-comment">--stdin wang’</span><br></code></pre></td></tr></table></figure>
+
+<p>调用bash执行命令 类似<code>cat /tmp/stanley.md | awk -F &#39;|&#39; &#39;&#123;print $1,$2&#125;&#39; &amp; &gt; /tmp/example.txt</code>这些复杂命令，即使使用shell也可能会失败，</p>
+<p>解决办法：写到脚本，copy到远程，执行，再把需要的结果拉回执行命令的机器</p>
+<h2 id="2-3-script"><a href="#2-3-script" class="headerlink" title="2.3 script"></a>2.3 script</h2><p>在远程主机上运行脚本</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><code class="hljs css">-<span class="hljs-selector-tag">a</span> “/PATH/<span class="hljs-selector-tag">TO</span>/SCRIPT_FILE”<br><br>ansible webserver -m script -<span class="hljs-selector-tag">a</span> f1<span class="hljs-selector-class">.sh</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="2-4-copy"><a href="#2-4-copy" class="headerlink" title="2.4 copy"></a>2.4 copy</h2><p>从服务器复制文件到客户端</p>
+<figure class="highlight nix"><table><tr><td class="code"><pre><code class="hljs nix">ansible all -m copy -a &#x27;<span class="hljs-attr">src=/data/test1</span> <span class="hljs-attr">dest=/data/test1</span> <span class="hljs-attr">backup=yes</span> <span class="hljs-attr">mode=000</span> <span class="hljs-attr">owner=zhang&#x27;</span>  <span class="hljs-comment">#如目标存在，默认覆盖，此处是指先备份，并修改全向属主</span><br><br>ansible all -m copy -a <span class="hljs-string">&quot;content=&#x27;test content\n&#x27; dest=/tmo/f1.txt&quot;</span> <span class="hljs-comment">#利用内容，直接生成目标文件</span><br><br>ansible all -m copy -a <span class="hljs-string">&quot;src=/root/ops_scripts dest=/tmp/&quot;</span> <span class="hljs-comment"># 把一个目录里的所有内容拷贝到目标主机</span><br><br></code></pre></td></tr></table></figure>
+
+<h2 id="2-5-fetch"><a href="#2-5-fetch" class="headerlink" title="2.5 fetch"></a>2.5 fetch</h2><p>从客户端取文件至服务器端，与copy相反，目录可以先tar，默认只支持取文件</p>
+<p>ansible all -m fetch -a ‘src=/root/a.sh dest=/data/f2.sh’</p>
+<h2 id="2-6-file"><a href="#2-6-file" class="headerlink" title="2.6 file"></a>2.6 file</h2><p>设置文件属性（状态，属组，属主，权限）</p>
+<figure class="highlight pf"><table><tr><td class="code"><pre><code class="hljs pf">ansible <span class="hljs-literal">all</span> -m file -a “path=/root/a.sh owner=zhang mode=<span class="hljs-number">755</span>”<br><br>ansible <span class="hljs-literal">all</span> -m file -a &#x27;src=/data/test1 dest=/tmp/test <span class="hljs-keyword">state</span>=link&#x27;<br><br>ansible <span class="hljs-literal">all</span> -m file -a ’name=/data/f3 <span class="hljs-keyword">state</span>=touch‘  <span class="hljs-comment">#创建文件</span><br><br>ansible <span class="hljs-literal">all</span> -m file -a ’name=/data/f3 <span class="hljs-keyword">state</span>=absent‘ <span class="hljs-comment">#删除文件</span><br><br>ansible <span class="hljs-literal">all</span> -m file -a ’name=/data <span class="hljs-keyword">state</span>=directory‘ <span class="hljs-comment">#创建目录</span><br><br>ansible <span class="hljs-literal">all</span> -m file -a ’src=/etc/fstab dest=/data/fstab.link <span class="hljs-keyword">state</span>=link‘<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-7-unarchive"><a href="#2-7-unarchive" class="headerlink" title="2.7 unarchive"></a>2.7 unarchive</h2><p>功能:解包解压缩</p>
+<p>实现有两种用法:</p>
+<ol>
+<li><p>将ansible主机上的压缩包传到远程主机后解压缩至特定目录,设置copy-yes</p>
+</li>
+<li><p>将远程主机上的某个压缩包解压缩到指定路径下,设置copy=no</p>
+</li>
+</ol>
+<p>常见参数</p>
+<ul>
+<li>copy: 默认为yes,当copy=yes,拷贝的文件是从ansible主机复制到远程主机上,如果设置为copy=no,会在远程主机上寻找src源文件</li>
+<li>remote_src:和copy功能一样且互斥, yes表示在远程主机,不在ansible主机, no表示文件在ansible主机上src:源路径,可以是ansible主机上的路径,也可以是远程主机上的路径,如果是远程主机上的路径,则需要设置copy=no</li>
+<li>dest:远程主机上的目标路径</li>
+<li>mode:设置解压缩后的文件权限</li>
+</ul>
+<p>范例：</p>
+<figure class="highlight nix"><table><tr><td class="code"><pre><code class="hljs nix">ansible all -m unarchive -a &#x27;<span class="hljs-attr">src=/data/foo.tgz</span> <span class="hljs-attr">dest=/var/1ib/foo&#x27;</span><br><br>ansible all -m unarchive -a &#x27;<span class="hljs-attr">src=/tmp/foo.zip</span> <span class="hljs-attr">dest=/data</span> <span class="hljs-attr">copy=no</span> <span class="hljs-attr">mode=0777&#x27;</span><br><br>ansible all -m unarchive -a &#x27;<span class="hljs-attr">src=https://example.com/example.zip</span> <span class="hljs-attr">dest=/data</span> <span class="hljs-attr">copy=no&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="2-8-Archive"><a href="#2-8-Archive" class="headerlink" title="2.8 Archive"></a>2.8 Archive</h2><p>功能：打包压缩</p>
+<figure class="highlight nix"><table><tr><td class="code"><pre><code class="hljs nix">ansible all -m archieve -a &#x27;<span class="hljs-attr">path=/var/log/</span> <span class="hljs-attr">dest=/data/log.tar.bz2</span> <span class="hljs-attr">format=bz2</span> <span class="hljs-attr">owner=wang</span> <span class="hljs-attr">mode=0600&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="2-9-hostname"><a href="#2-9-hostname" class="headerlink" title="2.9 hostname"></a>2.9 hostname</h2><p>管理主机名</p>
+<figure class="highlight nginx"><table><tr><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">ansible</span> <span class="hljs-number">192.168.10.24</span> -m hostname -a “name=kso-bj6-zw-zhangwei”<span class="hljs-comment">#永久生效（但hosts文件需要手动更改）</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="2-10-cron"><a href="#2-10-cron" class="headerlink" title="2.10 cron"></a>2.10 cron</h2><p>计划任务</p>
+<p>支持时间：minute，hour，day，month，weekday</p>
+<figure class="highlight pf"><table><tr><td class="code"><pre><code class="hljs pf">ansible <span class="hljs-literal">all</span> -m cron -a <span class="hljs-string">&quot;minute=*/5 weekday=1,3,5 job=&#x27;/usr/sbin/ntpfata 172.16.0.1 &amp; &gt;/dev/null&#x27; name=Synctime&quot;</span> 创建任务<br>ansible <span class="hljs-literal">all</span> -m cron -a <span class="hljs-string">&quot;disabled=true job=&#x27;/usr/sbin/ntpfata 172.16.0.1 &amp; &gt;/dev/null&#x27; name=Synctime&quot;</span> 禁用任务（加<span class="hljs-comment">#号注释）</span><br><br>ansible <span class="hljs-literal">all</span> -m cron -a <span class="hljs-string">&quot;disabled=no  job=&#x27;/usr/sbin/ntpfata 172.16.0.1 &amp; &gt;/dev/null&#x27; name=Synctime&quot;</span> 启用任务<br><br>ansible <span class="hljs-literal">all</span> -m  cron -a &#x27;<span class="hljs-keyword">state</span>=absent name=Synctime&#x27; 删除任务<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-11-yum"><a href="#2-11-yum" class="headerlink" title="2.11 yum"></a>2.11 yum</h2><p>管理包(支持Red-Hat 系列)</p>
+<figure class="highlight pf"><table><tr><td class="code"><pre><code class="hljs pf">ansible <span class="hljs-literal">all</span> -m yum -a &#x27;name=httpd <span class="hljs-keyword">state</span>=latest&#x27;安装<br><br>ansible <span class="hljs-literal">all</span> -m yum -a &#x27;name=httpd <span class="hljs-keyword">state</span>=ansent&#x27; 卸载<br><br>ansible <span class="hljs-literal">all</span> -m yum  -a &#x27;name=dstat update_cache=yes&#x27; 更新缓存<br><br>【注：dstat--监控工具https://www.jianshu.com/p/<span class="hljs-number">49</span>b259cbcc79】<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-12-service"><a href="#2-12-service" class="headerlink" title="2.12 service"></a>2.12 service</h2><p>管理服务</p>
+<figure class="highlight pf"><table><tr><td class="code"><pre><code class="hljs pf">ansible <span class="hljs-literal">all</span> -m service -a &#x27;name=httpd <span class="hljs-keyword">state</span>=stopped&#x27;<br><br>ansible <span class="hljs-literal">all</span> -m service -a &#x27;name=httpd <span class="hljs-keyword">state</span>=started enabled=yes&#x27;<br><br>ansible <span class="hljs-literal">all</span> -m service -a &#x27;name=httpd <span class="hljs-keyword">state</span>=reload&#x27;<br><br>ansible <span class="hljs-literal">all</span> -m service -a &#x27;name=httpd <span class="hljs-keyword">state</span>=restart&#x27;<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-13-user"><a href="#2-13-user" class="headerlink" title="2.13 user"></a>2.13 user</h2><p>管理用户</p>
+<figure class="highlight pf"><table><tr><td class="code"><pre><code class="hljs pf">ansible <span class="hljs-literal">all</span> -m <span class="hljs-keyword">user</span> -a &#x27;name=user1 comment=<span class="hljs-string">&quot;test user&quot;</span> uid=<span class="hljs-number">2048</span> home=/data/home/user1 <span class="hljs-keyword">group</span>=root&#x27;  创建用户，以及uid，家目录，并描述（comment）<br><br>ansible <span class="hljs-literal">all</span> -m <span class="hljs-keyword">user</span> -a &#x27;name=zhangwei shell=/sbin/nologin  system=yes home=/data/home/zhangwei&#x27;    创建不可登陆的系统用户<br><br>ansible <span class="hljs-literal">all</span> -m <span class="hljs-keyword">user</span> -a &#x27;name=zhangwei <span class="hljs-keyword">state</span>=absent remove=yes&#x27;删除用户及家目录(remove表示是否删除家目录)<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-14-group"><a href="#2-14-group" class="headerlink" title="2.14 group"></a>2.14 group</h2><p>管理组</p>
+<figure class="highlight crmsh"><table><tr><td class="code"><pre><code class="hljs crmsh">ansible all -m <span class="hljs-keyword">group</span> <span class="hljs-title">-a</span> <span class="hljs-string">&quot;name=testgroup system=yes&quot;</span><br><br>ansible all -m <span class="hljs-keyword">group</span> <span class="hljs-title">-a</span> <span class="hljs-string">&quot;name=testgroup state=absent&quot;</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="2-15-lineinfile"><a href="#2-15-lineinfile" class="headerlink" title="2.15 lineinfile"></a>2.15 lineinfile</h2><p>文件内容替换 </p>
+<p>ansible在使用sed进行替换时,经常会遇到需要转义的问题,而且ansible在遇到特殊符号进行替换时,存在问题,无法正常进行替换。其实在ansible自身提供了两个模块: lineinfile模块和replace模块,可以方便的进行替换 功能:相当于sed,可以修改文件内容</p>
+<figure class="highlight pf"><table><tr><td class="code"><pre><code class="hljs pf">ansible all-m lineinfile -a <span class="hljs-string">&quot;path=/etc/selinux/config regexp=&#x27;ASELINUX=line=&#x27; SELINUX=enforcing.&quot;</span><br>ansible al1-m lineinfile -a &#x27;dest=/etc/fstab <span class="hljs-keyword">state</span>=absent regexp=<span class="hljs-string">&quot;^#&quot;</span>.<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-16-replace"><a href="#2-16-replace" class="headerlink" title="2.16 replace"></a>2.16 replace</h2><p>类似于se d命令，主要也是基于正则进行匹配和替换</p>
+<figure class="highlight dos"><table><tr><td class="code"><pre><code class="hljs dos">ansible all -m <span class="hljs-built_in">replace</span> -a &quot;<span class="hljs-built_in">path</span>=/etc/fstab regexp=&#x27;^(UUID.*)&#x27; <span class="hljs-built_in">replace</span>=&#x27;#\<span class="hljs-number">1</span>&#x27;&quot;<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-17-setup"><a href="#2-17-setup" class="headerlink" title="2.17 setup"></a>2.17 setup</h2><p>用来收集主机的系统信息，这些facts信息可以直接以变量的形式使用，但是如果主机较多，会影响执行速度，可以使用<code>gather_facts: no</code> 来禁止ansible收集facts信息</p>
+<figure class="highlight ada"><table><tr><td class="code"><pre><code class="hljs ada">ansible <span class="hljs-keyword">all</span> -m setup 查看所有信息<br>ansible <span class="hljs-keyword">all</span> -m setup -a <span class="hljs-string">&quot;filter=ansible_processor&quot;</span> 查看指定信息<br></code></pre></td></tr></table></figure>
+
+<h1 id="3-playbook"><a href="#3-playbook" class="headerlink" title="3 playbook"></a>3 playbook</h1><h2 id="3-1-介绍"><a href="#3-1-介绍" class="headerlink" title="3.1 介绍"></a>3.1 介绍</h2><h3 id="playbook"><a href="#playbook" class="headerlink" title="playbook"></a>playbook</h3><p><img src="ansible%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.assets/image-20210219183051942.png" alt="image-20210219183051942"></p>
+<p>playbook是由一个或者多个“play”组成的列表</p>
+<p>play的主要功能在于将事先归并为一组的主机装扮成事先通过ansible中的task定义好的角色。从根本上来讲，所谓task无非是调用ansible的一个module。将多个play组织在一个playbook中，即可以让他们联同起来按照事先编排的机制同唱一台大戏。</p>
+<p>palybook采用YAML语言编写</p>
+<h3 id="yaml"><a href="#yaml" class="headerlink" title="yaml"></a>yaml</h3><p>YAML是一个可读性高用来表达资料序列的格式。YAML参考了其他多种语言，包括：XML、C语言、Python、Perl以及电子邮件格式RFC2822等。Clark Evans在2001年在首次发表了这种语言，另外Ingy dot Net与Oren Ben-Kiki也是这种语言的共同设计者。</p>
+<p>YAML Ain’t Markup Language，即TAML不是XML。不过，在开发这种语言时，YAML的意思其实是：Yet Another Markup Language（仍是一种标记语言）</p>
+<p>特性</p>
+<ul>
+<li>YAML的可读性好</li>
+<li>YAML和脚本语言的交互性好</li>
+<li>YAML使用实现语言的数据类型</li>
+<li>YAML有一个一致的信息模型</li>
+<li>YAML易于实现</li>
+<li>YAML可以基于流来处理</li>
+<li>YAML表达能力强，扩展性好</li>
+</ul>
+<p>更多内容及规范参见<a target="_blank" rel="noopener" href="http://www.yaml.org/">http://www.yaml.org</a></p>
+<h3 id="yaml-语法简介"><a href="#yaml-语法简介" class="headerlink" title="yaml 语法简介"></a>yaml 语法简介</h3><ol>
+<li><p>注意</p>
+<p>在单一档案中，可以连续三个连字号（—）区分多个档案。另外，还有选择性的连续三个点号（…）用来表示档案结尾</p>
+<p>次行动开始正常些playbook的内容，一般建议些明该playbook的功能</p>
+<p>使用#号注释代码</p>
+<p>缩进必须是统一的，不能空格和tab混用</p>
+<p>缩进的级别也必须是一致的，同样的缩进代表同样的级别，程序判断配置的级别是通过缩进结合换行来实现的</p>
+<p>YAML文件内容和linux系统大小写判断方式保持一致，是区别大小写的，k/v的值均需大小写敏感</p>
+<p>k/v的值可同行写也可换行写。同行的话，使用：号分割</p>
+<p>v可是一个字符串，也可是另一个列表</p>
+<p>一个完成的代码块功能需最少元素包括 name:    task</p>
+<p>一个name只能包括一个task</p>
+<p>YAML文件扩展名通常为yml或者yaml</p>
+</li>
+<li><p>list：列表，其所有元素均使用“-”打头</p>
+<p>示例：</p>
+<p># Alist of tasty fruits</p>
+<p>- Apple</p>
+<p>- Orange</p>
+<p>- Strawberry</p>
+<p>- Mango</p>
+</li>
+<li><p>Dictionary：字典，通常由说个key与value构成</p>
+<p>示例：</p>
+<p>-–</p>
+<p># An employee record</p>
+<p>name:Example Developer</p>
+<p> job:Developer</p>
+<p>skill:Elite</p>
+<p>也可将key:value放置于{}中进行表示，用“，”分隔多个key:value</p>
+<p>示例：</p>
+<p>-–</p>
+<p># An employee record</p>
+<p>{name:Example Developer,job:Developer,skill:Elite}</p>
+<p>YAML的语法和其他高阶语言类似，并且可以简单表达清单，散列表、标量等数据结构。其    机构（Structure）通过空格来展示，序列（Sequence）里的项目“-”来代表，Map李的键值对用“：”分割。</p>
+</li>
+</ol>
+<h2 id="3-2-playbook核心元素"><a href="#3-2-playbook核心元素" class="headerlink" title="3.2 playbook核心元素"></a>3.2 playbook核心元素</h2><ul>
+<li>hosts  执行的远程主机列表</li>
+<li>tasks  任务集</li>
+<li>varniables  内置变量或自定义变量在playbook中调用</li>
+<li>templates  模板，可替换模板文件中的变量并实现一些简单逻辑文件</li>
+<li>hanslers 和notity结合使用，有特定条件出发操作，满足条件方可执行，否则不执行</li>
+<li>tags  标签 指定某条任务执行，用于选择运行playbook中部分代码。ansible具有幂等性，因此会自动化跳过没有变化的部分，即便如此，有些代码为此时其确实没有发生变化的时间依然会非常的长。此时，确信其没有变化，就可以通过tags跳过此些代码片段。</li>
+</ul>
+<h2 id="3-3-playbook基础组件"><a href="#3-3-playbook基础组件" class="headerlink" title="3.3 playbook基础组件"></a>3.3 playbook基础组件</h2><h3 id="hosts"><a href="#hosts" class="headerlink" title="hosts"></a>hosts</h3><p>playbook中的每一个play的目的都是为了让某个或某些主机以某个指定的用户身份执行任务。hosts用于指定要执行指定任务的主机，须事先定义在主机清单中</p>
+<p>可以是如下形式：</p>
+<figure class="highlight accesslog"><table><tr><td class="code"><pre><code class="hljs accesslog">one.example.com<br><br>one.example.com:two.example.com<br><br><span class="hljs-number">192.168.1.50</span><br><br><span class="hljs-number">192</span>.<span class="hljs-number">168</span>.<span class="hljs-number">1</span>.*<br><br>webserver:dbserver 两个组的并集<br><br>webserver:&amp;dbserver 两个组的交集<br><br>webserver:!dbserver 在webserver组中  但不在dbserver组中<br></code></pre></td></tr></table></figure>
+
+<p>示例：</p>
+<figure class="highlight asciidoc"><table><tr><td class="code"><pre><code class="hljs asciidoc"><span class="hljs-bullet">- </span>hosts：webserver:sbserver<br></code></pre></td></tr></table></figure>
+
+<h3 id="remote-user"><a href="#remote-user" class="headerlink" title="remote_user"></a>remote_user</h3><p>可用于Host和task中。也可以通过制定其通过sudo的方式在远程主机上执行任务，其可用于play全局或某任务；此外；甚至可以在sudo时使用sudo_user: root时切换到用户。</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-bullet">-</span> <span class="hljs-attr">hosts:</span> <span class="hljs-string">web</span><br>  <span class="hljs-attr">remote_user:</span> <span class="hljs-string">root</span><br>  <span class="hljs-attr">tasks:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">test</span> <span class="hljs-string">connection</span><br>      <span class="hljs-string">ping</span><br>      <span class="hljs-attr">remote_user:</span> <span class="hljs-string">zhangwei</span><br>      <span class="hljs-attr">sudo:</span> <span class="hljs-literal">yes</span>   <span class="hljs-comment">#默认sudo为root</span><br>      <span class="hljs-attr">sudo_user:</span> <span class="hljs-string">wang</span>   <span class="hljs-comment">#sudo为wang</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="tasks"><a href="#tasks" class="headerlink" title="tasks"></a>tasks</h3><p>任务列表</p>
+<p>格式：（1）action: module arguments </p>
+<pre><code>          (2) module: arguments 【建议使用】
+
+          注意：shell和command模块后面跟命令，而非key=value
+</code></pre>
+<p>某任务的状态在运行后为change时，可通过‘notify’通知给相应的handlers</p>
+<p>某任务可以通过‘tags’打标签，而后可在ansible-playbook命令上使用-t指定进行调用</p>
+<p>示例：</p>
+<figure class="highlight arcade"><table><tr><td class="code"><pre><code class="hljs arcade">tasks：<br>  - name: disable selinux<br>    command: <span class="hljs-regexp">/sbin/</span>setenforce <span class="hljs-number">0</span><br><br><br></code></pre></td></tr></table></figure>
+
+<p>如果命令或脚本的退出码不为零，可以使用如下方式替代</p>
+<figure class="highlight gradle"><table><tr><td class="code"><pre><code class="hljs gradle">tasks:<br>  - name: run <span class="hljs-keyword">this</span> conamnd and ignore the result<br>    shell : <span class="hljs-regexp">/usr/</span>bin<span class="hljs-regexp">/sommecommand || /</span>bin/<span class="hljs-keyword">true</span><br><br></code></pre></td></tr></table></figure>
+
+<p>或者使用ignore_errors来忽略错误信息：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">tasks:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">run</span> <span class="hljs-string">this</span> <span class="hljs-string">conamnd</span> <span class="hljs-string">and</span> <span class="hljs-string">ignore</span> <span class="hljs-string">the</span> <span class="hljs-string">result</span><br>    <span class="hljs-attr">shell :</span> <span class="hljs-string">/usr/bin/sommecommand</span><br>    <span class="hljs-attr">ignore_errors:</span> <span class="hljs-literal">True</span><br></code></pre></td></tr></table></figure>
+
+<p>运行playbook方式</p>
+<p>ansible-playbook &lt;filename.yml&gt;  … [options]</p>
+<p>常见选项</p>
+<p>–check (-C)只检测可能会发生的改变，但不真正执行操作</p>
+<p>–list-hosts 列出运行任务的主机</p>
+<p>–limit 主机列表 只针对主机列表中的主机执行</p>
+<p>-v 显示过程 -vv -vvv更详细</p>
+<p>示例：</p>
+<figure class="highlight applescript"><table><tr><td class="code"><pre><code class="hljs applescript">ansible-playbook <span class="hljs-built_in">file</span>.yml <span class="hljs-comment">--check 只检测</span><br><br>ansible-playbook <span class="hljs-built_in">file</span>.yml<br><br>ansible-playbook <span class="hljs-built_in">file</span>.yml <span class="hljs-comment">--limit webserver</span><br><br>ansible-playbook <span class="hljs-built_in">file</span>.yml <span class="hljs-comment">--list-hosts  # 查看主机</span><br><br>ansible-playbook <span class="hljs-built_in">file</span>.yml <span class="hljs-comment">--list-tasks  #查看任务列表</span><br><br>ansible-playbook <span class="hljs-built_in">file</span>.yml <span class="hljs-comment">--list-tags  # 查看标签</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="3-4-playbook中的handler和notify"><a href="#3-4-playbook中的handler和notify" class="headerlink" title="3.4 playbook中的handler和notify"></a>3.4 playbook中的handler和notify</h2><ul>
+<li><p>handlers</p>
+<p>是tasks列表，这些task与前述的task并没有本质上的不同，用于当关注的资源发生变化时，才会采取一定的操作</p>
+</li>
+<li><p>notify</p>
+<p>此action可用于在每个play的最后被触发，这样可以避免多次有改变发生时，每次都执行指定的操作，仅在所有的变化发生完后一次性执行指定的操作。在notify中列出的操作称为handler，也即notify中调用handler中定义的操作</p>
+</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-bullet">-</span> <span class="hljs-attr">hosts:</span> <span class="hljs-string">all</span><br>  <span class="hljs-attr">remote_user:</span> <span class="hljs-string">root</span><br>  <span class="hljs-attr">tasks:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">install</span> <span class="hljs-string">httpd</span> <span class="hljs-string">package</span><br>      <span class="hljs-attr">yum:</span> <span class="hljs-string">name=httpd</span> <span class="hljs-string">state=present</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">install</span> <span class="hljs-string">configuration</span> <span class="hljs-string">file</span> <span class="hljs-string">for</span> <span class="hljs-string">httpd</span><br>      <span class="hljs-attr">copy:</span> <span class="hljs-string">src=/root/conf/httpd.conf</span> <span class="hljs-string">dest=/etc/httpd/conf/httpd.conf</span><br>      <span class="hljs-attr">notify:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">restart</span> <span class="hljs-string">httpd</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">Check</span> <span class="hljs-string">Nginx</span> <span class="hljs-string">Process</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">start</span> <span class="hljs-string">httpd</span> <span class="hljs-string">service</span><br>      <span class="hljs-attr">service:</span> <span class="hljs-string">enabled=true</span> <span class="hljs-string">name=httpd</span> <span class="hljs-string">state=started</span><br>  <span class="hljs-attr">handlers:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">restart</span> <span class="hljs-string">httpd</span><br>      <span class="hljs-attr">service:</span> <span class="hljs-string">name=httpd</span> <span class="hljs-string">state=restarted</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Check</span> <span class="hljs-string">Nginx</span> <span class="hljs-string">process</span><br>      <span class="hljs-attr">shell:</span> <span class="hljs-string">killall</span> <span class="hljs-string">-O</span> <span class="hljs-string">nginx</span> <span class="hljs-string">&gt;</span> <span class="hljs-string">/tmp/nginx.log</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="3-5-playbook中tags的使用"><a href="#3-5-playbook中tags的使用" class="headerlink" title="3.5 playbook中tags的使用"></a>3.5 playbook中tags的使用</h2><p><img src="ansible%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.assets/image-20210220172828318.png" alt="image-20210220172828318"></p>
+<p>ansible-playbook -t conf httpd.yml    <strong>【使用-t 指定标签名字】</strong></p>
+<p>ansible-playbook -t conf,service httpd.yml</p>
+<p>ansible-playbook  httpd.yml –list-tsgs  #查看标签列表</p>
+<p>注意：tags标签命名可以相同，不通模块下写入相同tags标签，执行时，打入标签的模块会同时执行</p>
+<h2 id="3-6-playbook中变量的使用"><a href="#3-6-playbook中变量的使用" class="headerlink" title="3.6 playbook中变量的使用"></a>3.6 playbook中变量的使用</h2><ul>
+<li><p>变量名：仅能由字母、数字和下划线组成，且只能以字母开头</p>
+</li>
+<li><p>变量来源：</p>
+<ul>
+<li><p>ansible setup facts 远程主机的所有变量都可以直接调用</p>
+<figure class="highlight nsis"><table><tr><td class="code"><pre><code class="hljs nsis">ansible <span class="hljs-literal">all</span> -m setup <span class="hljs-comment">#查看远程主机的所有变量</span><br>ansible <span class="hljs-literal">all</span> -m setup -a <span class="hljs-string">&#x27;filter=ansible_hostname&#x27;</span><span class="hljs-comment">#过滤主机中的变量</span><br>ansible <span class="hljs-literal">all</span> -m setup -a <span class="hljs-string">&#x27;filter=ansible_hostname&#x27;</span> <span class="hljs-comment">##过滤主机的主机全名 </span><br></code></pre></td></tr></table></figure>
+
+<p>这里查找到的变量可以直接在playbook中调用</p>
+</li>
+<li><p>在/etc/ansible/hosts中定义</p>
+<p>普通变量：主机组中主机单独定义，优先级高与公共变量</p>
+<p>公共组变量：针对主机组中所有主机定义统一变量</p>
+<figure class="highlight accesslog"><table><tr><td class="code"><pre><code class="hljs accesslog"><span class="hljs-string">[websrvs]</span><br><span class="hljs-number">10.0.0.8</span> hostname=node1<br><span class="hljs-number">10.0.0.7</span> hostname=node2<br><br><span class="hljs-string">[websrvs:vars]</span><br>domain=mageedu.org<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注：主机变量的优先级高于公共变量</p>
+</blockquote>
+</li>
+<li><p>通过命令行指定变量，优先级最高</p>
+<p><code>ansible-playbook -e varname=value</code></p>
+<p>例子：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-meta">---</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">hosts:</span> <span class="hljs-string">web</span><br>  <span class="hljs-attr">remote_user:</span> <span class="hljs-string">root</span><br><br>  <span class="hljs-attr">tasks:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">install</span> <span class="hljs-string">pkname</span><br>      <span class="hljs-attr">yum:</span> <span class="hljs-string">name=&#123;&#123;</span> <span class="hljs-string">pkname</span> <span class="hljs-string">&#125;&#125;</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">start</span> <span class="hljs-string">serivece</span><br>      <span class="hljs-attr">service:</span> <span class="hljs-string">name=&#123;&#123;</span> <span class="hljs-string">pkname</span> <span class="hljs-string">&#125;&#125;</span> <span class="hljs-string">state=started</span> <span class="hljs-string">enabled=yes</span><br></code></pre></td></tr></table></figure>
+
+<p>在命令行中调用：</p>
+<figure class="highlight sml"><table><tr><td class="code"><pre><code class="hljs sml">ansible-playbook -e <span class="hljs-symbol">&#x27;pkname</span>=httpd&#x27;   test.yml<br></code></pre></td></tr></table></figure></li>
+<li><p>在playbook中定义</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-bullet">-</span> <span class="hljs-attr">hosts:</span> <span class="hljs-string">web</span><br>  <span class="hljs-attr">remote_user:</span> <span class="hljs-string">root</span><br>  <span class="hljs-attr">vars:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">pkname1:</span> <span class="hljs-string">httpd</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">pkname2:</span> <span class="hljs-string">telnet</span><br>  <span class="hljs-attr">tasks:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">install</span> <span class="hljs-string">pkname1</span><br>      <span class="hljs-attr">yum:</span> <span class="hljs-string">name=&#123;&#123;</span> <span class="hljs-string">pkname1</span> <span class="hljs-string">&#125;&#125;</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">install</span> <span class="hljs-string">pkname2</span><br>      <span class="hljs-attr">yum:</span> <span class="hljs-string">name=&#123;&#123;</span> <span class="hljs-string">pkname2</span> <span class="hljs-string">&#125;&#125;</span><br></code></pre></td></tr></table></figure></li>
+<li><p>在role中定义</p>
+</li>
+<li><p>使用变量文件</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Play</span> <span class="hljs-string">the</span> <span class="hljs-string">template</span> <span class="hljs-string">module</span><br>  <span class="hljs-attr">hosts:</span> <span class="hljs-string">localhost</span><br>  <span class="hljs-attr">vars:</span><br>    <span class="hljs-attr">env:</span> <span class="hljs-string">&quot;development&quot;</span><br>  <span class="hljs-attr">vars_files:</span>  <span class="hljs-comment"># 变量定义在相对路径的文件中</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">vars/test.yml</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">vars/development.yml</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">vars/production.yml</span><br>  <span class="hljs-attr">tasks:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">generation</span> <span class="hljs-string">the</span> <span class="hljs-string">hello_world.txt</span> <span class="hljs-string">file</span><br>      <span class="hljs-attr">template:</span><br>        <span class="hljs-attr">src:</span> <span class="hljs-string">./files/hello_world.txt.j2</span><br>        <span class="hljs-attr">dest:</span> <span class="hljs-string">/tmp/hello_world2.txt</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+<h2 id="3-7-模板templates"><a href="#3-7-模板templates" class="headerlink" title="3.7 模板templates"></a>3.7 模板templates</h2><ul>
+<li>文本文件，嵌套有脚本（使用模板编程语言编写）</li>
+<li>jinja2语言，使用字面量，有下面形式:</li>
+<li>字符串：使用单引号或者双引号</li>
+<li>数字：整数，浮点数</li>
+<li>列表：[item1，itme2,…]</li>
+<li>元组：（item1，itme2,…）</li>
+<li>字典：{key1:value1,key2:value2,…}</li>
+<li>布尔型：true/false</li>
+<li>算术运算：+，-，<em>，/，//，%，</em>*</li>
+<li>比较操作：==,！=,&gt;,&gt;=,&lt;,&lt;=</li>
+<li>逻辑运算：and,or,not</li>
+<li>流表达式：For If When（循环语句）</li>
+</ul>
+<p>小记：在模板目录template下写入模板文件，文件中可以直接调用setup变量（src可以直接书写模板目录下的文件）</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># 修改文件nginx.conf.j2</span><br><span class="hljs-string">mkdir</span> <span class="hljs-string">templates</span><br><span class="hljs-string">vim</span> <span class="hljs-string">templates/nginx.conf.j2</span><br><span class="hljs-string">worker_processes</span> &#123;&#123; <span class="hljs-string">ansible_processor_vcpus</span> &#125;&#125;<br><br><span class="hljs-string">vim</span> <span class="hljs-string">temnginx2.yml</span><br><span class="hljs-meta">---</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">hosts:</span> <span class="hljs-string">websrvs</span><br>  <span class="hljs-attr">remote_user:</span> <span class="hljs-string">root</span><br>  <span class="hljs-attr">tasks:</span> <br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">template</span> <span class="hljs-string">config</span> <span class="hljs-string">to</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="3-7-1-for和if"><a href="#3-7-1-for和if" class="headerlink" title="3.7.1 for和if"></a>3.7.1 for和if</h3><p>template中也可以使用流程控制for循环和if条件判断，实现动态生成文件功能</p>
+<p><strong>for条件判断</strong></p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># tplnginx.yml</span><br><span class="hljs-meta">---</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">hosts:</span> <span class="hljs-string">websrvs</span><br>  <span class="hljs-attr">remote_user:</span> <span class="hljs-string">root</span><br>  <span class="hljs-attr">vars:</span><br>    <span class="hljs-attr">nginx_vhosts:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">listen:</span> <span class="hljs-number">8080</span><br>  <span class="hljs-attr">tasks:</span> <br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">config</span> <span class="hljs-string">file</span><br>      <span class="hljs-attr">template:</span> <span class="hljs-string">src=nginx.conf.j2</span> <span class="hljs-string">dest=/data/nginx.conf</span><br><br><span class="hljs-comment"># nginx.conf.j2</span><br>&#123;<span class="hljs-string">%</span> <span class="hljs-string">for</span> <span class="hljs-string">host</span> <span class="hljs-string">in</span> <span class="hljs-string">nginx_vhosts</span> <span class="hljs-string">%</span>&#125;<br><span class="hljs-string">server</span> &#123;<br>  <span class="hljs-string">listen</span> &#123;&#123; <span class="hljs-string">vhost.listen</span> &#125;&#125;<br>&#125;<br>&#123;<span class="hljs-string">%</span> <span class="hljs-string">endfor</span> <span class="hljs-string">%</span>&#125;<br><br><span class="hljs-comment"># 生成的结果</span><br><span class="hljs-string">server</span> &#123;<br>  <span class="hljs-string">listen</span> <span class="hljs-number">8080</span><span class="hljs-string">;</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>if条件判断</strong></p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-meta">---</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">hosts:</span> <span class="hljs-string">web</span><br>  <span class="hljs-attr">remote_user:</span> <span class="hljs-string">root</span><br>  <span class="hljs-attr">vars:</span><br>    <span class="hljs-attr">ports:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">web1:</span><br>        <span class="hljs-attr">port:</span> <span class="hljs-number">81</span><br>        <span class="hljs-attr">name:</span> <span class="hljs-string">web1.magedu.com</span><br>        <span class="hljs-attr">rootdir:</span> <span class="hljs-string">/data/website1</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">web2:</span><br>        <span class="hljs-attr">port:</span> <span class="hljs-number">82</span><br>        <span class="hljs-comment">#name: web2.magedu.com</span><br>        <span class="hljs-attr">rootdir:</span> <span class="hljs-string">/data/website2</span><br><br>  <span class="hljs-attr">tasks:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">copy</span> <span class="hljs-string">conf</span><br>      <span class="hljs-attr">template:</span> <span class="hljs-string">src=if.conf.j2</span> <span class="hljs-string">dest=/data/if.conf</span><br></code></pre></td></tr></table></figure>
+
+<p>模版文件</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs jinja2">&#123;% for p in ports %&#125;<br>server&#123;<br>        listen &#123;&#123; p.port &#125;&#125;<br>&#123;% if p.name is defined %&#125; #如果p.name被定义就执行下面的servername，否则不执行<br>        servername &#123;&#123; p.name &#125;&#125;<br>&#123;% endif %&#125;<br>        documentroot &#123;&#123; p.rootdir &#125;&#125;<br>&#125;<br>&#123;% endfor %&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="3-7-2-when语句"><a href="#3-7-2-when语句" class="headerlink" title="3.7.2 when语句"></a>3.7.2 when语句</h2><p>条件测试： 如果需要根据变量，facts或此前任务的执行结果来作为某task执行与否的前提时需要用到条件测试，通过w hen语句实现，在task中使用，jinja2的语法格式</p>
+<p>在task后添加when子句即可使用条件测试，when语句支持jinja2表达式语法</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-meta">---</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">set</span> <span class="hljs-string">vim</span> <span class="hljs-string">package</span><br>  <span class="hljs-attr">hosts:</span> <span class="hljs-string">all</span><br>  <span class="hljs-attr">tasks:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">install</span> <span class="hljs-string">apt</span> <span class="hljs-string">packages</span><br>      <span class="hljs-attr">apt:</span> <span class="hljs-string">name=vim</span> <span class="hljs-string">state=present</span><br>      <span class="hljs-attr">when:</span> <span class="hljs-string">ansible_pkg_mgr</span> <span class="hljs-string">==</span> <span class="hljs-string">&quot;apt&quot;</span> <span class="hljs-comment"># 如果是Debian系统使用apt安装</span><br><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">install</span> <span class="hljs-string">yum</span> <span class="hljs-string">packages</span><br>      <span class="hljs-attr">yum:</span> <span class="hljs-string">name=vim-minimal</span> <span class="hljs-string">state=present</span><br>      <span class="hljs-attr">when:</span> <span class="hljs-string">ansible_pkg_mgr</span> <span class="hljs-string">==</span> <span class="hljs-string">&quot;yum&quot;</span>  <span class="hljs-comment"># 如果是RedHat系列系统使用yum安装</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="4-roles"><a href="#4-roles" class="headerlink" title="4 roles"></a>4 roles</h1><p>roles（角色）是ansible自1.2版本引入的新特性，用于层次性，结构化地组织playbook。roles能够根据层次结构自动装载变量文件、tasks以及handlers等。要使用roles只需要在playbook中使用include指令即可。简单来讲，roles就是通过分别将变量、文件、任务、模板及处理器放置于单独的目录中，并可以便捷地include它们的一种机制。角色一般用于主机构建服务的场景中，但也可以使用于构建守护进程等场景中</p>
+<p>复杂场景：建议使用roles，代码复用度高</p>
+<ul>
+<li>变更指定主机或主机组</li>
+<li>如命令不规范，维护和传承成本大</li>
+<li>某些功能需要多个playbook，通过includes可以实现</li>
+</ul>
+<h2 id="4-1-roles目录编排"><a href="#4-1-roles目录编排" class="headerlink" title="4.1 roles目录编排"></a>4.1 roles目录编排</h2><p><img src="ansible%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.assets/image-20210222200644300.png" alt="image-20210222200644300"></p>
+<p><strong>roles目录结构</strong></p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><code class="hljs cmake">playbook.yml<br>  roles<br>  <span class="hljs-keyword">project</span>/<br>  tasks/<br>  files/<br>  vars/  不常用<br>  defaults/  不常用<br>  templates/<br>  handlers/<br>  meta/  不常用<br></code></pre></td></tr></table></figure>
+
+<p><strong>roles各目录的作用</strong></p>
+<ul>
+<li>/roles/project/:项目名称，有以下目录</li>
+<li>files/：存放由copy模块或scripts模块等调用的文件</li>
+<li>template/：template模块    查找所需要模板文件的目录</li>
+<li>tasks/：定义tasks，roles的基本元素，至少应该包含一个名为main.yml的文件；其他的文件需要在此文件中通过include进行调用</li>
+<li>handlers/：至少应该包含一个名为main.yml的文件；其他的文件需要在此文件中通过include进行调用</li>
+<li>vars/：定义变量，至少应该包含一个名为main.yml的文件；其他的文件需要在此文件中通过include进行调用</li>
+<li>meta/：定义当前角色的特殊设定及其依赖关系，至少应该包含一个名为main.yml的文件；其他的文件需要在此文件中通过include进行调用</li>
+<li>default/：设定默认变量时使用此目录中的main.yml文件</li>
+</ul>
+<h2 id="4-2-实战案例"><a href="#4-2-实战案例" class="headerlink" title="4.2 实战案例"></a>4.2 实战案例</h2><h3 id="实验-创建httpd角色"><a href="#实验-创建httpd角色" class="headerlink" title="实验: 创建httpd角色"></a>实验: 创建httpd角色</h3><figure class="highlight erlang-repl"><table><tr><td class="code"><pre><code class="hljs erlang-repl"><span class="hljs-meta">1&gt; </span>创建roles目录<br>   mkdir roles/&#123;httpd,mysql,redis&#125;/tasks -pv<br>   mkdir  roles/httpd/&#123;handlers,files&#125;<br><br>查看目录结构<br>tree roles/<br>    roles/<br>    ├── httpd<br>    │   ├── files<br>    │   ├── handlers<br>    │   └── tasks<br>    ├── mysql<br>    │   └── tasks<br>    └── redis<br>        └── tasks<br><br><span class="hljs-meta">2&gt; </span>创建目标文件<br>   cd roles/httpd/tasks/<br>   touch install.yml config.yml service.yml<br><br><span class="hljs-meta">3&gt; </span>vim install.yml<br>   - name: install httpd package<br>     yum: name=httpd<br>     <br>   vim config.yml<br>   - name: config file  <br>     copy: src=httpd.conf dest=/etc/httpd/conf/ backup=yes <br>   <br>   vim service.yml<br>   - name: start service <br>     service: name=httpd state=started enabled=yes<br>     <br><span class="hljs-meta">4&gt; </span>创建main.yml主控文件,调用以上单独的yml文件,<br>   main.yml定义了谁先执行谁后执行的顺序<br>   vim main.yml<br>   - include: install.yml<br>   - include: config.yml<br>   - include: service.yml<br>   <br><span class="hljs-meta">5&gt; </span>准备httpd.conf文件,放到httpd单独的文件目录下<br>   cp /app/ansible/flies/httpd.conf ../files/<br>   <br><span class="hljs-meta">6&gt; </span>创建一个网页<br>   vim flies/index.html<br>   &lt;h1&gt; welcome to weixiaodong home &lt;\h1&gt;<br><br><span class="hljs-meta">7&gt; </span>创建网页的yml文件<br>   vim tasks/index.yml<br>   - name: index.html<br>     copy: src=index.html dest=/var/www/html <br><br><span class="hljs-meta">8&gt; </span>将网页的yml文件写进main.yml文件中<br>   vim mian.yml<br>   - include: install.yml<br>   - include: config.yml<br>   - include: index.yml<br>   - include: service.yml<br><br><span class="hljs-meta">9&gt; </span>在handlers目录下创建handler文件main.yml<br>   vim handlers/main.yml<br>   - name: restart service httpd<br>     service: name=httpd state=restarted<br><br><span class="hljs-meta">10&gt; </span>创建文件调用httpd角色<br>    cd /app/ansidle/roles<br>    vim role_httpd.yml<br>    ---<br>    # httpd role<br>    - hosts: appsrvs<br>      remote_user: root <br><br>      roles:       #调用角色<br>        - role: httpd  <br>        <br><span class="hljs-meta">11&gt; </span>查看目录结构<br>    tree <br>    .<br>    httpd<br>    ├── files<br>    │   ├── httpd.conf<br>    │   └── index.html<br>    ├── handlers<br>    │   └── main.yml<br>    └── tasks<br>        ├── config.yml<br>        ├── index.yml<br>        ├── install.yml<br>        ├── main.yml<br>        └── service.yml<br><br><span class="hljs-meta">12&gt; </span>ansible-playbook role_httpd.yml<br></code></pre></td></tr></table></figure>
+
+<h3 id="针对大型项目使用Roles进行编排"><a href="#针对大型项目使用Roles进行编排" class="headerlink" title="针对大型项目使用Roles进行编排"></a>针对大型项目使用Roles进行编排</h3><figure class="highlight cmake"><table><tr><td class="code"><pre><code class="hljs cmake">roles目录结构：<br>playbook.yml<br>roles/<br>  <span class="hljs-keyword">project</span>/<br>    tasks/<br>    files/<br>    vars/<br>    templates/<br>    handlers/<br>    default/ <span class="hljs-comment"># 不经常用</span><br>    meta/    <span class="hljs-comment"># 不经常用</span><br><br>示例：<br>nginx-role.yml<br>roles/<br>└── nginx<br>    ├── files<br>    │ └── main.yml<br>    ├── tasks<br>    │ ├── groupadd.yml<br>    │ ├── <span class="hljs-keyword">install</span>.yml<br>    │ ├── main.yml<br>    │ ├── restart.yml<br>    │ └── useradd.yml<br>    └── vars<br>        └── main.yml<br></code></pre></td></tr></table></figure>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><figure class="highlight stylus"><table><tr><td class="code"><pre><code class="hljs stylus">roles的示例如下所示：<br>site<span class="hljs-selector-class">.yml</span><br>webservers<span class="hljs-selector-class">.yml</span><br>dbservers<span class="hljs-selector-class">.yml</span><br>roles/<br>  common/<br>    files/<br>    templates/<br>    tasks/<br>    handlers/<br>    vars/<br>    meta/<br>  webservers/<br>    files/<br>    templates/<br>    tasks/<br>  handlers/<br>    vars/<br>    meta/<br></code></pre></td></tr></table></figure>
+
+<h3 id="实验：-创建一个nginx角色"><a href="#实验：-创建一个nginx角色" class="headerlink" title="实验： 创建一个nginx角色"></a>实验： 创建一个nginx角色</h3><figure class="highlight erlang-repl"><table><tr><td class="code"><pre><code class="hljs erlang-repl">建立nginx角色在多台主机上来部署nginx需要安装 创建账号<br><span class="hljs-meta">1&gt; </span>创建nginx角色目录<br>     cd /app/ansible/role<br>     mkdir nginx&#123;tesks,templates,hanslers&#125; -pv<br><br><span class="hljs-meta">2&gt; </span>创建任务目录<br>     cd tasks/<br>     touch insatll.yml config.yml service.yml file.yml user.yml<br>   创建main.yml文件定义任务执行顺序<br>     vim main.yml<br>     - include: user.yml<br>     - include: insatll.yml<br>     - include: config.yml<br>     - include: file.yml<br>     - include: service.yml<br><br>  <br><span class="hljs-meta">3&gt; </span>准备配置文件(centos7、<span class="hljs-number">8</span>)<br>   ll /app/ansible/role/nginx/templates/<br>   nginx7.conf.j2<br>   nginx8.conf.j2<br><br><br><span class="hljs-meta">4&gt; </span>定义任务<br>   vim tasks/install.yml<br>   - name: install<br>     yum: name=nginx<br>     <br>   vim tasks/config.yml<br>    - name: config file<br>      template: src=nginx7.conf.j2 dest=/etc/nginx/nginx.conf<br>      when: ansible_distribution_major_version==<span class="hljs-string">&quot;7&quot;</span><br>      notify: restrat<br>      <br>    - name: config file<br>      template: src=nginx8.conf.j2 dest=/etc/nginx/nginx.conf<br>      when: ansible_distribution_major_version==<span class="hljs-string">&quot;8&quot;</span><br>      notify: restrat<br>      <br>    vim tasks/file.yml   跨角色调用file.yum文件,实现文件复用<br>    - name: index.html<br>      copy: src=roles/httpd/files/index.html dest=/usr/share/nginx/html/ <br>   <br>    vim tasks/service.yml<br>    - nmae: start service<br>      service: name=nginx state=started enabled=yes<br>      <br>    vim handlers/main.yml<br>    - name: restrat<br>      service: name=nginx state=restarted<br>      <br>    vim roles/role_nginix.yml<br>    --- <br>    #test rcle<br>    - hosts: appsrvs<br>    <br>      roles: <br>        - role: nginx<br>        <br><span class="hljs-meta">5&gt; </span>测试安装<br>   ansible-playbook role_nginx.yml<br></code></pre></td></tr></table></figure>
+
+<h3 id="Roles案例"><a href="#Roles案例" class="headerlink" title="Roles案例"></a>Roles案例</h3><p>Roles目录编排<br><img src="https://note.youdao.com/yws/res/56284/31BB6620C07C4E8DAEC14CB20CF8C573" alt="image"></p>
+<p>Playbook中调用<br><img src="https://note.youdao.com/yws/res/56283/B2206BA3F50D46ACBCC941F778A2C845" alt="image"></p>
+<h3 id="playbook调用角色"><a href="#playbook调用角色" class="headerlink" title="playbook调用角色"></a>playbook调用角色</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">调用角色方法1：</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">hosts:</span> <span class="hljs-string">websrvs</span><br>  <span class="hljs-attr">remote_user:</span> <span class="hljs-string">root</span><br>  <br>  <span class="hljs-attr">roles:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">mysql</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">memcached</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">nginx</span><br>    <br><span class="hljs-string">调用角色方法2：</span><br><span class="hljs-string">传递变量给角色</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">hosts:</span><br>  <span class="hljs-attr">remote_user:</span><br>  <span class="hljs-attr">roles:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">mysql</span><br>    <span class="hljs-bullet">-</span> &#123; <span class="hljs-attr">role:</span> <span class="hljs-string">nginx</span>, <span class="hljs-attr">username:</span> <span class="hljs-string">nginx</span> &#125;   <span class="hljs-comment">#不同的角色调用不同的变量  </span><br>    <span class="hljs-string">键role用于指定角色名称</span><br>    <span class="hljs-string">后续的k/v用于传递变量给角色</span><br><br><span class="hljs-string">调用角色方法3：还可基于条件测试实现角色调用</span><br><span class="hljs-attr">roles:</span><br>  <span class="hljs-bullet">-</span> &#123; <span class="hljs-attr">role:</span> <span class="hljs-string">nginx</span>, <span class="hljs-attr">username:</span> <span class="hljs-string">nginx</span>, <span class="hljs-attr">when:</span> <span class="hljs-string">ansible_distribution_major_version</span> <span class="hljs-string">==</span> <span class="hljs-string">&#x27;7&#x27;</span> &#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="通过roles传递变量"><a href="#通过roles传递变量" class="headerlink" title="通过roles传递变量"></a>通过roles传递变量</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">通过roles传递变量</span><br><span class="hljs-string">当给一个主机应用角色的时候可以传递变量，然后在角色内使用这些变量</span><br><span class="hljs-string">示例：</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">hosts:</span> <span class="hljs-string">webservers</span><br>  <span class="hljs-attr">roles:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">common</span><br>    <span class="hljs-bullet">-</span> &#123; <span class="hljs-attr">role:</span> <span class="hljs-string">foo_app_instance</span>, <span class="hljs-attr">dir:</span> <span class="hljs-string">&#x27;/web/htdocs/a.com&#x27;</span>, <span class="hljs-attr">port:</span> <span class="hljs-number">8080</span> &#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="向roles传递参数"><a href="#向roles传递参数" class="headerlink" title="向roles传递参数"></a>向roles传递参数</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">而在playbook中，可以这样使用roles：</span><br><span class="hljs-meta">---</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">hosts:</span> <span class="hljs-string">webservers</span><br>  <span class="hljs-attr">roles:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">common</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">webservers</span><br><br><span class="hljs-string">也可以向roles传递参数</span><br><span class="hljs-string">示例：</span><br><span class="hljs-meta">---</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">hosts:</span> <span class="hljs-string">webservers</span><br>  <span class="hljs-attr">roles:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">common</span><br>    <span class="hljs-bullet">-</span> &#123; <span class="hljs-attr">role:</span> <span class="hljs-string">foo_app_instance</span>, <span class="hljs-attr">dir:</span> <span class="hljs-string">&#x27;/opt/a&#x27;</span>, <span class="hljs-attr">port:</span> <span class="hljs-number">5000</span> &#125;<br>    <span class="hljs-bullet">-</span> &#123; <span class="hljs-attr">role:</span> <span class="hljs-string">foo_app_instance</span>, <span class="hljs-attr">dir:</span> <span class="hljs-string">&#x27;/opt/b&#x27;</span>, <span class="hljs-attr">port:</span> <span class="hljs-number">5001</span> &#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="条件式地使用roles"><a href="#条件式地使用roles" class="headerlink" title="条件式地使用roles"></a>条件式地使用roles</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">甚至也可以条件式地使用roles</span><br><span class="hljs-string">示例：</span><br><span class="hljs-meta">---</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">hosts:</span> <span class="hljs-string">webservers</span><br>  <span class="hljs-attr">roles:</span><br>    <span class="hljs-bullet">-</span> &#123; <span class="hljs-attr">role:</span> <span class="hljs-string">some_role</span>, <span class="hljs-attr">when:</span> <span class="hljs-string">&quot;ansible_os_family == &#x27;RedHat&#x27;&quot;</span> &#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="Roles条件及变量等案例"><a href="#Roles条件及变量等案例" class="headerlink" title="Roles条件及变量等案例"></a>Roles条件及变量等案例</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">When条件</span><br>    <span class="hljs-attr">roles:</span><br>      <span class="hljs-bullet">-</span> &#123;<span class="hljs-attr">role:</span> <span class="hljs-string">nginx</span>, <span class="hljs-attr">when:</span> <span class="hljs-string">&quot;ansible_distribution_major_version == &#x27;7&#x27; &quot;</span> ,<span class="hljs-attr">username:</span> <span class="hljs-string">nginx</span> &#125;<br><span class="hljs-string">变量调用</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">hosts:</span> <span class="hljs-string">zabbix-proxy</span><br>  <span class="hljs-attr">sudo:</span> <span class="hljs-literal">yes</span><br>  <span class="hljs-attr">roles:</span><br>    <span class="hljs-bullet">-</span> &#123; <span class="hljs-attr">role:</span> <span class="hljs-string">geerlingguy.php-mysql</span> &#125;<br>    <span class="hljs-bullet">-</span> &#123; <span class="hljs-attr">role:</span> <span class="hljs-string">dj-wasabi.zabbix-proxy</span>, <span class="hljs-attr">zabbix_server_host:</span> <span class="hljs-number">192.168</span><span class="hljs-number">.37</span><span class="hljs-number">.167</span> &#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="完整的roles架构"><a href="#完整的roles架构" class="headerlink" title="完整的roles架构"></a>完整的roles架构</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">//</span> <span class="hljs-string">nginx-role.yml</span> <span class="hljs-string">顶层任务调用yml文件</span><br><span class="hljs-meta">---</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">hosts:</span> <span class="hljs-string">testweb</span><br>  <span class="hljs-attr">remote_user:</span> <span class="hljs-string">root</span><br>  <span class="hljs-attr">roles:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">role:</span> <span class="hljs-string">nginx</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">role:</span> <span class="hljs-string">httpd</span> <span class="hljs-string">可执行多个role</span><br><br><span class="hljs-string">cat</span> <span class="hljs-string">roles/nginx/tasks/main.yml</span><br><span class="hljs-meta">---</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">include:</span> <span class="hljs-string">groupadd.yml</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">include:</span> <span class="hljs-string">useradd.yml</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">include:</span> <span class="hljs-string">install.yml</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">include:</span> <span class="hljs-string">restart.yml</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">include:</span> <span class="hljs-string">filecp.yml</span><br><br><span class="hljs-string">//</span> <span class="hljs-string">roles/nginx/tasks/groupadd.yml</span><br><span class="hljs-meta">---</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">add</span> <span class="hljs-string">group</span> <span class="hljs-string">nginx</span><br>  <span class="hljs-attr">user:</span> <span class="hljs-string">name=nginx</span> <span class="hljs-string">state=present</span><br><br><span class="hljs-string">cat</span> <span class="hljs-string">roles/nginx/tasks/filecp.yml</span><br><span class="hljs-meta">---</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">file</span> <span class="hljs-string">copy</span><br>  <span class="hljs-attr">copy:</span> <span class="hljs-string">src=tom.conf</span> <span class="hljs-string">dest=/tmp/tom.conf</span><br><br><span class="hljs-string">以下文件格式类似：</span><br><span class="hljs-string">useradd.yml,install.yml,restart.yml</span><br><br><span class="hljs-string">ls</span> <span class="hljs-string">roles/nginx/files/</span><br><span class="hljs-string">tom.conf</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="roles-playbook-tags使用"><a href="#roles-playbook-tags使用" class="headerlink" title="roles playbook tags使用"></a>roles playbook tags使用</h3><figure class="highlight vim"><table><tr><td class="code"><pre><code class="hljs vim">roles playbook <span class="hljs-keyword">tags</span>使用<br>    ansible-playbook --<span class="hljs-keyword">tags</span>=<span class="hljs-string">&quot;nginx,httpd,mysql&quot;</span> nginx-role.yml  对标签进行挑选执行<br><br>// nginx-role.yml<br>---<br>- host<span class="hljs-variable">s:</span> testweb<br>  remote_user: root<br>  role<span class="hljs-variable">s:</span><br>    - &#123; role: nginx ,<span class="hljs-keyword">tag</span><span class="hljs-variable">s:</span> [ <span class="hljs-string">&#x27;nginx&#x27;</span>, <span class="hljs-string">&#x27;web&#x27;</span> ] ,when: ansible_distribution_major_version == <span class="hljs-comment">&quot;6“ &#125;</span><br>    - &#123; role: httpd ,<span class="hljs-keyword">tag</span><span class="hljs-variable">s:</span> [ <span class="hljs-string">&#x27;httpd&#x27;</span>, <span class="hljs-string">&#x27;web&#x27;</span> ] &#125;<br>    - &#123; role: mysql ,<span class="hljs-keyword">tag</span><span class="hljs-variable">s:</span> [ <span class="hljs-string">&#x27;mysql&#x27;</span>, <span class="hljs-string">&#x27;db&#x27;</span> ] &#125;<br>    - &#123; role: marridb ,<span class="hljs-keyword">tag</span><span class="hljs-variable">s:</span> [ <span class="hljs-string">&#x27;mysql&#x27;</span>, <span class="hljs-string">&#x27;db&#x27;</span> ] &#125;<br>    - &#123; role: php &#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="实验-创建角色memcached"><a href="#实验-创建角色memcached" class="headerlink" title="实验: 创建角色memcached"></a>实验: 创建角色memcached</h3><figure class="highlight erlang-repl"><table><tr><td class="code"><pre><code class="hljs erlang-repl">memcacched 当做缓存用,会在内存中开启一块空间充当缓存<br>cat /etc/sysconfig/memcached <br>    PORT=<span class="hljs-string">&quot;11211&quot;</span><br>    USER=<span class="hljs-string">&quot;memcached&quot;</span><br>    MAXCONN=<span class="hljs-string">&quot;1024&quot;</span><br>    CACHESIZE=<span class="hljs-string">&quot;64&quot;</span>    # 缓存空间默认<span class="hljs-number">64</span>M <br>    OPTIONS=<span class="hljs-string">&quot;&quot;</span><br><br><br><span class="hljs-meta">1&gt; </span>创建对用目录<br>   cd /app/ansible<br>   mkdir roles/memcached/&#123;tasks,templates&#125; -pv<br>   <br><span class="hljs-meta">2&gt; </span>拷贝memcached配置文件模板<br>   cp /etc/sysconfig/memcached  templates/memcached.j2<br>   vim templates/memcached.j2<br>   CACHESIZE=<span class="hljs-string">&quot;&#123;&#123;ansible_memtotal_mb//4&#125;&#125;&quot;</span>   #物理内存的<span class="hljs-number">1</span>/<span class="hljs-number">4</span>用做缓存<br>   <br><span class="hljs-meta">3&gt; </span>创建对应yml文件,并做相应配置<br>   cd tasks/<br>   touch install.yml config.yml service.yml<br>   创建main.yml文件定义任务执行顺序<br>   vim main.yml<br>   - include: install.yml<br>   - include: config.yml<br>   - include: service.yml  <br>   <br>   vim install.yml<br>   - name: install <br>     yum: name=memcached<br>     <br>   vim config.yml<br>   - name: config file<br>     template: src=memcached.j2 dets=/etc/sysconfig/memcached<br><br>   vim service.yml<br>   - name: service<br>     service: name=memcached state=started enabled=yes<br><br><span class="hljs-meta">4&gt; </span>创建调用角色文件<br>   cd /app/ansible/roles/<br>   vim role_memcached.yml<br>    ---<br>    - hosts: appsrvs<br>    <br>      roles: <br>        - role: memcached<br><br><span class="hljs-meta">5&gt; </span>安装<br>   ansible-playbook  role_memcached.yml <br>   memcached端口号<span class="hljs-number">11211</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="其它功能"><a href="#其它功能" class="headerlink" title="其它功能"></a>其它功能</h3><figure class="highlight pgsql"><table><tr><td class="code"><pre><code class="hljs pgsql">委任（指定某一台机器做某一个task）<br>    delegate_to<br>    local_action (专指针对ansible命令执行的机器做的变更操作)<br>交互提示<br>    prompt<br>*暂停（java）<br>    wait_for<br><span class="hljs-keyword">Debug</span><br>    <span class="hljs-keyword">debug</span>: msg=&quot;This always executes.&quot;<br><span class="hljs-keyword">Include</span><br><span class="hljs-keyword">Template</span> 多值合并<br><span class="hljs-keyword">Template</span> 动态变量配置<br></code></pre></td></tr></table></figure>
+
+<h3 id="Ansible-Roles"><a href="#Ansible-Roles" class="headerlink" title="Ansible Roles"></a>Ansible Roles</h3><figure class="highlight pgsql"><table><tr><td class="code"><pre><code class="hljs pgsql">委任<br>    delegate_to<br>交互提示<br>    prompt<br>暂停<br>    wait_for<br><span class="hljs-keyword">Debug</span><br>    <span class="hljs-keyword">debug</span>: msg=&quot;This always executes.&quot;<br><span class="hljs-keyword">Include</span><br><span class="hljs-keyword">Template</span> 多值合并<br><span class="hljs-keyword">Template</span> 动态变量配置<br></code></pre></td></tr></table></figure>
+
+<h3 id="推荐资料"><a href="#推荐资料" class="headerlink" title="推荐资料"></a>推荐资料</h3><figure class="highlight awk"><table><tr><td class="code"><pre><code class="hljs awk">http:<span class="hljs-regexp">//g</span>alaxy.ansible.com<br>https:<span class="hljs-regexp">//g</span>alaxy.ansible.com<span class="hljs-regexp">/explore#/</span><br>http:<span class="hljs-regexp">//gi</span>thub.com/<br>http:<span class="hljs-regexp">//</span>ansible.com.cn/<br>https:<span class="hljs-regexp">//gi</span>thub.com<span class="hljs-regexp">/ansible/</span>ansible<br>https:<span class="hljs-regexp">//gi</span>thub.com<span class="hljs-regexp">/ansible/</span>ansible-examples<br></code></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Ops/" rel="tag"># Ops</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/06/26/PMM%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9B%91%E6%8E%A7%E5%B7%A5%E5%85%B7%E8%B0%83%E7%A0%94/" rel="prev" title="PMM数据库监控工具调研">
+      <i class="fa fa-chevron-left"></i> PMM数据库监控工具调研
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/07/09/SaltStack%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E6%A6%82%E5%BF%B5%E5%8F%8A%E5%85%A5%E9%97%A8/" rel="next" title="SaltStack学习笔记-概念及入门">
+      SaltStack学习笔记-概念及入门 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-%E5%AE%89%E8%A3%85%E5%92%8C%E5%85%A5%E9%97%A8"><span class="nav-number">1.</span> <span class="nav-text">1 安装和入门</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-ansible%E5%AE%89%E8%A3%85"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 ansible安装</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-1-rpm%E5%8C%85%E5%AE%89%E8%A3%85"><span class="nav-number">1.1.1.</span> <span class="nav-text">1.1.1 rpm包安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-2-%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%851-1-3-Git%E6%96%B9%E5%BC%8F"><span class="nav-number">1.1.2.</span> <span class="nav-text">1.1.2 编译安装1.1.3 Git方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-4-pip-%E5%AE%89%E8%A3%85"><span class="nav-number">1.1.3.</span> <span class="nav-text">1.1.4 pip 安装</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-ansible-%E7%9B%B8%E5%85%B3%E6%96%87%E4%BB%B6"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 ansible 相关文件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-1-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">1.2.1.</span> <span class="nav-text">1.2.1 配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-2-ansible%E4%B8%BB%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">1.2.2.</span> <span class="nav-text">1.2.2 ansible主配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-3-%E4%B8%BB%E6%9C%BA%E6%B8%85%E5%8D%95%E6%96%87%E4%BB%B6"><span class="nav-number">1.2.3.</span> <span class="nav-text">1.2.3 主机清单文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-ansible-%E7%B3%BB%E5%88%97%E5%91%BD%E4%BB%A4"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 ansible 系列命令</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-ansible%E5%B8%B8%E7%94%A8%E6%A8%A1%E5%9D%97"><span class="nav-number">2.</span> <span class="nav-text">2 ansible常用模块</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-command"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 command</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-shell"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 shell</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-script"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 script</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-4-copy"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 copy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-5-fetch"><span class="nav-number">2.5.</span> <span class="nav-text">2.5 fetch</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-6-file"><span class="nav-number">2.6.</span> <span class="nav-text">2.6 file</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-7-unarchive"><span class="nav-number">2.7.</span> <span class="nav-text">2.7 unarchive</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-8-Archive"><span class="nav-number">2.8.</span> <span class="nav-text">2.8 Archive</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-9-hostname"><span class="nav-number">2.9.</span> <span class="nav-text">2.9 hostname</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-10-cron"><span class="nav-number">2.10.</span> <span class="nav-text">2.10 cron</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-11-yum"><span class="nav-number">2.11.</span> <span class="nav-text">2.11 yum</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-12-service"><span class="nav-number">2.12.</span> <span class="nav-text">2.12 service</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-13-user"><span class="nav-number">2.13.</span> <span class="nav-text">2.13 user</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-14-group"><span class="nav-number">2.14.</span> <span class="nav-text">2.14 group</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-15-lineinfile"><span class="nav-number">2.15.</span> <span class="nav-text">2.15 lineinfile</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-16-replace"><span class="nav-number">2.16.</span> <span class="nav-text">2.16 replace</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-17-setup"><span class="nav-number">2.17.</span> <span class="nav-text">2.17 setup</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-playbook"><span class="nav-number">3.</span> <span class="nav-text">3 playbook</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-%E4%BB%8B%E7%BB%8D"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#playbook"><span class="nav-number">3.1.1.</span> <span class="nav-text">playbook</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#yaml"><span class="nav-number">3.1.2.</span> <span class="nav-text">yaml</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#yaml-%E8%AF%AD%E6%B3%95%E7%AE%80%E4%BB%8B"><span class="nav-number">3.1.3.</span> <span class="nav-text">yaml 语法简介</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-playbook%E6%A0%B8%E5%BF%83%E5%85%83%E7%B4%A0"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 playbook核心元素</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-3-playbook%E5%9F%BA%E7%A1%80%E7%BB%84%E4%BB%B6"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 playbook基础组件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#hosts"><span class="nav-number">3.3.1.</span> <span class="nav-text">hosts</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#remote-user"><span class="nav-number">3.3.2.</span> <span class="nav-text">remote_user</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#tasks"><span class="nav-number">3.3.3.</span> <span class="nav-text">tasks</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-playbook%E4%B8%AD%E7%9A%84handler%E5%92%8Cnotify"><span class="nav-number">3.4.</span> <span class="nav-text">3.4 playbook中的handler和notify</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-5-playbook%E4%B8%ADtags%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-number">3.5.</span> <span class="nav-text">3.5 playbook中tags的使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-6-playbook%E4%B8%AD%E5%8F%98%E9%87%8F%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-number">3.6.</span> <span class="nav-text">3.6 playbook中变量的使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-7-%E6%A8%A1%E6%9D%BFtemplates"><span class="nav-number">3.7.</span> <span class="nav-text">3.7 模板templates</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-7-1-for%E5%92%8Cif"><span class="nav-number">3.7.1.</span> <span class="nav-text">3.7.1 for和if</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-7-2-when%E8%AF%AD%E5%8F%A5"><span class="nav-number">3.8.</span> <span class="nav-text">3.7.2 when语句</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-roles"><span class="nav-number">4.</span> <span class="nav-text">4 roles</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-roles%E7%9B%AE%E5%BD%95%E7%BC%96%E6%8E%92"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 roles目录编排</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2-%E5%AE%9E%E6%88%98%E6%A1%88%E4%BE%8B"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 实战案例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C-%E5%88%9B%E5%BB%BAhttpd%E8%A7%92%E8%89%B2"><span class="nav-number">4.2.1.</span> <span class="nav-text">实验: 创建httpd角色</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%92%88%E5%AF%B9%E5%A4%A7%E5%9E%8B%E9%A1%B9%E7%9B%AE%E4%BD%BF%E7%94%A8Roles%E8%BF%9B%E8%A1%8C%E7%BC%96%E6%8E%92"><span class="nav-number">4.2.2.</span> <span class="nav-text">针对大型项目使用Roles进行编排</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B"><span class="nav-number">4.2.3.</span> <span class="nav-text">示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%EF%BC%9A-%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAnginx%E8%A7%92%E8%89%B2"><span class="nav-number">4.2.4.</span> <span class="nav-text">实验： 创建一个nginx角色</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Roles%E6%A1%88%E4%BE%8B"><span class="nav-number">4.2.5.</span> <span class="nav-text">Roles案例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#playbook%E8%B0%83%E7%94%A8%E8%A7%92%E8%89%B2"><span class="nav-number">4.2.6.</span> <span class="nav-text">playbook调用角色</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E8%BF%87roles%E4%BC%A0%E9%80%92%E5%8F%98%E9%87%8F"><span class="nav-number">4.2.7.</span> <span class="nav-text">通过roles传递变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%91roles%E4%BC%A0%E9%80%92%E5%8F%82%E6%95%B0"><span class="nav-number">4.2.8.</span> <span class="nav-text">向roles传递参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%A1%E4%BB%B6%E5%BC%8F%E5%9C%B0%E4%BD%BF%E7%94%A8roles"><span class="nav-number">4.2.9.</span> <span class="nav-text">条件式地使用roles</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Roles%E6%9D%A1%E4%BB%B6%E5%8F%8A%E5%8F%98%E9%87%8F%E7%AD%89%E6%A1%88%E4%BE%8B"><span class="nav-number">4.2.10.</span> <span class="nav-text">Roles条件及变量等案例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%8C%E6%95%B4%E7%9A%84roles%E6%9E%B6%E6%9E%84"><span class="nav-number">4.2.11.</span> <span class="nav-text">完整的roles架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#roles-playbook-tags%E4%BD%BF%E7%94%A8"><span class="nav-number">4.2.12.</span> <span class="nav-text">roles playbook tags使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C-%E5%88%9B%E5%BB%BA%E8%A7%92%E8%89%B2memcached"><span class="nav-number">4.2.13.</span> <span class="nav-text">实验: 创建角色memcached</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E5%AE%83%E5%8A%9F%E8%83%BD"><span class="nav-number">4.2.14.</span> <span class="nav-text">其它功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Ansible-Roles"><span class="nav-number">4.2.15.</span> <span class="nav-text">Ansible Roles</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%A8%E8%8D%90%E8%B5%84%E6%96%99"><span class="nav-number">4.2.16.</span> <span class="nav-text">推荐资料</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">QinTianJun</p>
+  <div class="site-description" itemprop="description">一个菜鸟的成长之路</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QinTianJun</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

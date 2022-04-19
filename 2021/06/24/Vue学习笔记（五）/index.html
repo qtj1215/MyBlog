@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.qintianjun.top","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Vue学习笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vue学习笔记（五）- Promise和VueX">
+<meta property="og:url" content="http://www.qintianjun.top/2021/06/24/Vue%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/index.html">
+<meta property="og:site_name" content="Freedom_ATX Blog">
+<meta property="og:description" content="Vue学习笔记">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/image-20200212225948392.png">
+<meta property="og:image" content="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/flow.png">
+<meta property="og:image" content="https://vuex.vuejs.org/vuex.png">
+<meta property="article:published_time" content="2021-06-24T14:03:46.000Z">
+<meta property="article:modified_time" content="2021-06-24T14:05:23.945Z">
+<meta property="article:author" content="QinTianJun">
+<meta property="article:tag" content="前端">
+<meta property="article:tag" content="Vue">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/image-20200212225948392.png">
+
+<link rel="canonical" href="http://www.qintianjun.top/2021/06/24/Vue%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Vue学习笔记（五）- Promise和VueX | Freedom_ATX Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Freedom_ATX Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://www.qintianjun.top/2021/06/24/Vue%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="QinTianJun">
+      <meta itemprop="description" content="一个菜鸟的成长之路">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Freedom_ATX Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Vue学习笔记（五）- Promise和VueX
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-06-24 22:03:46 / Modified: 22:05:23" itemprop="dateCreated datePublished" datetime="2021-06-24T22:03:46+08:00">2021-06-24</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%89%8D%E7%AB%AF/" itemprop="url" rel="index"><span itemprop="name">前端</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%89%8D%E7%AB%AF/Vue/" itemprop="url" rel="index"><span itemprop="name">Vue</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="5-Promise"><a href="#5-Promise" class="headerlink" title="5 Promise"></a>5 Promise</h1><h2 id="5-1-简介"><a href="#5-1-简介" class="headerlink" title="5.1 简介"></a>5.1 简介</h2><p>ES6中一个非常重要和好用的特性就是Promise，但是初次接触Promise会一脸懵逼,这TM是什么东西?看看官方或者一些文章对它的介绍和用法,也是一头雾水。. Promise到底是做什么的呢?</p>
+<p>Promise是异步编程的一种解决方案。那什么时候我们会来处理异步事件呢?</p>
+<ul>
+<li>一种很常见的场景应该就是网络请求了。</li>
+<li>我们封装一个网络请求的函数,因为不能立即拿到结果,所以不能像简单的3+4=7一样将结果返回。</li>
+<li>所以往往我们会传入另外一个函数,在数据请求成功时,将数据通过传入的函数回调出去。</li>
+<li>如果只是一个简单的网络请求,那么这种方案不会给我们带来很大的麻烦。但是,当网络请求非常复杂时,就会出现回调地狱。</li>
+</ul>
+<p>一个简单使用Promise异步多次请求网络资源的例子：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-comment">// 链式编程</span><br><span class="hljs-comment">// 参数 -&gt; 函数(resolve, reject)</span><br><span class="hljs-comment">// resolve, reject本身它们又是函数</span><br><span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>(<span class="hljs-function">(<span class="hljs-params">resolve, reject</span>) =&gt;</span> &#123;<br>    <span class="hljs-comment">// 1.第一次网络请求的代码</span><br>    <span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =&gt;</span> &#123;<br>        resolve()<br>    &#125;, <span class="hljs-number">1000</span>)<br>&#125;).then(<span class="hljs-function">() =&gt;</span> &#123;<br>    <span class="hljs-comment">// 第一次拿到结果的处理代码</span><br>    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&#x27;Hello World!&#x27;</span>)<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>(<span class="hljs-function">(<span class="hljs-params">resolve, reject</span>) =&gt;</span> &#123;<br>        <span class="hljs-comment">// 2. 第二次网络请求的代码</span><br>        <span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =&gt;</span> &#123;<br>            resolve()<br>        &#125;, <span class="hljs-number">1000</span>)<br>    &#125;).then(<span class="hljs-function">() =&gt;</span> &#123;<br>        <span class="hljs-comment">// 第二次拿到结果的处理代码</span><br>        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&#x27;Hello Vuejs!&#x27;</span>)<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>(<span class="hljs-function">(<span class="hljs-params">resolve, reject</span>) =&gt;</span> &#123;<br>            <span class="hljs-comment">// 3.第三次网络请求的代码</span><br>            <span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =&gt;</span> &#123;<br>               resolve()<br>            &#125;, <span class="hljs-number">1000</span>)<br>        &#125;).then(<span class="hljs-function">() =&gt;</span> &#123;<br>            <span class="hljs-comment">// 第三次拿到结果的处理代码</span><br>            <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&#x27;Hello Python!&#x27;</span>)<br>        &#125;)<br>    &#125;)<br>&#125;)<br><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>Q: 什么情况下会用到Promise？</li>
+<li>A: 一般情况下，有异步操作时，使用Promise对这个异步操作进行封装</li>
+</ul>
+<p>具体参数的一些说明：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-comment">// new -&gt; 构造函数（1.保存了一些状态信息 2.执行传入的函数）</span><br><span class="hljs-comment">// 在执行传入的回调函数时， 会传入两个参数，resolve，reject本身又是函数</span><br><span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>(<span class="hljs-function">(<span class="hljs-params">resolve, reject</span>) =&gt;</span> &#123;<br>    <span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =&gt;</span> &#123;<br>        <span class="hljs-comment">// 此处进行网络请求</span><br>        <span class="hljs-comment">// 成功的时候调用resolve</span><br>        resolve(<span class="hljs-string">&#x27;hello world&#x27;</span>)<br>        <span class="hljs-comment">// 失败的时候调用reject</span><br>        reject(<span class="hljs-string">&#x27;error message&#x27;</span>)<br>    &#125;, <span class="hljs-number">1000</span>)<br>&#125;).then(<span class="hljs-function">(<span class="hljs-params">data</span>) =&gt;</span> &#123;<br>    <span class="hljs-comment">// 此处处理网络请求data</span><br>    <span class="hljs-built_in">console</span>.log(data)<br>&#125;).catch(<span class="hljs-function"><span class="hljs-params">err</span> =&gt;</span> &#123;<br>    <span class="hljs-comment">// 此处处理失败请求，将reject中的参数传入</span><br>    <span class="hljs-built_in">console</span>.log(err)<br>&#125;)<br></code></pre></td></tr></table></figure>
+
+<h2 id="5-2-Promise的三种状态和另外的处理方式"><a href="#5-2-Promise的三种状态和另外的处理方式" class="headerlink" title="5.2 Promise的三种状态和另外的处理方式"></a>5.2 Promise的三种状态和另外的处理方式</h2><p>首先，当我们开发中有异步操作时，就可以给异步操作包装一个Promise，异步操作之后会有三种状态</p>
+<ul>
+<li>pending: 等待状态，比如正在进行网络请求，或者定时器没有到时间</li>
+<li>fulfill: 满足状态，当我们主动回调了resolve时，就处于该状态，并且会回调<code>.then()</code></li>
+<li>reject: 拒绝状态，当我们主动回调了reject时，就处于该状态，并且会回调<code>.catch()</code></li>
+</ul>
+<p><img src="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/image-20200212225948392.png" alt="Promise的三种状态"></p>
+<p>调用的小例子：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>(<span class="hljs-function">(<span class="hljs-params">resolve, reject</span>) =&gt;</span> &#123;<br>	<span class="hljs-comment">// 这里使用setTimeout模拟异步请求</span><br>    <span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =&gt;</span> &#123;<br>        resolve(<span class="hljs-string">&#x27;Hello Vue.js&#x27;</span>)<br>        reject(<span class="hljs-string">&#x27;Error Message&#x27;</span>)<br>    &#125;, <span class="hljs-number">1000</span>)<br>    <span class="hljs-comment">// 其实.then()可以接收两个参数，一个成功调用的函数和一个失败调用的函数</span><br>&#125;).then(<span class="hljs-function"><span class="hljs-params">data</span> =&gt;</span> &#123;<br>    <span class="hljs-comment">// 请求成功，处理data</span><br>    <span class="hljs-built_in">console</span>.log(data)<br>&#125;, <span class="hljs-function"><span class="hljs-params">err</span> =&gt;</span> &#123;<br>    <span class="hljs-comment">// 请求失败，处理error</span><br>    <span class="hljs-built_in">console</span>.log(err)<br>&#125;)<br></code></pre></td></tr></table></figure>
+
+<p><strong>Promise的链式调用</strong></p>
+<p>假设现在有如下需求：</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><code class="hljs awk"><span class="hljs-regexp">//</span> 网络请求： aaa -&gt; 自己处理（<span class="hljs-number">10</span>行）<br><span class="hljs-regexp">//</span> 处理：aaa111 -&gt; 自己处理（<span class="hljs-number">10</span>行）<br><span class="hljs-regexp">//</span> 处理：aaa111222 -&gt; 自己处理<br></code></pre></td></tr></table></figure>
+
+<p>用Promise的最原始代码写法如下：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>(<span class="hljs-function">(<span class="hljs-params">resolve, reject</span>) =&gt;</span> &#123;<br>           <span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =&gt;</span> &#123;<br>               resolve(<span class="hljs-string">&#x27;aaa&#x27;</span>)<br>           &#125;, <span class="hljs-number">1000</span>)<br>       &#125;).then(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> &#123;<br>           <span class="hljs-built_in">console</span>.log(res, <span class="hljs-string">&#x27;第一层的10行处理代码&#x27;</span>)<br>           <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>(<span class="hljs-function">(<span class="hljs-params">resolve</span>) =&gt;</span> &#123;<br>               resolve(res + <span class="hljs-string">&#x27;111&#x27;</span>)<br>           &#125;).then(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> &#123;<br>               <span class="hljs-built_in">console</span>.log(res, <span class="hljs-string">&#x27;第二层的10行处理代码&#x27;</span>)<br>               <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>(<span class="hljs-function"><span class="hljs-params">resolve</span> =&gt;</span> &#123;<br>                   resolve(res + <span class="hljs-string">&#x27;222&#x27;</span>)<br>               &#125;).then(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> &#123;<br>                   <span class="hljs-built_in">console</span>.log(res, <span class="hljs-string">&#x27;第三层的10行处理代码&#x27;</span>)<br>               &#125;)<br>           &#125;)<br>       &#125;)<br></code></pre></td></tr></table></figure>
+
+<p>要知道，Promise是支持直接调用<code>.resolve()</code>方法，故上面的代码可以简写为：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-comment">// Promise支持直接调用resolve，故以上可以简写为</span><br><span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>(<span class="hljs-function">(<span class="hljs-params">resolve, reject</span>) =&gt;</span> &#123;<br>    <span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =&gt;</span> &#123;<br>        resolve(<span class="hljs-string">&#x27;aaa&#x27;</span>)<br>    &#125;, <span class="hljs-number">1000</span>)<br>&#125;).then(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> &#123;<br>    <span class="hljs-comment">// 1.自己处理10行代码</span><br>    <span class="hljs-built_in">console</span>.log(res, <span class="hljs-string">&#x27;第一层的10行处理代码&#x27;</span>)<br>    <span class="hljs-comment">// 2.</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">Promise</span>.resolve(res + <span class="hljs-string">&#x27;111&#x27;</span>).then(<br>        <span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> &#123;<br>        <span class="hljs-built_in">console</span>.log(res, <span class="hljs-string">&#x27;第二层的10行处理代码&#x27;</span>)<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">Promise</span>.resolve(res + <span class="hljs-string">&#x27;222&#x27;</span>).then(<br>            <span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> &#123;<br>            <span class="hljs-built_in">console</span>.log(res, <span class="hljs-string">&#x27;第三层的10行处理代码&#x27;</span>)<br>        &#125;)<br>    &#125;)<br>&#125;)<br></code></pre></td></tr></table></figure>
+
+<p>事实上，就连Promise.resolve(都可以省略)，直接return数据，es6解释器会在执行时自动加上Promise.resolve，故还可以进一步简写为：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-comment">// Promise.resolve事实上也可以省略</span><br><span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>(<span class="hljs-function">(<span class="hljs-params">resolve, reject</span>) =&gt;</span> &#123;<br>    <span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =&gt;</span> &#123;<br>        resolve(<span class="hljs-string">&#x27;aaa&#x27;</span>)<br>    &#125;, <span class="hljs-number">1000</span>)<br>&#125;).then(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> &#123;<br>    <span class="hljs-built_in">console</span>.log(res, <span class="hljs-string">&#x27;第一层的10行处理代码&#x27;</span>)<br>    <span class="hljs-keyword">return</span> res + <span class="hljs-string">&#x27;111&#x27;</span>&#125;).then(<br>        <span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> &#123;<br>            <span class="hljs-built_in">console</span>.log(res, <span class="hljs-string">&#x27;第二层的10行处理代码&#x27;</span>)<br>            <span class="hljs-keyword">return</span> res + <span class="hljs-string">&#x27;222&#x27;</span>&#125;).then(<br>                <span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> &#123;<br>                    <span class="hljs-built_in">console</span>.log(res, <span class="hljs-string">&#x27;第三层的10行处理代码&#x27;</span>)<br>                &#125;)<br></code></pre></td></tr></table></figure>
+
+<h1 id="6-Vuex"><a href="#6-Vuex" class="headerlink" title="6 Vuex"></a>6 Vuex</h1><h2 id="6-1-Vuex简介"><a href="#6-1-Vuex简介" class="headerlink" title="6.1 Vuex简介"></a>6.1 Vuex简介</h2><p><strong>Vuex是做什么的</strong></p>
+<p>Vuex是一个专为Vue.js应用程序开发的状态管理模式</p>
+<ul>
+<li>它采用集中式存储管理应用的所有组件的状态，并以相应的规则保证状态以一种可预测的方式发生变化</li>
+<li>Vuex也集成到Vue的官方调试工具devtools，提供了诸如零配置的time-travel调试，状态快照导入导出等高级调试功能</li>
+</ul>
+<p><strong>状态管理到底是什么</strong></p>
+<ul>
+<li>状态管理模式，集中式存储管理这些名词看起来就非常高大上，让人捉摸不透</li>
+<li>其实，你可以简单的将其看成把需要多个组件共享的全局变量全部存储在一个对象里面</li>
+<li>然后，将这个对象放在顶层的Vue实例中，让其他组件可以使用</li>
+<li>那么，多个组件是不是就可以共享这个对象中的所有变量属性了呢</li>
+</ul>
+<p><strong>为什么需要使用专门的Vuex而不自己写个对象实现呢</strong></p>
+<ul>
+<li>当然可以，但是我们要先想想VueJS带给我们最大的便利是什么？没错，就是响应式</li>
+<li>如果你自己封装实现一个对象能不能保证它里面所有的属性做到响应式呢？当然也可以，只是自己封装可能稍微麻烦一些</li>
+<li>不用怀疑，Vuex就是为了提供这样一个在多个组件间共享状态的插件，用它就可以了</li>
+</ul>
+<p><strong>管理什么状态呢</strong></p>
+<p>如果你做过大型项目开发，你一定遇到过多个状态在多个界面间共享的问题，如：</p>
+<ol>
+<li>用户的登录状态、用户名称、头像、地理位置信息</li>
+<li>商品的收藏，购物车中的物品等</li>
+<li>这些状态信息，我们都可以放在统一的地方，对它进行保存和管理，而且它们还是响应式的</li>
+</ol>
+<h2 id="6-2-页面的状态管理"><a href="#6-2-页面的状态管理" class="headerlink" title="6.2 页面的状态管理"></a>6.2 页面的状态管理</h2><p>我们知道,要在单个组件中进行状态管理是一件非常简单的事情。什么意思呢?我们来看下面的图片。</p>
+<p><img src="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/flow.png" alt="VuexFlow"></p>
+<p>这图片中的三种东西,怎么理解呢?</p>
+<ul>
+<li><p> State:不用多说，就是我们的状态。(你姑且可以当做就是data中的属性)</p>
+</li>
+<li><p>View :视图层,可以针对State的变化,显示不的信息。(这个好理解吧? )</p>
+</li>
+<li><p>Actions :这里的Actions主要是用户的各种操作:点击、输入等等,会导致状态的改变。</p>
+</li>
+</ul>
+<p><strong>单页面状态管理的实现</strong></p>
+<figure class="highlight html"><table><tr><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">template</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;test&quot;</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>当前计数：&#123;&#123;counter&#125;&#125;<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">button</span> @<span class="hljs-attr">click</span>=<span class="hljs-string">&quot;counter+=1&quot;</span>&gt;</span>+1<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">button</span> @<span class="hljs-attr">click</span>=<span class="hljs-string">&quot;counter-=1&quot;</span>&gt;</span>-1<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript"></span><br><span class="javascript">    <span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> &#123;</span><br><span class="javascript">        <span class="hljs-attr">name</span>: <span class="hljs-string">&#x27;HelloWorld&#x27;</span>,</span><br><span class="javascript">        <span class="hljs-function"><span class="hljs-title">data</span>(<span class="hljs-params"></span>)</span> &#123;</span><br><span class="javascript">            <span class="hljs-keyword">return</span> &#123;</span><br><span class="javascript">                <span class="hljs-attr">counter</span>: <span class="hljs-number">0</span></span><br><span class="javascript">            &#125;</span><br><span class="javascript">        &#125;</span><br><span class="javascript">    &#125;</span><br><span class="javascript"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">style</span> <span class="hljs-attr">scoped</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">style</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p>在这个案例中,我们有木有状态需要管理呢?没错,就是个数counter.</p>
+</li>
+<li><p>counter需要某种方式被记录下来,也就是我们的State.</p>
+</li>
+<li><p>counter目前的值需要被显示在界面中,也就是我们的View部分。</p>
+</li>
+</ul>
+<p>界面发生某些操作时(我们这里是用户的点击,也可以是用户的input),需要去更新状态，也就是我们的Actions.·这不就是上面的流程图了吗?</p>
+<p><strong>多用户状态管理</strong></p>
+<p>Vue已经帮我们做好了单个界面的状态管理,但是如果是多个界面呢?</p>
+<ul>
+<li>多个试图都依赖同一个状态(一个状态改了,多个界面需要进行更新)</li>
+<li>不同界面的Actions都想修改同一个状态( Home.vue需要修改, Profile.vue也需要修改这个状态)也就是说对于某些状态(状态1/状态2/状态3)来说只属于我们某一个试图,但是也有一些状态(状态a/状态b/状态c)属于多个试图共同想要维护的</li>
+<li>状态1/状态2/状态3你放在自己的房间中,你自己管理自己用,没问题</li>
+<li>但是状态a/状态b/状态c我们希望交给一个大管家来统一帮助我们管理! ! !没错, Vuex就是为我们提供这个大管家的工具。</li>
+</ul>
+<p>全局单例模式(大管家)</p>
+<p>我们现在要做的就是将共享的状态抽取出来,交给我们的大管家,统一进行管理。之后,你们每个试图,按照我规定好的规定,进行访问和修改等操作。这就是Vuex背后的基本思想。</p>
+<p>Vuex状态管理图例</p>
+<p><img src="https://vuex.vuejs.org/vuex.png"></p>
+<blockquote>
+<p>注意：</p>
+<ol>
+<li>不要在组件中直接修改state(组件-&gt;state),需要走组件-&gt; action-&gt; mutations-&gt;state修改state，这样devtools可以跟踪到修改，方便调试</li>
+<li>官方是允许直接修改mutations的（即组件-&gt;mutations-&gt;state）</li>
+<li>但mutations中的修改一般是同步操作，异步操作需要通过actions修改，否则Vue的调试工具devtools没有办法跟踪到，不方便调试</li>
+</ol>
+</blockquote>
+<h2 id="6-3-使用Vuex"><a href="#6-3-使用Vuex" class="headerlink" title="6.3 使用Vuex"></a>6.3 使用Vuex</h2><p>以下是使用Vuex的一个小例子,用于改变count值：</p>
+<p>@/store/index.js</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">import</span> Vue <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;vue&#x27;</span><br><span class="hljs-keyword">import</span> Vuex <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;vuex&#x27;</span><br><br><span class="hljs-comment">// 1.安装插件</span><br>Vue.use(Vuex)<br><br><span class="hljs-comment">// 2.创建对象</span><br><span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> Vuex.Store(&#123;<br>  <span class="hljs-attr">state</span>: &#123;<br>    <span class="hljs-attr">counter</span>: <span class="hljs-number">0</span><br>  &#125;,<br>  <span class="hljs-attr">mutations</span>: &#123;<br>    <span class="hljs-comment">// 方法</span><br>    increment (state) &#123;<br>      state.counter++<br>    &#125;,<br>    decrement (state) &#123;<br>      state.counter--<br>    &#125;<br>  &#125;,<br>  <span class="hljs-attr">actions</span>: &#123;<br><br>  &#125;,<br>  <span class="hljs-attr">getters</span>: &#123;<br><br>  &#125;,<br>  <span class="hljs-attr">modules</span>: &#123;<br><br>  &#125;<br>&#125;)<br><br><span class="hljs-comment">// 3.导出store对象</span><br><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> store<br></code></pre></td></tr></table></figure>
+
+<p>App.vue</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">template</span>&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;app&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>&#123;&#123;count&#125;&#125;<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">button</span> @<span class="hljs-attr">click</span>=<span class="hljs-string">&quot;addition&quot;</span>&gt;</span>+<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">button</span> @<span class="hljs-attr">click</span>=<span class="hljs-string">&quot;subtraction&quot;</span>&gt;</span>-<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span><br>    <span class="hljs-comment">&lt;!--&lt;router-view/&gt;--&gt;</span><br>  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript"></span><br><span class="javascript"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> &#123;</span><br><span class="javascript">  <span class="hljs-attr">name</span>: <span class="hljs-string">&#x27;App&#x27;</span>,</span><br><span class="javascript">  data () &#123;</span><br><span class="javascript">    <span class="hljs-keyword">return</span> &#123;</span><br><span class="javascript">      <span class="hljs-attr">message</span>: <span class="hljs-string">&#x27;我是App组件&#x27;</span></span><br><span class="javascript">    &#125;</span><br><span class="javascript">  &#125;,</span><br><span class="javascript">  <span class="hljs-attr">computed</span>: &#123;</span><br><span class="javascript">    count () &#123;</span><br><span class="javascript">      <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>.$store.state.counter</span><br><span class="javascript">    &#125;</span><br><span class="javascript">  &#125;,</span><br><span class="javascript">  <span class="hljs-attr">methods</span>: &#123;</span><br><span class="javascript">    addition () &#123;</span><br><span class="javascript">      <span class="hljs-built_in">this</span>.$store.commit(<span class="hljs-string">&#x27;increment&#x27;</span>)</span><br><span class="javascript">    &#125;,</span><br><span class="javascript">    subtraction () &#123;</span><br><span class="javascript">      <span class="hljs-built_in">this</span>.$store.commit(<span class="hljs-string">&#x27;decrement&#x27;</span>)</span><br><span class="javascript">    &#125;</span><br><span class="javascript">  &#125;</span><br><span class="javascript">&#125;</span><br><span class="javascript"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">style</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">style</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>@/main.js</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">import</span> Vue <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;vue&#x27;</span><br><span class="hljs-keyword">import</span> App <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./App&#x27;</span><br><span class="hljs-keyword">import</span> router <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./router&#x27;</span><br><span class="hljs-keyword">import</span> store <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@/store&#x27;</span><br><br>Vue.config.productionTip = <span class="hljs-literal">false</span><br><br><span class="hljs-comment">/* eslint-disable no-new */</span><br><span class="hljs-keyword">new</span> Vue(&#123;<br>  <span class="hljs-attr">el</span>: <span class="hljs-string">&#x27;#app&#x27;</span>,<br>  router,<br>  store,<br>  <span class="hljs-attr">components</span>: &#123; App &#125;,<br>  <span class="hljs-attr">template</span>: <span class="hljs-string">&#x27;&lt;App/&gt;&#x27;</span><br>&#125;)<br><br></code></pre></td></tr></table></figure>
+
+<p><strong>好的,这就是使用Vuex最简单的方式了。</strong></p>
+<p>做一下简单的小节:</p>
+<ol>
+<li><p>提取出一个公共的store对象,用于保存在多个组件中共享的状态</p>
+</li>
+<li><p>将store对象放置在new Vue对象中,这样可以保证在所有的组件中都可以使用到</p>
+</li>
+<li><p>在其他组件中使用store对象中保存的状态即可</p>
+<p>通过this.Sstore.state.属性的方式来访问状态</p>
+<p>通过this.$store.commit(‘mutation中方法)来修改状态</p>
+</li>
+</ol>
+<blockquote>
+<p> 注意事项：</p>
+<ul>
+<li><p>我们通过提交mutation的方式,而非直接改变<code>store.state.count</code></p>
+</li>
+<li><p>这是因为Vuex可以更明确的追踪状态的变化,所以不要直接改变<code>store.state.count</code>的值。</p>
+</li>
+</ul>
+</blockquote>
+<h2 id="6-4-Vuex核心概念"><a href="#6-4-Vuex核心概念" class="headerlink" title="6.4 Vuex核心概念"></a>6.4 Vuex核心概念</h2><h3 id="6-4-1-State及Getters"><a href="#6-4-1-State及Getters" class="headerlink" title="6.4.1 State及Getters"></a>6.4.1 State及Getters</h3><p><strong>State单一状态树</strong></p>
+<p>Vuex提出使用单一状态树，什么是单一状态树呢？</p>
+<ul>
+<li>英文名称是single Source of Truth ,也可以翻译成单一数据源。</li>
+</ul>
+<p>但是,它是什么呢?我们来看一个生活中的例子。</p>
+<ul>
+<li><p>OK,我用一个生活中的例子做一个简单的类比。</p>
+</li>
+<li><p>我们知道,在国内我们有很多的信息需要被记录,比如上学时的个人档案,工作后的社保记录,公积金记录,结婚后的婚姻信息,以及其他相关的户口、医疗、文凭、房产记录等等(还有很多信息)。</p>
+</li>
+<li><p>这些信息被分散在很多地方进行管理,有一天你需要办某个业务时(比如入户某个城市),你会发现你需要到各个对应的工作地点去打印、盖章各种资料信息,最后到一个地方提交证明你的信息无误。</p>
+</li>
+<li><p>这种保存信息的方案,不仅仅低效,而且不方便管理,以及日后的维护也是一个庞大的工作(需要大量的各个部门的人力来维护,当然国家目前已经在完善我们的这个系统了)。</p>
+</li>
+</ul>
+<p>这个和我们在应用开发中比较类似：</p>
+<ul>
+<li>如果你的状态信息是保存到多个Store对象中的, 那么管理和维护将会变得非常困难</li>
+<li>所以Vuex也使用了单一状态树来管理应用层级的全部状态</li>
+<li>单一状态树能够让我们最直接的方式找到某个状态片段，而且在之后的维护和调试中，也可以方便的管理和维护</li>
+</ul>
+<p>关于state和getters一个例子：</p>
+<p>@store/index.js</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">import</span> Vue <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;vue&#x27;</span><br><span class="hljs-keyword">import</span> Vuex <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;vuex&#x27;</span><br><br><span class="hljs-comment">// 1.安装插件</span><br>Vue.use(Vuex)<br><br><span class="hljs-comment">// 2.创建对象</span><br><span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> Vuex.Store(&#123;<br>  <span class="hljs-attr">state</span>: &#123;<br>    <span class="hljs-attr">students</span>: [<br>      &#123; <span class="hljs-attr">id</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">name</span>: <span class="hljs-string">&#x27;kobe&#x27;</span>, <span class="hljs-attr">age</span>: <span class="hljs-number">37</span> &#125;,<br>      &#123; <span class="hljs-attr">id</span>: <span class="hljs-number">2</span>, <span class="hljs-attr">name</span>: <span class="hljs-string">&#x27;James&#x27;</span>, <span class="hljs-attr">age</span>: <span class="hljs-number">34</span> &#125;,<br>      &#123; <span class="hljs-attr">id</span>: <span class="hljs-number">3</span>, <span class="hljs-attr">name</span>: <span class="hljs-string">&#x27;Nash&#x27;</span>, <span class="hljs-attr">age</span>: <span class="hljs-number">33</span> &#125;<br>    ]<br>  &#125;,<br>  <span class="hljs-attr">mutations</span>: &#123;&#125;,<br>  <span class="hljs-attr">actions</span>: &#123;&#125;,<br>  <span class="hljs-attr">getters</span>: &#123;<br>    more20stu (state) &#123; <span class="hljs-comment">// getters内函数第一个参数固定为state，用以从state内获取值</span><br>      <span class="hljs-keyword">return</span> state.students.filter(<span class="hljs-function"><span class="hljs-params">s</span> =&gt;</span> s.age &gt; <span class="hljs-number">20</span>)<br>    &#125;,<br>    more20stuLength (state, getters) &#123; <span class="hljs-comment">// getters内除了state,第二个可选参数为getters，意味着它可以访问其它getters的数据</span><br>      <span class="hljs-keyword">return</span> getters.more20stu.length  <span class="hljs-comment">// 访问另一个getters的数据，并返回其长度</span><br>    &#125;<br>  &#125;,<br>  <span class="hljs-attr">modules</span>: &#123;&#125;<br>&#125;)<br><br><span class="hljs-comment">// 3.导出store对象</span><br><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> store<br><br></code></pre></td></tr></table></figure>
+
+<p>@App.vue</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">template</span>&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;app&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>&#123;&#123;$store.getters.more20stu&#125;&#125;<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>&#123;&#123;$store.getters.more20stuLength&#125;&#125;<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span><br>  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="6-4-2-Mutations"><a href="#6-4-2-Mutations" class="headerlink" title="6.4.2 Mutations"></a>6.4.2 Mutations</h3><p><strong>Mutations</strong></p>
+<p>Vuex的store状态的更新的唯一方式： 提交Mutation</p>
+<p>Mutation主要包括两部分：</p>
+<ul>
+<li><p>字符串事件类型（type）</p>
+</li>
+<li><p>一个回调函数（handler），该回调函数的第一个参数就是state</p>
+</li>
+<li><p>mutation的定义方式：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><code class="hljs js">mutations: &#123;<br>	<span class="hljs-function"><span class="hljs-title">increment</span>(<span class="hljs-params">state</span>)</span> &#123;<br>		state.count++<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure></li>
+<li><p>通过mutation更新</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">template</span>&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;app&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>&#123;&#123;count&#125;&#125;<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">button</span> @<span class="hljs-attr">click</span>=<span class="hljs-string">&quot;addition&quot;</span>&gt;</span>+<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span><br>  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript"></span><br><span class="javascript">......</span><br><span class="javascript">  <span class="hljs-attr">methods</span>: &#123;</span><br><span class="javascript">    addition () &#123;</span><br><span class="javascript">      <span class="hljs-built_in">this</span>.$store.commit(<span class="hljs-string">&#x27;increment&#x27;</span>) <span class="hljs-comment">// 透过调用mutation中的方法更新</span></span><br><span class="javascript">    &#125;</span><br><span class="javascript">  &#125;</span><br><span class="javascript"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>Mutation传递参数</strong></p>
+<p>在通过mutation更新数据的时候，有可能我们希望携带一些额外的参数，这些参数被称为是mutation的载荷（payload）</p>
+<p>Mutation中的代码：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-function"><span class="hljs-title">decrement</span>(<span class="hljs-params">state, n</span>)</span> &#123;<br>	state.count -= n<br>&#125;<br>。。。。<br><span class="hljs-attr">decreament</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>&#123;<br>	<span class="hljs-built_in">this</span>.$store.commit(<span class="hljs-string">&#x27;decrement&#x27;</span>, <span class="hljs-number">2</span>)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>但是如果参数不是一个呢？</p>
+<ul>
+<li><p>比如我们有很多参数需要传递</p>
+</li>
+<li><p>这个时候，我们通常会以对象的形式传递，也就是payload是一个对象</p>
+</li>
+<li><p>这个时候可以再从对象中取出相关的信息</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-function"><span class="hljs-title">changeCount</span>(<span class="hljs-params">state, payload</span>)</span> &#123;<br>	state.count = payload.count<br>&#125;<br><br><span class="hljs-attr">changeCount</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>&#123;<br>	<span class="hljs-built_in">this</span>.$store.commit(<span class="hljs-string">&#x27;changeCount&#x27;</span>, &#123; <span class="hljs-attr">Count</span>: <span class="hljs-number">0</span> &#125;)<br>&#125;<br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>Mutation提交风格</strong></p>
+<p>上面的通过commit进行提交是一种普通的方式，Vue还提供了另外一种风格， 它是一个包含type属性的对象</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-built_in">this</span>.$store.commit(&#123;<br>	<span class="hljs-attr">type</span>: <span class="hljs-string">&#x27;changeCount&#x27;</span>,<br>	<span class="hljs-attr">count</span>: <span class="hljs-number">100</span><br>&#125;)<br></code></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-comment">// methods中    </span><br>addCount (count) &#123;<br>      <span class="hljs-comment">// 1.普通的提交对象</span><br>      <span class="hljs-comment">// this.$store.commit(&#x27;incrementCount&#x27;, count)</span><br>      <span class="hljs-comment">// 2. 特殊的提交封装</span><br>      <span class="hljs-built_in">this</span>.$store.commit(&#123;<br>        <span class="hljs-attr">type</span>: <span class="hljs-string">&#x27;incrementCount&#x27;</span>,<br>	    payload <span class="hljs-comment">// 此处payload为一个对象</span><br>      &#125;)<br>    &#125;<br><br><span class="hljs-comment">// Mutation中</span><br><span class="hljs-comment">// Mutation中的处理方式是将整个commit的对象作为payload使用，所以代码没有改变，依然如下</span><br><span class="hljs-function"><span class="hljs-title">changeCount</span>(<span class="hljs-params">state, payload</span>)</span> &#123;<br>    state.count = payload.count<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>Mutation的响应规则</strong></p>
+<p>Vuex的store中的state是响应式的，当state中的数据发生改变时，Vue组件会自动更新，这就要求我们必须遵守一些Vuex对应的规则：</p>
+<ul>
+<li><p>提前在store中初始化好所需的属性</p>
+</li>
+<li><p>当给state中的对象新属性时，使用下面的方式：</p>
+<ol>
+<li><p>使用Vue.set(obj, ‘newProp’, 123)</p>
+</li>
+<li><p>用新对象给旧对象重新赋值</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript">state.obj = &#123; ...state.obj, <span class="hljs-attr">newProp</span>: <span class="hljs-number">123</span> &#125;<br></code></pre></td></tr></table></figure></li>
+</ol>
+</li>
+</ul>
+<p>通过这种方式添加元素，是不能在页面上做到实时响应式的：</p>
+<figure class="highlight pf"><table><tr><td class="code"><pre><code class="hljs pf"><span class="hljs-keyword">state</span>.info[&#x27;address&#x27;] = <span class="hljs-string">&quot;Los Angeles&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>如果要做到响应式，需要通过这种方式：</p>
+<figure class="highlight pf"><table><tr><td class="code"><pre><code class="hljs pf">// 添加<br>Vue.<span class="hljs-built_in">set</span>(<span class="hljs-keyword">state</span>.info, &#x27;address&#x27;, &#x27;L<span class="hljs-keyword">os</span> Angeles&#x27;)<br>// 删除<br>Vue.delete(<span class="hljs-keyword">state</span>.info, &#x27;age&#x27;)<br></code></pre></td></tr></table></figure>
+
+<p>通常情况下，Vuex要求我们mutation中的方法必须是同步方法</p>
+<ul>
+<li>主要的原因是当我们使用devtools时，devtools可以帮助我们不做mutation的快照</li>
+<li>但是如果是异步操作，那么devtools将不能很好的最终这个操作什么时候完成</li>
+</ul>
+<p>我们强调，不要在mutation中进行异步操作</p>
+<ul>
+<li>但是某些情况，我们确实希望在Vuex中进行一些异步操作，比如网络请求</li>
+<li>这事就需要使用action来代替mutation进行异步操作</li>
+</ul>
+<h3 id="6-4-3-Actions"><a href="#6-4-3-Actions" class="headerlink" title="6.4.3 Actions"></a>6.4.3 Actions</h3><p>来一段代码的例子吧：</p>
+<p>@/store/index.js</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript">...<br><span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> Vuex.Store(&#123;<br>  <span class="hljs-attr">state</span>: &#123;<br>    <span class="hljs-attr">info</span>: <span class="hljs-string">&#x27;kobe&#x27;</span><br>  &#125;,<br>  <span class="hljs-attr">mutations</span>: &#123;<br>    <span class="hljs-comment">// 方法</span><br>    updateInfo (state) &#123;<br>      state.info = <span class="hljs-string">&#x27;James&#x27;</span><br>    &#125;<br>  &#125;,<br>  <span class="hljs-attr">actions</span>: &#123;<br>    <span class="hljs-comment">// context: 上下文</span><br>    aUpdateInfo (context, payload) &#123;<br>      <span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =&gt;</span> &#123;<br>        <span class="hljs-built_in">console</span>.log(payload)<br>        context.commit(<span class="hljs-string">&#x27;updateInfo&#x27;</span>)<br>      &#125;)<br>    &#125;<br>  &#125;<br>  ...<br></code></pre></td></tr></table></figure>
+
+<p>@/app.vue</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">template</span>&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;app&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>&#123;&#123;$store.state.info&#125;&#125;<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">button</span> @<span class="hljs-attr">click</span>=<span class="hljs-string">&quot;updateInfo&quot;</span>&gt;</span>change<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span><br>  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript"></span><br><span class="javascript"></span><br><span class="javascript"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> &#123;</span><br><span class="javascript">  <span class="hljs-attr">name</span>: <span class="hljs-string">&#x27;App&#x27;</span>,</span><br><span class="javascript">  data () &#123;</span><br><span class="javascript">    <span class="hljs-keyword">return</span> &#123;</span><br><span class="javascript">      <span class="hljs-attr">message</span>: <span class="hljs-string">&#x27;我是App组件&#x27;</span></span><br><span class="javascript">    &#125;</span><br><span class="javascript">  &#125;,</span><br><span class="javascript">  <span class="hljs-attr">methods</span>: &#123;</span><br><span class="javascript">    updateInfo () &#123;</span><br><span class="javascript">      <span class="hljs-built_in">this</span>.$store.dispatch(<span class="hljs-string">&#x27;aUpdateInfo&#x27;</span>, <span class="hljs-string">&#x27;我是payload&#x27;</span>)</span><br><span class="javascript">    &#125;</span><br><span class="javascript">  &#125;</span><br><span class="javascript">&#125;</span><br><span class="javascript"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="6-4-4-Module"><a href="#6-4-4-Module" class="headerlink" title="6.4.4 Module"></a>6.4.4 Module</h3><p>Module是模块的意思,为什么在Vuex中我们要使用模块呢？</p>
+<ul>
+<li> Vue使用单一状态树,那么也意味着很多状态都会交给Vuex来管理.</li>
+<li>当应用变得非常复杂时,store对象就有可能变得相当壁肿.</li>
+</ul>
+<p>为了解决这个问题, Vuex允许我们将store分割成模块(Module),而每个模块拥有自己的state, mutation.action, getters等</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> Vuex.Store(&#123;<br>  <span class="hljs-attr">state</span>: &#123;<br>    <span class="hljs-attr">counter</span>: <span class="hljs-number">0</span>,<br>    <span class="hljs-attr">info</span>: <span class="hljs-string">&#x27;kobe&#x27;</span><br>  &#125;,<br>  <span class="hljs-attr">mutations</span>: &#123;<br>    <span class="hljs-comment">// 方法</span><br>    increment (state) &#123;<br>      state.counter++<br>    &#125;,<br>    decrement (state) &#123;<br>      state.counter--<br>    &#125;,<br>    incrementCount (state, count) &#123;<br>      state.counter += count<br>    &#125;,<br>    updateInfo (state) &#123;<br>      state.info = <span class="hljs-string">&#x27;James&#x27;</span><br>    &#125;<br>  &#125;,<br>  <span class="hljs-attr">actions</span>: &#123;&#125;,<br>  <span class="hljs-attr">getters</span>: &#123;&#125;,<br>  <span class="hljs-attr">modules</span>: &#123; <span class="hljs-comment">// 将一部分代码才分至moduleA中，在store中引入</span><br>    <span class="hljs-attr">a</span>: moduleA<br>  &#125;<br>&#125;)<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-comment">// moduleA代码</span><br><span class="hljs-keyword">const</span> moduleA = &#123;<br>  <span class="hljs-attr">state</span>: &#123;<br>    <span class="hljs-attr">name</span>: <span class="hljs-string">&#x27;Allen&#x27;</span><br>  &#125;,<br>  <span class="hljs-attr">mutations</span>: &#123;<br>    updateName (state, payload) &#123;<br>      state.name = payload<br>    &#125;<br>  &#125;,<br>  <span class="hljs-attr">actions</span>: &#123;<br>    aUpdateName (context) &#123; <span class="hljs-comment">// 使用moduleA中的updateName方法</span><br>      context.commit(<span class="hljs-string">&#x27;updateName&#x27;</span>, <span class="hljs-string">&#x27;Yao&#x27;</span>)<br>    &#125;<br>  &#125;,<br>  <span class="hljs-attr">getters</span>: &#123;<br>    fullName (state) &#123; <span class="hljs-comment">// moduleA中的getters</span><br>      <span class="hljs-keyword">return</span> state.name + <span class="hljs-string">&#x27; Team&#x27;</span><br>    &#125;,<br>    fullName2 (state, getters) &#123; <span class="hljs-comment">// 和store一样，moduleA中也可以getter套娃getters</span><br>      <span class="hljs-keyword">return</span> getters.fullName + <span class="hljs-string">&#x27; has win &#x27;</span><br>    &#125;,<br>    fullName3 (state, getters, rootState) &#123; <span class="hljs-comment">// 可以接收一个额外的rootState参数，用于获取root中的state值</span><br>      <span class="hljs-keyword">return</span> getters.fullName2 + rootState.counter + <span class="hljs-string">&#x27; times&#x27;</span><br>    &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight html"><table><tr><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">template</span>&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;app&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>----------------App内容: modules中的内容--------<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>&#123;&#123;$store.state.a.name&#125;&#125;<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>  # Allen<br>    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>&#123;&#123;$store.getters.fullName&#125;&#125;<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>  # Allen Team<br>    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>&#123;&#123;$store.getters.fullName2&#125;&#125;<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>  # Allen Team has win<br>    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>&#123;&#123;$store.getters.fullName3&#125;&#125;<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>  # Allen Team has win 0 times<br>    <span class="hljs-tag">&lt;<span class="hljs-name">button</span> @<span class="hljs-attr">click</span>=<span class="hljs-string">&quot;updateName&quot;</span>&gt;</span>修改名字<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span><br>  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript"></span><br><span class="javascript"></span><br><span class="javascript"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> &#123;</span><br><span class="javascript">  <span class="hljs-attr">name</span>: <span class="hljs-string">&#x27;App&#x27;</span>,</span><br><span class="javascript">  data () &#123;</span><br><span class="javascript">    <span class="hljs-keyword">return</span> &#123;</span><br><span class="javascript">      <span class="hljs-attr">message</span>: <span class="hljs-string">&#x27;我是App组件&#x27;</span></span><br><span class="javascript">    &#125;</span><br><span class="javascript">  &#125;,</span><br><span class="javascript">  <span class="hljs-attr">methods</span>: &#123;</span><br><span class="javascript">    updateName () &#123;</span><br><span class="javascript">      <span class="hljs-built_in">this</span>.$store.commit(<span class="hljs-string">&#x27;updateName&#x27;</span>, <span class="hljs-string">&#x27;Curry&#x27;</span>)</span><br><span class="javascript">    &#125;</span><br><span class="javascript">  &#125;</span><br><span class="javascript">&#125;</span><br><span class="javascript"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">style</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">style</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>notes:</p>
+<p>此处需要注意，当需要访问子模块state中的name时，需要使用<code>$store.state.a.name</code>这种形式，因为实际上，Vuex会把子模块的state作为一个对象放入root的state中，类似｛a: {子模块state内容}｝这种形式</p>
+</blockquote>
+<h3 id="6-4-5-补：Vuex的项目结构"><a href="#6-4-5-补：Vuex的项目结构" class="headerlink" title="6.4.5 补：Vuex的项目结构"></a>6.4.5 补：Vuex的项目结构</h3><p>当我们的Vuex帮助我们管理过多的内容时，好的项目结构可以让我们的代码更清晰：</p>
+<figure class="highlight 1c"><table><tr><td class="code"><pre><code class="hljs 1c">store<br><span class="hljs-string">| index.js  # 我们组装模块并导出store的地方</span><br><span class="hljs-string">| actions.js  # 根级别的action</span><br><span class="hljs-string">| mutation.js  # 根级别的mutation</span><br><span class="hljs-string">| modules</span><br>    <span class="hljs-string">| cart.js  # 购物车模块</span><br>    <span class="hljs-string">| products.js  # 产品模块</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="7-Axios"><a href="#7-Axios" class="headerlink" title="7 Axios"></a>7 Axios</h1><p><strong>几种方式的对比</strong><br> ajax：<br> 【<strong>优点</strong>：局部更新；原生支持】<br> 【<strong>缺点</strong>：可能破坏浏览器后退功能；嵌套回调】<br> jqueryAjax：<br> 【在原生的ajax的基础上进行了封装；支持jsonp】<br> fetch：<br> 【<strong>优点</strong>：解决回调地狱】<br> 【<strong>缺点</strong>：API 偏底层，需要封装;默认不带Cookie，需要手动添加; 浏览器支持情况不是很友好，需要第三方的ployfill】<br> axios：<br> 【几乎完美】</p>
+<p><strong><code>axios</code>的特点</strong><br> 支持浏览器和node.js<br> 支持promise<br> 能<strong>拦截</strong>请求和响应<br> 能转换请求和响应数据<br> 能<strong>取消</strong>请求<br> 自动转换JSON数据<br> 浏览器端支持<strong>防止CSRF</strong>(跨站请求伪造)</p>
+<p><strong>发送get请求演示</strong></p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">import</span> axios <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;axois&#x27;</span><br><br><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> &#123;<br>	<span class="hljs-attr">name</span>: <span class="hljs-string">&#x27;app&#x27;</span>,<br>	created () &#123;<br>		axios.get(<span class="hljs-string">&#x27;http://httpbin.org&#x27;</span>).then(<br>			<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> &#123;<br>				<span class="hljs-built_in">console</span>.log(res)<br>			&#125;<br>		).catch(<span class="hljs-function"><span class="hljs-params">err</span> =&gt;</span> &#123;<br>			<span class="hljs-built_in">console</span>.log(err)<br>		&#125;)<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>发送并发请求</strong></p>
+<p>有时候我们可能需要同时发送两个请求，使用axios.all, 可以放入多个请求的数组</p>
+<p>axios.all([])返回的结果是一个数组，使用axios.spreed可将数组[res1, res2] 展开为res1, res2</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">import</span> axios <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;axios&#x27;</span><br><br><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> &#123;<br>	<span class="hljs-attr">name</span>: <span class="hljs-string">&#x27;app&#x27;</span>,<br>	<span class="hljs-function"><span class="hljs-title">created</span>(<span class="hljs-params"></span>)</span> &#123;<br>		axios.all(<br>			[<br>				axios.get(<span class="hljs-string">&#x27;http://123.207.32.32:8000/category&#x27;</span>),<br>                  axios.get(<span class="hljs-string">&#x27;http://123.207.32.32:8000/home/data&#x27;</span>,<br>                           &#123;<span class="hljs-attr">params</span>: &#123;<span class="hljs-attr">type</span>: <span class="hljs-string">&#x27;sell&#x27;</span>, <span class="hljs-attr">page</span>: <span class="hljs-number">1</span>&#125;&#125;)<br>              ]<br>         ).then(axios.spread(res1, res2) =&gt; &#123;<br>            <span class="hljs-built_in">console</span>.log(res1)<br>            <span class="hljs-built_in">console</span>.log(res2)<br>        &#125;)<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>全局配置</strong></p>
+<p>在上面的示例中，我们的BaseURL是固定的</p>
+<ul>
+<li>事实上，在开发中可能很多参数都是固定的</li>
+<li>这个时候我们可以进行一些抽取，也可以利用axios全局配置</li>
+</ul>
+<figure class="highlight stylus"><table><tr><td class="code"><pre><code class="hljs stylus">axios<span class="hljs-selector-class">.defaults</span><span class="hljs-selector-class">.baseURL</span> = <span class="hljs-string">&#x27;123.207.32.32:8000&#x27;</span><br>axios<span class="hljs-selector-class">.defaults</span><span class="hljs-selector-class">.header</span><span class="hljs-selector-class">.post</span><span class="hljs-selector-attr">[<span class="hljs-string">&#x27;Content-Type&#x27;</span>]</span> = <span class="hljs-string">&#x27;application/x-www-form-urlencoded&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>常见的配置选项</strong></p>
+<ul>
+<li><p>请求地址：url: ‘/user’</p>
+</li>
+<li><p>请求类型: method: ‘get’</p>
+</li>
+<li><p>请求路径：baseURL: ‘<a target="_blank" rel="noopener" href="http://www.mt.com/api&#39;">http://www.mt.com/api&#39;</a></p>
+</li>
+<li><p>请求前的数据处理: transformRequestL [function(data) {}]</p>
+</li>
+<li><p>请求后的数据处理: transformResponse: [function(data){}]</p>
+</li>
+<li><p>自定义的请求头: headers: [‘x-Requested-With: ‘XMLHttpRequest’]</p>
+</li>
+<li><p>URL查询对象: params: { id: 12 }</p>
+</li>
+<li><p>查询对象序列化的函数： paramsSerializer: function(params) {}</p>
+</li>
+<li><p>request body: data: {key: ‘aa’}</p>
+</li>
+<li><p>超时设置s: timeout: 1000</p>
+</li>
+<li><p>跨域是否带Token: withCredentials: false</p>
+</li>
+<li><p>自定义请求处理: adapter: function(resolve, reject, config){}</p>
+</li>
+<li><p>身份验证信息: auth: { uname: ‘’, pwd: ‘12’ }</p>
+</li>
+<li><p>响应的数据格式json/blob/document/arraybuffer/text/stream</p>
+<p>responseType: ‘json’</p>
+</li>
+</ul>
+<p><strong>封装axios实例</strong></p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">import</span> axios <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;axios&#x27;</span><br><br><span class="hljs-comment">// 基础封装</span><br> <span class="hljs-keyword">export</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">request</span> (<span class="hljs-params">config, success, failure</span>) </span>&#123;<br>   <span class="hljs-comment">// 1.创建axios实例</span><br>   <span class="hljs-keyword">const</span> instance = axios.create(&#123;<br>    <span class="hljs-attr">baseURL</span>: <span class="hljs-string">&#x27;http://123.207.32.32:8000&#x27;</span>,<br>     <span class="hljs-attr">timeout</span>: <span class="hljs-number">5000</span><br>  &#125;)<br><br>  <span class="hljs-comment">// 发送真正的网络请求</span><br>  instance(config).then(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> &#123;<br>    success(res)<br>   &#125;).catch(<span class="hljs-function"><span class="hljs-params">err</span> =&gt;</span> &#123;<br>    failure(err)<br>   &#125;)<br> &#125;<br><br><span class="hljs-comment">// 使用Promise方式封装</span><br><span class="hljs-keyword">export</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">request</span> (<span class="hljs-params">config</span>) </span>&#123;<br>  <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>(<span class="hljs-function">(<span class="hljs-params">resolve, reject</span>) =&gt;</span> &#123;<br>    <span class="hljs-comment">// 1. 创建axios的实例</span><br>    <span class="hljs-keyword">const</span> instance = axios.create(&#123;<br>      <span class="hljs-attr">baseURL</span>: <span class="hljs-string">&#x27;http://123.207.32.32:8000&#x27;</span>,<br>       <span class="hljs-attr">timeout</span>: <span class="hljs-number">5000</span><br>    &#125;)<br>     <span class="hljs-comment">// 发送真正的网络请求</span><br>    instance(config).then(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> &#123;<br>      resolve(res)<br>    &#125;).catch(<span class="hljs-function"><span class="hljs-params">err</span> =&gt;</span> &#123;<br>      reject(err)<br>     &#125;)<br>  &#125;)<br>&#125;<br><br><span class="hljs-comment">// 进一步简化</span><br><span class="hljs-keyword">export</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">request</span> (<span class="hljs-params">config</span>) </span>&#123;<br>  <span class="hljs-keyword">const</span> instance = axios.create(&#123;<br>    <span class="hljs-attr">baseURL</span>: <span class="hljs-string">&#x27;http://123.207.32.32:8000&#x27;</span>,<br>    <span class="hljs-attr">timeout</span>: <span class="hljs-number">5000</span><br>  &#125;)<br><br>  <span class="hljs-keyword">return</span> instance(config)<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript">request(&#123;<br>  <span class="hljs-attr">url</span>: <span class="hljs-string">&#x27;/home/multidata&#x27;</span><br>&#125;).then(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> &#123;<br>  <span class="hljs-built_in">console</span>.log(res)<br>&#125;)<br></code></pre></td></tr></table></figure>
+
+<p><strong>拦截器</strong></p>
+<p>axios提供了拦截器，用于我们在发送每次请求或者得到响应后，进行对应的处理</p>
+<p>如何使用呢？</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">export</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">request</span> (<span class="hljs-params">config</span>) </span>&#123;<br>  <span class="hljs-comment">// 1. 创建axios实例</span><br>  <span class="hljs-keyword">const</span> instance = axios.create(&#123;<br>    <span class="hljs-attr">baseURL</span>: <span class="hljs-string">&#x27;http://123.207.32.32:8000&#x27;</span>,<br>    <span class="hljs-attr">timeout</span>: <span class="hljs-number">5000</span><br>  &#125;)<br>  <span class="hljs-comment">// 2.拦截器</span><br>  instance.interceptors.request.use(<span class="hljs-function"><span class="hljs-params">config</span> =&gt;</span> &#123;<br>    <span class="hljs-comment">// 请求拦截</span><br>    <span class="hljs-comment">// 1.比如config中的请求不符合服务器要求</span><br>    <span class="hljs-comment">// 2.比如每次发送网络请求时，都希望在界面中显示一个请求图标</span><br>    <span class="hljs-comment">// 3.比如登录时需要携带token</span><br>    <span class="hljs-built_in">console</span>.log(config)<br>    <span class="hljs-keyword">return</span> config <span class="hljs-comment">// 请求成功, 记得一定要把数据return出去</span><br>  &#125;, <span class="hljs-function"><span class="hljs-params">err</span> =&gt;</span> &#123;<br>    <span class="hljs-built_in">console</span>.log(err) <span class="hljs-comment">// 请求失败</span><br>  &#125;)<br>  <span class="hljs-comment">// 响应拦截</span><br>  instance.interceptors.response.use(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> &#123;<br>    <span class="hljs-built_in">console</span>.log(res) <span class="hljs-comment">// 响应成功，记得一定要把数据return出去</span><br>    <span class="hljs-keyword">return</span> res.data<br>  &#125;, <span class="hljs-function"><span class="hljs-params">err</span> =&gt;</span> &#123;<br>    <span class="hljs-built_in">console</span>.log(err) <span class="hljs-comment">// 响应失败</span><br>  &#125;)<br><br>  <span class="hljs-comment">// 3. 发送真正的网络请求</span><br>  <span class="hljs-keyword">return</span> instance(config)<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%89%8D%E7%AB%AF/" rel="tag"># 前端</a>
+              <a href="/tags/Vue/" rel="tag"># Vue</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/06/24/Vue%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/" rel="prev" title="Vue学习笔记（四）- Vue Router">
+      <i class="fa fa-chevron-left"></i> Vue学习笔记（四）- Vue Router
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/06/26/PMM%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9B%91%E6%8E%A7%E5%B7%A5%E5%85%B7%E8%B0%83%E7%A0%94/" rel="next" title="PMM数据库监控工具调研">
+      PMM数据库监控工具调研 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#5-Promise"><span class="nav-number">1.</span> <span class="nav-text">5 Promise</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#5-1-%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.</span> <span class="nav-text">5.1 简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-2-Promise%E7%9A%84%E4%B8%89%E7%A7%8D%E7%8A%B6%E6%80%81%E5%92%8C%E5%8F%A6%E5%A4%96%E7%9A%84%E5%A4%84%E7%90%86%E6%96%B9%E5%BC%8F"><span class="nav-number">1.2.</span> <span class="nav-text">5.2 Promise的三种状态和另外的处理方式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6-Vuex"><span class="nav-number">2.</span> <span class="nav-text">6 Vuex</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#6-1-Vuex%E7%AE%80%E4%BB%8B"><span class="nav-number">2.1.</span> <span class="nav-text">6.1 Vuex简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-2-%E9%A1%B5%E9%9D%A2%E7%9A%84%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86"><span class="nav-number">2.2.</span> <span class="nav-text">6.2 页面的状态管理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-3-%E4%BD%BF%E7%94%A8Vuex"><span class="nav-number">2.3.</span> <span class="nav-text">6.3 使用Vuex</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-4-Vuex%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="nav-number">2.4.</span> <span class="nav-text">6.4 Vuex核心概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-4-1-State%E5%8F%8AGetters"><span class="nav-number">2.4.1.</span> <span class="nav-text">6.4.1 State及Getters</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-4-2-Mutations"><span class="nav-number">2.4.2.</span> <span class="nav-text">6.4.2 Mutations</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-4-3-Actions"><span class="nav-number">2.4.3.</span> <span class="nav-text">6.4.3 Actions</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-4-4-Module"><span class="nav-number">2.4.4.</span> <span class="nav-text">6.4.4 Module</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-4-5-%E8%A1%A5%EF%BC%9AVuex%E7%9A%84%E9%A1%B9%E7%9B%AE%E7%BB%93%E6%9E%84"><span class="nav-number">2.4.5.</span> <span class="nav-text">6.4.5 补：Vuex的项目结构</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#7-Axios"><span class="nav-number">3.</span> <span class="nav-text">7 Axios</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">QinTianJun</p>
+  <div class="site-description" itemprop="description">一个菜鸟的成长之路</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QinTianJun</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

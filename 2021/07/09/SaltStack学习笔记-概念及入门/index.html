@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.qintianjun.top","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="SaltStack学习笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SaltStack学习笔记-概念及入门">
+<meta property="og:url" content="http://www.qintianjun.top/2021/07/09/SaltStack%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E6%A6%82%E5%BF%B5%E5%8F%8A%E5%85%A5%E9%97%A8/index.html">
+<meta property="og:site_name" content="Freedom_ATX Blog">
+<meta property="og:description" content="SaltStack学习笔记">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/saltstack/saltstack.png">
+<meta property="og:image" content="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/saltstack/20170210103613403.png">
+<meta property="article:published_time" content="2021-07-09T14:52:16.000Z">
+<meta property="article:modified_time" content="2021-07-11T07:19:16.764Z">
+<meta property="article:author" content="QinTianJun">
+<meta property="article:tag" content="Ops">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/saltstack/saltstack.png">
+
+<link rel="canonical" href="http://www.qintianjun.top/2021/07/09/SaltStack%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E6%A6%82%E5%BF%B5%E5%8F%8A%E5%85%A5%E9%97%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>SaltStack学习笔记-概念及入门 | Freedom_ATX Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Freedom_ATX Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://www.qintianjun.top/2021/07/09/SaltStack%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E6%A6%82%E5%BF%B5%E5%8F%8A%E5%85%A5%E9%97%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="QinTianJun">
+      <meta itemprop="description" content="一个菜鸟的成长之路">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Freedom_ATX Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SaltStack学习笔记-概念及入门
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-07-09 22:52:16" itemprop="dateCreated datePublished" datetime="2021-07-09T22:52:16+08:00">2021-07-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-07-11 15:19:16" itemprop="dateModified" datetime="2021-07-11T15:19:16+08:00">2021-07-11</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Ops/" itemprop="url" rel="index"><span itemprop="name">Ops</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="saltstack学习笔记"><a href="#saltstack学习笔记" class="headerlink" title="saltstack学习笔记"></a>saltstack学习笔记</h1><p>[TOC]</p>
+<h1 id="1-入门"><a href="#1-入门" class="headerlink" title="1 入门"></a>1 入门</h1><h2 id="1-1-saltstack架构"><a href="#1-1-saltstack架构" class="headerlink" title="1.1 saltstack架构"></a>1.1 saltstack架构</h2><p>SaltStack是一种新型的基础设施管理软件,简单易部署,可伸缩的足以管理成千上万的服务器,和足够快的速度控制,与他们交流,以毫秒为单位。SaltStack提供了一个动态基础设施通信总线用于编排,远程执行、配置管理等等。SaltStack项目于2011年启动,年增长速度较快,五年期固定基础设施编制和配置管理的开源项目。SaltStack社区致力于保持slat项目集中、友好、健康、开放。<br><img src="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/saltstack/saltstack.png"></p>
+<p>简单来说它的两大基础功能就是：配置管理、远程命令执行。剩下就是根据你的需求自由组合，实现更复杂的功能和系统管理。<br>（待补充）</p>
+<h2 id="1-2-安装saltstack"><a href="#1-2-安装saltstack" class="headerlink" title="1.2 安装saltstack"></a>1.2 安装saltstack</h2><p>salt官方推荐使用<code>salt bootstrap</code>进行安装，它会根据运行的系统不同自动选择安装方式，解决依赖。</p>
+<p>由于salt源在国外且速度较慢，我们使用切换到国内阿里源的方式安装：</p>
+<h3 id="配置方法"><a href="#配置方法" class="headerlink" title="配置方法"></a>配置方法</h3><p>Saltstack 的官方文档对其支持的每种操作系统上 salt 的安装已经提供了具体的说明，在您可以访问本站的镜像页面：</p>
+<p><a target="_blank" rel="noopener" href="https://mirrors.aliyun.com/saltstack/">https://mirrors.aliyun.com/saltstack/</a><br>来获取这些方法，另外，为了能使用本镜像站快速的安装软件包，您需要做2点修改：</p>
+<h4 id="a-脚本中的域名修改"><a href="#a-脚本中的域名修改" class="headerlink" title="a.脚本中的域名修改"></a>a.脚本中的域名修改</h4><p>把对应OS初始化脚本中的域名</p>
+<p>repo.saltstack.com<br>替换成在阿里镜像站对应的路径</p>
+<p>mirrors.aliyun.com/saltstack<br>比如对于 Centos 7 系统，在 saltstack 的官网提供的配置初始化手册是：</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><code class="hljs awk">sudo yum install https:<span class="hljs-regexp">//</span>repo.saltstack.com<span class="hljs-regexp">/yum/</span>redhat/salt-repo-latest-<span class="hljs-number">2</span>.el7.noarch.rpm<br></code></pre></td></tr></table></figure>
+<p>这时，你需要执行:</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><code class="hljs awk">sudo yum install https:<span class="hljs-regexp">//mi</span>rrors.aliyun.com<span class="hljs-regexp">/saltstack/yum</span><span class="hljs-regexp">/redhat/</span>salt-repo-latest-<span class="hljs-number">2</span>.el7.noarch.rpm<br></code></pre></td></tr></table></figure>
+<p>来安装这个初始化软件包。</p>
+<h4 id="b-配置中的域名修改"><a href="#b-配置中的域名修改" class="headerlink" title="b.配置中的域名修改"></a>b.配置中的域名修改</h4><p>仍以 Centos 7 为例，初始化rpm包生成的配置文件为:</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><code class="hljs awk"><span class="hljs-regexp">/etc/yum</span>.repos.d/salt-latest.repo<br></code></pre></td></tr></table></figure>
+<p>文件中的访问地址需要替换成镜像站的路径，执行命令：</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><code class="hljs awk">sudo sed -i <span class="hljs-string">&quot;s/repo.saltstack.com/mirrors.aliyun.com\/saltstack/g&quot;</span> <span class="hljs-regexp">/etc/yum</span>.repos.d/salt-latest.repo<br></code></pre></td></tr></table></figure>
+
+<h2 id="1-3-配置salt"><a href="#1-3-配置salt" class="headerlink" title="1.3 配置salt"></a>1.3 配置salt</h2><p>安装完成后可以开始配置salt,Salt Master启动后会默认监听两个端口：</p>
+<p><strong>4505</strong>(publish_port)为Salt Master pub接口，提供远程执行命令发送功能；</p>
+<p><strong>4506</strong>(ret_port)为Salt Master ret端口，支持认证，文件服务，结果收集等功能。</p>
+<p>要确保防火墙对这两个端口开放。</p>
+<p><strong>Salt Master</strong>的配置文件在<code>/etc/salt/master</code></p>
+<p><strong>Salt Minion</strong>的配置文件在<code>/etc/salt/minion</code></p>
+<h3 id="1-3-1-Salt-minion配置"><a href="#1-3-1-Salt-minion配置" class="headerlink" title="1.3.1 Salt minion配置"></a>1.3.1 Salt minion配置</h3><p>minion和master之间的通信最好使用域名进行连接，实验中可修改对应的<code>/etc/hosts</code>文件，加入如下配置：</p>
+<figure class="highlight accesslog"><table><tr><td class="code"><pre><code class="hljs accesslog"><span class="hljs-number">192.168.58.128</span> master<br><span class="hljs-number">192.168.58.129</span> minion-one<br></code></pre></td></tr></table></figure>
+
+<p>用vi打开minion主机的<code>/etc/salt/minion</code>,修改如下：<br>首先找出配置选项的master命令行，去掉注释并改为</p>
+<figure class="highlight crmsh"><table><tr><td class="code"><pre><code class="hljs crmsh"><span class="hljs-literal">master</span>:<span class="hljs-literal">master</span><br></code></pre></td></tr></table></figure>
+
+<p>然后找到ID行，去掉注释并改为:</p>
+<figure class="highlight applescript"><table><tr><td class="code"><pre><code class="hljs applescript"><span class="hljs-built_in">id</span>: minion-one <span class="hljs-comment"># 这个名字不一定需要和主机名一样，为了方便可以设置成一样</span><br></code></pre></td></tr></table></figure>
+<p>如果未找到id行可以自己添加</p>
+<blockquote>
+<p>注意：如果未手动指定minion ID,minion将在启动时尝试智能化判断其minion ID，对于大多数系统，minion ID将设置为全局域名（FQDN）。</p>
+</blockquote>
+<p>之后重启salt master和minion对应的进程生效。</p>
+<h3 id="1-3-2-在master上接受minion密钥"><a href="#1-3-2-在master上接受minion密钥" class="headerlink" title="1.3.2 在master上接受minion密钥"></a>1.3.2 在master上接受minion密钥</h3><p>minion在启动之后会连接master，请求master为其签发证书，签发完成后代表master可以信任该minion。</p>
+<p><strong>salt-key</strong>命令可以帮助我们管理minion的密钥，在master上执行：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml">[<span class="hljs-string">root@localhost</span> <span class="hljs-string">scripts</span>]<span class="hljs-comment"># salt-key -L</span><br><span class="hljs-attr">Accepted Keys:</span><br><span class="hljs-attr">Denied Keys:</span><br><span class="hljs-attr">Unaccepted Keys:</span><br><span class="hljs-string">minion-one</span><br><span class="hljs-string">minion-two</span><br><span class="hljs-attr">Rejected Keys:</span><br></code></pre></td></tr></table></figure>
+<p>这是可以发现minion-one主机已经出现在了<code>unaccepted keys</code>中，这表示该minion已经和master联系，并且master已经获取了minion的公钥，正在等待接受该minion的指令。</p>
+<p>这时我们可以通过查看密钥指纹来确保其与minion的密钥想匹配，在master上查询的命令：</p>
+<figure class="highlight vim"><table><tr><td class="code"><pre><code class="hljs vim">[root@localhost scripts]# salt-key -<span class="hljs-keyword">f</span> minion-one<br>Unaccepted Key<span class="hljs-variable">s:</span><br>minion-one:  <span class="hljs-number">30</span>:<span class="hljs-number">96</span>:<span class="hljs-number">64</span>:<span class="hljs-number">30</span>:<span class="hljs-number">3</span><span class="hljs-variable">a:a0</span>:<span class="hljs-number">77</span>:<span class="hljs-number">9</span><span class="hljs-keyword">f</span>:<span class="hljs-number">2</span><span class="hljs-keyword">e</span>:<span class="hljs-number">22</span>:a1:<span class="hljs-number">5</span><span class="hljs-keyword">c</span>:<span class="hljs-number">15</span>:<span class="hljs-keyword">a</span><span class="hljs-variable">a:9b</span>:ad:<span class="hljs-number">36</span>:<span class="hljs-number">35</span>:<span class="hljs-number">06</span>:<span class="hljs-number">73</span>:<span class="hljs-number">9</span><span class="hljs-keyword">e</span>:<span class="hljs-number">5</span><span class="hljs-keyword">f</span>:<span class="hljs-keyword">ce</span>:<span class="hljs-keyword">bd</span>:<span class="hljs-keyword">a</span><span class="hljs-variable">b:d2</span>:<span class="hljs-number">26</span>:<span class="hljs-number">6</span><span class="hljs-keyword">e</span>:<span class="hljs-number">5</span>d:<span class="hljs-number">0</span><span class="hljs-variable">b:cc</span>:<span class="hljs-number">02</span><br></code></pre></td></tr></table></figure>
+
+<p>同样地，在minion上可以通过<code>salt-call</code>命令来获取：</p>
+<figure class="highlight vim"><table><tr><td class="code"><pre><code class="hljs vim">[root@localhost scripts]# salt-<span class="hljs-keyword">call</span> --local key.finger<br>loca<span class="hljs-variable">l:</span><br>    <span class="hljs-number">30</span>:<span class="hljs-number">96</span>:<span class="hljs-number">64</span>:<span class="hljs-number">30</span>:<span class="hljs-number">3</span><span class="hljs-variable">a:a0</span>:<span class="hljs-number">77</span>:<span class="hljs-number">9</span><span class="hljs-keyword">f</span>:<span class="hljs-number">2</span><span class="hljs-keyword">e</span>:<span class="hljs-number">22</span>:a1:<span class="hljs-number">5</span><span class="hljs-keyword">c</span>:<span class="hljs-number">15</span>:<span class="hljs-keyword">a</span><span class="hljs-variable">a:9b</span>:ad:<span class="hljs-number">36</span>:<span class="hljs-number">35</span>:<span class="hljs-number">06</span>:<span class="hljs-number">73</span>:<span class="hljs-number">9</span><span class="hljs-keyword">e</span>:<span class="hljs-number">5</span><span class="hljs-keyword">f</span>:<span class="hljs-keyword">ce</span>:<span class="hljs-keyword">bd</span>:<span class="hljs-keyword">a</span><span class="hljs-variable">b:d2</span>:<span class="hljs-number">26</span>:<span class="hljs-number">6</span><span class="hljs-keyword">e</span>:<span class="hljs-number">5</span>d:<span class="hljs-number">0</span><span class="hljs-variable">b:cc</span>:<span class="hljs-number">02</span><br></code></pre></td></tr></table></figure>
+
+<p>可以看到两者相互匹配，所以我们可以在master上接受该密钥,使用<code>salt-key -a</code>参数：</p>
+<figure class="highlight llvm"><table><tr><td class="code"><pre><code class="hljs llvm">[root<span class="hljs-title">@localhost</span> scripts]# salt-key -a minion-<span class="hljs-keyword">one</span><br>The following keys are going <span class="hljs-keyword">to</span> be accepted:<br>Unaccepted Keys:<br>minion-<span class="hljs-keyword">one</span><br>Proceed? [n/Y] Y<br>Key for minion minion-<span class="hljs-keyword">one</span> accepted.<br></code></pre></td></tr></table></figure>
+
+<p>此时再次查看：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml">[<span class="hljs-string">root@localhost</span> <span class="hljs-string">scripts</span>]<span class="hljs-comment"># salt-key -L</span><br><span class="hljs-attr">Accepted Keys:</span><br><span class="hljs-string">minion-one</span><br><span class="hljs-attr">Denied Keys:</span><br><span class="hljs-attr">Unaccepted Keys:</span><br><span class="hljs-string">minion-two</span><br><span class="hljs-attr">Rejected Keys:</span><br></code></pre></td></tr></table></figure>
+<p>可以看到minion密钥已经被接受。</p>
+<blockquote>
+<p>注： 对于有很多minion的情况，可以在<code>/etc/salt/master</code>配置文件中查找到如下行：<code>#auto_accept: True</code>，去掉注释，可以让master以后自动签发密钥；也可以使用salt-key -A命令统一接受密钥。</p>
+</blockquote>
+<h3 id="1-3-3-运行第一条salt命令"><a href="#1-3-3-运行第一条salt命令" class="headerlink" title="1.3.3 运行第一条salt命令"></a>1.3.3 运行第一条salt命令</h3><p>尝试在master端运行并返回结果：</p>
+<figure class="highlight autoit"><table><tr><td class="code"><pre><code class="hljs autoit">[root<span class="hljs-symbol">@localhost</span> scripts]<span class="hljs-meta"># salt <span class="hljs-string">&#x27;*&#x27;</span> test.ping</span><br>minion-one:<br>    <span class="hljs-literal">True</span><br></code></pre></td></tr></table></figure>
+<p>这是一个简单的探测主机是否存活的命令，在该示例中我们发送一条消息给若干minion，并告诉它们运行salt内置的一个模块中的一条命令，这个命令能很好地查询我们有哪些minion是存活的。</p>
+<p>实际上，test模块还包含有许多其他有用的函数，我们可以使用<code>sys.list_functions</code>模块功能返回这些函数：</p>
+<figure class="highlight stata"><table><tr><td class="code"><pre><code class="hljs stata">[root@localhost scripts]# salt &#x27;minion-<span class="hljs-keyword">one</span>&#x27; sys.list_functions <span class="hljs-keyword">test</span><br>minion-<span class="hljs-keyword">one</span>:<br>    - <span class="hljs-keyword">test</span>.arg<br>    - <span class="hljs-keyword">test</span>.arg_clean<br>    - <span class="hljs-keyword">test</span>.arg_repr<br>    - <span class="hljs-keyword">test</span>.arg_type<br>    - <span class="hljs-keyword">test</span>.assertion<br>.......以下省略<br></code></pre></td></tr></table></figure>
+
+<p>我们来测试一下列表中的其他函数，比如<code>test.echo</code>,想了解函数的用法可以执行：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><code class="hljs php">[root@localhost scripts]<span class="hljs-comment"># salt minion-one sys.doc test.echo </span><br>test.<span class="hljs-keyword">echo</span>:<br><br>    <span class="hljs-keyword">Return</span> a <span class="hljs-keyword">string</span> - used <span class="hljs-keyword">for</span> testing the connection<br><br>    CLI Example:<br><br>        salt <span class="hljs-string">&#x27;*&#x27;</span> test.<span class="hljs-keyword">echo</span> <span class="hljs-string">&#x27;foo bar baz quo qux&#x27;</span><br></code></pre></td></tr></table></figure>
+<p>下一章我们将进一步学习远程执行命令。</p>
+<h1 id="2-通过salt远程执行管理minion"><a href="#2-通过salt远程执行管理minion" class="headerlink" title="2 通过salt远程执行管理minion"></a>2 通过salt远程执行管理minion</h1><h2 id="2-1-远程命令的组成结构"><a href="#2-1-远程命令的组成结构" class="headerlink" title="2.1 远程命令的组成结构"></a>2.1 远程命令的组成结构</h2><p>想了解salt命令的最简单方法就是用<code>--help</code>选项：</p>
+<figure class="highlight livescript"><table><tr><td class="code"><pre><code class="hljs livescript">[root@localhost scripts]<span class="hljs-comment"># salt --help</span><br>Usage: salt [options] <span class="hljs-string">&#x27;&lt;target&gt;&#x27;</span> &lt;<span class="hljs-keyword">function</span>&gt; [<span class="hljs-built_in">arguments</span>]<br><br>...... 以下省略<br></code></pre></td></tr></table></figure>
+<p>可以看到，salt远程执行命令由五部分组成：</p>
+<ul>
+<li>第一部分–salt命令本身</li>
+<li>第二部分–命令行选项</li>
+<li>第三部分–目标定位字符串</li>
+<li>第四部分–salt模块函数</li>
+<li>第五部分–远程执行函数的参数</li>
+</ul>
+<p>下面是一个包含所有五个部分的例子：</p>
+<figure class="highlight asciidoc"><table><tr><td class="code"><pre><code class="hljs asciidoc">[root@localhost scripts]# salt --summary <span class="hljs-emphasis">&#x27;*&#x27;</span> cmd.run &quot;uptime&quot;<br>minion-one:<br><span class="hljs-code">     16:24:02 up  1:52,  2 users,  load average: 0.00, 0.01, 0.05</span><br>minion-two:<br><span class="hljs-code">     16:24:02 up  1:49,  1 user,  load average: 0.24, 0.09, 0.10</span><br><br><br><span class="hljs-code">-------------------------------------------</span><br><span class="hljs-code">Summary</span><br><span class="hljs-code">-------------------------------------------</span><br># of minions targeted: 2<br># of minions returned: 2<br># of minions that did not return: 0<br><span class="hljs-section"># of minions with errors: 0</span><br><span class="hljs-section">-------------------------------------------</span><br></code></pre></td></tr></table></figure>
+<p>接下来我们详细了解这五个部分。</p>
+<h3 id="2-1-1-命令行选项"><a href="#2-1-1-命令行选项" class="headerlink" title="2.1.1 命令行选项"></a>2.1.1 命令行选项</h3><p>salt的命令行选项的作用就是通过不同的选项来改变程序本身的行为。<br>下面介绍几个主要的命令行参数：</p>
+<ul>
+<li>-v / –verbose 开启命令的详细描述–详细说明命令运行后会发生什么</li>
+<li>–summary 显示一条salt命令的概要</li>
+<li>–out 控制salt执行后输出结果的格式：<br>  a. –out=json 使用json格式输出执行结果； b.–out=yaml 使用yaml格式输出执行结果</li>
+</ul>
+<p>还有很多选项可以改变salt命令的行为，可以通过<code>salt --help</code>命令来查看选项的用法。</p>
+<h3 id="2-1-2-目标定位字符串"><a href="#2-1-2-目标定位字符串" class="headerlink" title="2.1.2 目标定位字符串"></a>2.1.2 目标定位字符串</h3><p>目标定位字符串用于在有大量minion服务器的情况下，灵活地定位到所需的服务器并执行远程命令。</p>
+<h4 id="全局匹配"><a href="#全局匹配" class="headerlink" title="全局匹配"></a>全局匹配</h4><p>到现在的所有命令，我们的定位都采用了“*”进行匹配，salt匹配字符串的写法和shell基本相同</p>
+<ul>
+<li>*代表0个或任意个字符</li>
+<li>? 代表一个字符</li>
+<li>[] 代表字符的集合，如[a~z]代表所有小写字母，[0-9]代表数字</li>
+</ul>
+<h4 id="正则表达式匹配"><a href="#正则表达式匹配" class="headerlink" title="正则表达式匹配"></a>正则表达式匹配</h4><p>如果我们需要更复杂的匹配，可以使用正则表达式。salt使用python的re正则模块，可以解析正则表达式（PCRE），正则表达式匹配需要配合命令行选项-E或者-pcre，具体正则规则不是本文的重点，有需要者请自行查询相关资料。</p>
+<h4 id="列表匹配"><a href="#列表匹配" class="headerlink" title="列表匹配"></a>列表匹配</h4><p>有时候我们需要指定一个列表里面的机器进行操作，这时候可以使用<code>-L</code> 参数进行列表匹配：</p>
+<figure class="highlight autoit"><table><tr><td class="code"><pre><code class="hljs autoit">[root<span class="hljs-symbol">@localhost</span> scripts]<span class="hljs-meta"># salt -L <span class="hljs-string">&quot;minion-one,minion-two&quot;</span> test.ping</span><br>minion-one:<br>    <span class="hljs-literal">True</span><br>minion-two:<br>    <span class="hljs-literal">True</span><br></code></pre></td></tr></table></figure>
+
+<p>通常列表匹配的主机都写在master的配置文件中，在/etc/salt/master中以nodegroups形式出现，包括正则匹配全局匹配等方式都可以写在配置文件中，然后通过分组匹配选项<code>-N</code>加上nodegroup名称进行匹配，后面会详细介绍。</p>
+<h4 id="Grain和Pillar匹配"><a href="#Grain和Pillar匹配" class="headerlink" title="Grain和Pillar匹配"></a>Grain和Pillar匹配</h4><p>Grain和Pillar是salt独有的两个概念，它们都是以key value形式存储的数据库，Grains是由minion返回给master的数据，而Pillar数据则是存储在master上的。每个minion只能看到自己的Pillar，Grain可以看做是Host的元数据(metadata), 例如CPU的数量；而Pillars则是主机所需的数据，例如数据库密码。一个minion可以告诉master它的Grain数据，而minion则需要从master索要Pillar数据。后面会详细讲解。</p>
+<h4 id="Grains匹配"><a href="#Grains匹配" class="headerlink" title="Grains匹配"></a>Grains匹配</h4><p>Grains可以认为是描述minion本身固有属性的静态数据，列入minion服务器的操作系统、内存的大小、网卡的mac地址等，可以用如下命令列出主机所有的Grains数据。</p>
+<figure class="highlight dts"><table><tr><td class="code"><pre><code class="hljs dts">[root@localhost scripts]<span class="hljs-meta"># salt <span class="hljs-string">&quot;minion-one&quot;</span> grains.items</span><br>minion-one:<br>    ----------<br><span class="hljs-symbol">    SSDs:</span><br><span class="hljs-symbol">    biosreleasedate:</span><br>        <span class="hljs-number">04</span>/<span class="hljs-number">13</span>/<span class="hljs-number">2018</span><br><span class="hljs-symbol">    biosversion:</span><br>        <span class="hljs-number">6.00</span><br><span class="hljs-symbol">    cpu_flags:</span><br>        - fpu<br>        - vme<br>        - de<br>......以下省略<br></code></pre></td></tr></table></figure>
+
+<p>检索某一Grains数据使用如下命令:</p>
+<figure class="highlight lua"><table><tr><td class="code"><pre><code class="hljs lua">[root@localhost scripts]# salt <span class="hljs-string">&#x27;minion-one&#x27;</span> grains.item <span class="hljs-built_in">os</span><br>minion-one:<br>    <span class="hljs-comment">----------</span><br>    <span class="hljs-built_in">os</span>:<br>        CentOS<br></code></pre></td></tr></table></figure>
+
+<p>了解了操作系统信息后，我们可以利用Grains定位主机–利用<code>-G</code>或<code>--grain:</code>，如对使用CentOS的机器进行定位:</p>
+<figure class="highlight autoit"><table><tr><td class="code"><pre><code class="hljs autoit">[root<span class="hljs-symbol">@localhost</span> scripts]<span class="hljs-meta"># salt -G <span class="hljs-string">&#x27;os:CentOs&#x27;</span> test.ping</span><br>minion-one:<br>    <span class="hljs-literal">True</span><br>minion-two:<br>    <span class="hljs-literal">True</span><br></code></pre></td></tr></table></figure>
+
+<p>定位系统版本是7.6.*的主机:</p>
+<figure class="highlight autoit"><table><tr><td class="code"><pre><code class="hljs autoit">[root<span class="hljs-symbol">@localhost</span> scripts]<span class="hljs-meta"># salt -G <span class="hljs-string">&#x27;osrelease:7.6.*&#x27;</span> test.ping</span><br>minion-one:<br>    <span class="hljs-literal">True</span><br>minion-two:<br>    <span class="hljs-literal">True</span><br></code></pre></td></tr></table></figure>
+
+<p>定位ens33网卡的特定的MAC地址的主机：</p>
+<figure class="highlight autoit"><table><tr><td class="code"><pre><code class="hljs autoit">[root<span class="hljs-symbol">@localhost</span> scripts]<span class="hljs-meta"># salt -G <span class="hljs-string">&#x27;hwaddr_interfaces:ens33:00:0c:29:0f:c1:a3&#x27;</span> test.ping</span><br>minion-one:<br>    <span class="hljs-literal">True</span><br></code></pre></td></tr></table></figure>
+
+<p>Grains的匹配强大之处不止于此，除了自带的Grains之外，我们还可以自定义Grains来满足不同的需求。后面会详细讨论，这里仅仅给出一个简单的例子：</p>
+<figure class="highlight autoit"><table><tr><td class="code"><pre><code class="hljs autoit">[root<span class="hljs-symbol">@localhost</span> scripts]<span class="hljs-meta"># salt -G <span class="hljs-string">&#x27;hwaddr_interfaces:ens33:00:0c:29:0f:c1:a3&#x27;</span> test.ping</span><br>minion-one:<br>    <span class="hljs-literal">True</span><br>[root<span class="hljs-symbol">@localhost</span> scripts]<span class="hljs-meta"># </span><br>[root<span class="hljs-symbol">@localhost</span> scripts]<span class="hljs-meta"># </span><br>[root<span class="hljs-symbol">@localhost</span> scripts]<span class="hljs-meta"># salt <span class="hljs-string">&#x27;minion-one&#x27;</span> grains.setval install_date 20190311</span><br>minion-one:<br>    ----------<br>    install_date:<br>        <span class="hljs-number">20190311</span><br>[root<span class="hljs-symbol">@localhost</span> scripts]<span class="hljs-meta"># salt <span class="hljs-string">&#x27;minion-one&#x27;</span> grains.item install_date</span><br>minion-one:<br>    ----------<br>    install_date:<br>        <span class="hljs-number">20190311</span><br></code></pre></td></tr></table></figure>
+
+
+<h4 id="Pillars匹配"><a href="#Pillars匹配" class="headerlink" title="Pillars匹配"></a>Pillars匹配</h4><p>Pillars数据同Grains相似，不同之处是Pillars数据可以定义为更加动态的形式，并且是一个安全的数据存储库。它也是一个key-value形式存储的数据库，也可以和Grains一样进行匹配。不同的是需要使用<code>-I</code>或<code>--pillar</code>选项：</p>
+<ul>
+<li>列出主机所有的Pillar数据: <code>#salt &quot;minion-one&quot; pillar.items</code></li>
+<li>查看单个Pillar数据：<code>#salt &quot;minion-one&quot; pillar.item role</code></li>
+<li>匹配role值是Web的主机并执行远程命令：<code>salt -I &quot;role:Web&quot; test.ping</code></li>
+</ul>
+<h4 id="复合匹配"><a href="#复合匹配" class="headerlink" title="复合匹配"></a>复合匹配</h4><p>复合匹配就是将前面几种匹配方式混合使用，通过复合匹配我们可以定义更精细和复杂的minion匹配方式。例如：</p>
+<figure class="highlight autoit"><table><tr><td class="code"><pre><code class="hljs autoit"><span class="hljs-meta"># salt -C <span class="hljs-string">&#x27;minion-* and G@os:CentOs not E@.*-two$&#x27;</span> test.ping</span><br></code></pre></td></tr></table></figure>
+<p>这段匹配的含义是匹配所有‘minion-’开头的并且操作系统是CentOS且不能以-two结尾的机器。</p>
+<p>可以使用的匹配方法如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th align="center">字母</th>
+<th align="center">匹配类型</th>
+<th align="center">示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">G</td>
+<td align="center">Grains</td>
+<td align="center">G@os:Ubuntu</td>
+</tr>
+<tr>
+<td align="center">E</td>
+<td align="center">正则</td>
+<td align="center">E@web\d+(dev</td>
+</tr>
+<tr>
+<td align="center">P</td>
+<td align="center">Grains正则</td>
+<td align="center">P@os:(RedHot</td>
+</tr>
+<tr>
+<td align="center">L</td>
+<td align="center">列表</td>
+<td align="center"><a href="mailto:&#76;&#64;&#109;&#x69;&#x6e;&#105;&#x6f;&#110;&#x31;&#x2e;&#x65;&#x78;&#x61;&#109;&#x70;&#x6c;&#x65;&#x2e;&#99;&#x6f;&#x6d;">&#76;&#64;&#109;&#x69;&#x6e;&#105;&#x6f;&#110;&#x31;&#x2e;&#x65;&#x78;&#x61;&#109;&#x70;&#x6c;&#x65;&#x2e;&#99;&#x6f;&#x6d;</a></td>
+</tr>
+<tr>
+<td align="center">I</td>
+<td align="center">Pillar</td>
+<td align="center">I@pdata:foobar</td>
+</tr>
+<tr>
+<td align="center">S</td>
+<td align="center">Subnet/IP address</td>
+<td align="center"><a href="mailto:&#83;&#64;&#x31;&#57;&#x32;&#x2e;&#49;&#54;&#x38;&#46;&#48;&#46;&#49;">&#83;&#64;&#x31;&#57;&#x32;&#x2e;&#49;&#54;&#x38;&#46;&#48;&#46;&#49;</a>/24 or <a href="mailto:&#83;&#64;&#x31;&#57;&#x32;&#46;&#49;&#x36;&#56;&#46;&#49;&#46;&#x31;&#48;&#x30;">&#83;&#64;&#x31;&#57;&#x32;&#46;&#49;&#x36;&#56;&#46;&#49;&#46;&#x31;&#48;&#x30;</a></td>
+</tr>
+<tr>
+<td align="center">R</td>
+<td align="center">Range cluster</td>
+<td align="center">R@%foo.bar</td>
+</tr>
+</tbody></table>
+<h2 id="2-2-远程执行模块和函数"><a href="#2-2-远程执行模块和函数" class="headerlink" title="2.2 远程执行模块和函数"></a>2.2 远程执行模块和函数</h2><p>远程执行的最后一部分是我们需要运行的模块以及相关函数和对应的执行参数。模块是函数的逻辑分组，一系列的函数组合在一起构成一个模块。</p>
+<p>所有远程执行命令的格式都是<module>.<function>格式，使用sys.list_modules函数可以列举出对应minion主机上的所有模块;使用sys模块的list_functions函数可以列举出模块内可以应用的函数。</p>
+<p>下面列举一些常用的模块和函数：</p>
+<h3 id="1-远程命令执行模块"><a href="#1-远程命令执行模块" class="headerlink" title="1. 远程命令执行模块"></a>1. 远程命令执行模块</h3><p><code>cmd</code>模块可以在多台主机上同时执行一条相同命令</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml">[<span class="hljs-string">root@saltmaster</span> <span class="hljs-string">~</span>]<span class="hljs-comment"># salt &#x27;*&#x27; cmd.run &quot;ps aux| wc -l&quot;</span><br><span class="hljs-attr">minion-one:</span><br>    <span class="hljs-number">103</span><br><span class="hljs-attr">minion-two:</span><br>    <span class="hljs-number">118</span><br>[<span class="hljs-string">root@saltmaster</span> <span class="hljs-string">~</span>]<span class="hljs-comment"># salt &#x27;*&#x27; cmd.run_all &quot;ps aux| wc -l&quot; # 显示更详细参数</span><br><span class="hljs-attr">minion-two:</span><br>    <span class="hljs-string">----------</span><br>    <span class="hljs-attr">pid:</span><br>        <span class="hljs-number">9579</span><br>    <span class="hljs-attr">retcode:</span><br>        <span class="hljs-number">0</span><br>    <span class="hljs-attr">stderr:</span><br>    <span class="hljs-attr">stdout:</span><br>        <span class="hljs-number">118</span><br><span class="hljs-attr">minion-one:</span><br>    <span class="hljs-string">----------</span><br>    <span class="hljs-attr">pid:</span><br>        <span class="hljs-number">8023</span><br>    <span class="hljs-attr">retcode:</span><br>        <span class="hljs-number">0</span><br>    <span class="hljs-attr">stderr:</span><br>    <span class="hljs-attr">stdout:</span><br>        <span class="hljs-number">103</span><br><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-安装包管理"><a href="#2-安装包管理" class="headerlink" title="2. 安装包管理"></a>2. 安装包管理</h3><p><code>pkg</code>模块用于管理程序包，我们使用<code>pkg.install</code>模块来安装程序包</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><code class="hljs sql">[root<span class="hljs-variable">@saltmaster</span> <span class="hljs-operator">~</span>]# salt <span class="hljs-string">&#x27;minion-one&#x27;</span> pkg.install <span class="hljs-string">&#x27;httpd&#x27;</span><br>minion<span class="hljs-operator">-</span><span class="hljs-keyword">one</span>:<br>    <span class="hljs-comment">----------</span><br>    httpd:<br>        <span class="hljs-comment">----------</span><br>        <span class="hljs-keyword">new</span>:<br>            <span class="hljs-number">2.4</span><span class="hljs-number">.6</span><span class="hljs-number">-88.</span>el7.centos<br>        <span class="hljs-keyword">old</span>:<br>    httpd<span class="hljs-operator">-</span>tools:<br>        <span class="hljs-comment">----------</span><br>        <span class="hljs-keyword">new</span>:<br>            <span class="hljs-number">2.4</span><span class="hljs-number">.6</span><span class="hljs-number">-88.</span>el7.centos<br>        <span class="hljs-keyword">old</span>:<br>    mailcap:<br>        <span class="hljs-comment">----------</span><br>        <span class="hljs-keyword">new</span>:<br>            <span class="hljs-number">2.1</span><span class="hljs-number">.41</span><span class="hljs-number">-2.</span>el7<br>        <span class="hljs-keyword">old</span>:<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-管理服务模块"><a href="#3-管理服务模块" class="headerlink" title="3. 管理服务模块"></a>3. 管理服务模块</h3><p>salt通过<code>service</code>管理服务模块管理服务，该模块包括了<code>service.start</code>,<code>service.status</code>,<code>service.stop</code>等，如果service.status远程执行模块输出True结果，则表示该服务正在运行，如果输出False则表示该服务停止。</p>
+<figure class="highlight autoit"><table><tr><td class="code"><pre><code class="hljs autoit">[root<span class="hljs-symbol">@saltmaster</span> ~]<span class="hljs-meta"># salt <span class="hljs-string">&#x27;minion-one&#x27;</span> service.status httpd</span><br>minion-one:<br>    <span class="hljs-literal">False</span><br>[root<span class="hljs-symbol">@saltmaster</span> ~]<span class="hljs-meta"># salt <span class="hljs-string">&#x27;minion-one&#x27;</span> service.start httpd</span><br>minion-one:<br>    <span class="hljs-literal">True</span><br>[root<span class="hljs-symbol">@saltmaster</span> ~]<span class="hljs-meta"># salt <span class="hljs-string">&#x27;minion-one&#x27;</span> service.status httpd</span><br>minion-one:<br>    <span class="hljs-literal">True</span><br>[root<span class="hljs-symbol">@saltmaster</span> ~]<span class="hljs-meta"># salt <span class="hljs-string">&#x27;minion-one&#x27;</span> service.stop httpd</span><br>minion-one:<br>    <span class="hljs-literal">True</span><br>[root<span class="hljs-symbol">@saltmaster</span> ~]<span class="hljs-meta"># salt <span class="hljs-string">&#x27;minion-one&#x27;</span> service.status httpd</span><br>minion-one:<br>    <span class="hljs-literal">False</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="4-文件管理模块"><a href="#4-文件管理模块" class="headerlink" title="4. 文件管理模块"></a>4. 文件管理模块</h3><p>对于文件管理，salt提供了<code>file</code>模块，<code>file.status</code>可以获取文件属性,<br><code>file.chown</code>可以修改文件属主</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml">[<span class="hljs-string">root@saltmaster</span> <span class="hljs-string">~</span>]<span class="hljs-comment"># salt &#x27;minion-one&#x27; file.stats /etc/yum.conf</span><br><span class="hljs-attr">minion-one:</span><br>    <span class="hljs-string">----------</span><br>    <span class="hljs-attr">atime:</span><br>        <span class="hljs-number">1552284497.869986</span><br>    <span class="hljs-attr">ctime:</span><br>        <span class="hljs-number">1552283157.8879962</span><br>    <span class="hljs-attr">gid:</span><br>        <span class="hljs-number">0</span><br>    <span class="hljs-attr">group:</span><br>        <span class="hljs-string">root</span><br>    <span class="hljs-attr">inode:</span><br>        <span class="hljs-number">16988181</span><br>    <span class="hljs-attr">mode:</span><br>        <span class="hljs-number">0644</span><br>    <span class="hljs-attr">mtime:</span><br>        <span class="hljs-number">1541382837.0</span><br>    <span class="hljs-attr">size:</span><br>        <span class="hljs-number">970</span><br>    <span class="hljs-attr">target:</span><br>        <span class="hljs-string">/etc/yum.conf</span><br>    <span class="hljs-attr">type:</span><br>        <span class="hljs-string">file</span><br>    <span class="hljs-attr">uid:</span><br>        <span class="hljs-number">0</span><br>    <span class="hljs-attr">user:</span><br>        <span class="hljs-string">root</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="5-用户管理模块"><a href="#5-用户管理模块" class="headerlink" title="5. 用户管理模块"></a>5. 用户管理模块</h3><p><code>user</code>模块可以用来管理用户，添加用户的salt命令格式如下：</p>
+<figure class="highlight vim"><table><tr><td class="code"><pre><code class="hljs vim">salt <span class="hljs-string">&#x27;*&#x27;</span> user.<span class="hljs-built_in">add</span> name <span class="hljs-symbol">&lt;uid&gt;</span> <span class="hljs-symbol">&lt;gid&gt;</span> <span class="hljs-symbol">&lt;groups&gt;</span> <span class="hljs-symbol">&lt;home&gt;</span> <span class="hljs-symbol">&lt;shell&gt;</span><br></code></pre></td></tr></table></figure>
+<p>可以不指定其他信息，只做最简单的用户添加：</p>
+<figure class="highlight pgsql"><table><tr><td class="code"><pre><code class="hljs pgsql">salt <span class="hljs-string">&#x27;*&#x27;</span> <span class="hljs-keyword">user</span>.<span class="hljs-keyword">add</span> <span class="hljs-string">&#x27;mysql&#x27;</span><br></code></pre></td></tr></table></figure>
+<p>删除用户：</p>
+<figure class="highlight pgsql"><table><tr><td class="code"><pre><code class="hljs pgsql">salt <span class="hljs-string">&#x27;minion-one&#x27;</span> <span class="hljs-keyword">user</span>.<span class="hljs-keyword">delete</span> mysql<br></code></pre></td></tr></table></figure>
+<p>查看用户信息：</p>
+<figure class="highlight nginx"><table><tr><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">salt</span> <span class="hljs-string">&#x27;minion-one&#x27;</span> user.<span class="hljs-literal">info</span> root<br></code></pre></td></tr></table></figure>
+
+<h1 id="3-编写自己的模块代码"><a href="#3-编写自己的模块代码" class="headerlink" title="3 编写自己的模块代码"></a>3 编写自己的模块代码</h1><h2 id="3-1-理解salt底层执行的原理"><a href="#3-1-理解salt底层执行的原理" class="headerlink" title="3.1 理解salt底层执行的原理"></a>3.1 理解salt底层执行的原理</h2><p>salt底层通信是通过ZeroMQ完成的，采用了ZeroMQ的订阅发布模式（Pub和Sub）<br><img src="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/saltstack/20170210103613403.png" alt="image"></p>
+<p>简单来说Pub/Sub模式类似于广播电台，在订阅发布模式中Pub将消息发送到总线，所有的Sub收到来自总线的消息后，根据自己的订阅条件来接收特定的消息。对应到Salt中就是master将事件发布到消息总线后，minion订阅并监听事件，然后minion会查看事件是否和自己匹配以确定是否需要执行。</p>
+<p>Salt minion启动时从配置能文件中获取master的地址，如果为域名则进行解析，解析完成后会连接master的4506（ret接口）进行key认证。认证通过会获取到master的publish_port(默认4505)，然后连接publish_port订阅来自master pub接口的任务。当master下发操作指令时，所有的minion都能接收都，然后minion会检查本机是否匹配，如果匹配则执行。执行完毕后把结果发送到master的4506由master进行处理。</p>
+<p>命令的发送完全是异步的，并且命令包很小，此外这些命令包通过maqpack进行序列化后数据会进一步压缩，所以salt的网络负载会非常低。</p>
+<h2 id="3-2-执行模块的构成结构和编写自己的模块"><a href="#3-2-执行模块的构成结构和编写自己的模块" class="headerlink" title="3.2 执行模块的构成结构和编写自己的模块"></a>3.2 执行模块的构成结构和编写自己的模块</h2><p>（暂时忽略）</p>
+<h1 id="4-通过state模块定义主机状态"><a href="#4-通过state模块定义主机状态" class="headerlink" title="4 通过state模块定义主机状态"></a>4 通过state模块定义主机状态</h1><h2 id="4-1-状态的概念以及如何撰写第一条状态"><a href="#4-1-状态的概念以及如何撰写第一条状态" class="headerlink" title="4.1 状态的概念以及如何撰写第一条状态"></a>4.1 状态的概念以及如何撰写第一条状态</h2><p>对于minion的环境控制，使用状态进行管理更为合适。状态是对minion的一种描述和定义，管理人员可以不关心具体部署的任务是如何完成的，只需要描述minion要到达什么状态，底层由salt的状态模块来完成功能。</p>
+<p>之前我们使用pkg模块的install函数安装了httpd,这个函数的功能相当于在每台minion上执行yum install httpd命令，重复执行上面的命令相当于在所有minion上重新执行yum install httpd命令。</p>
+<p>下面我们使用state模块完成部署：</p>
+<ul>
+<li><p>建立目录</p>
+<figure class="highlight autoit"><table><tr><td class="code"><pre><code class="hljs autoit">[root<span class="hljs-symbol">@saltmaster</span> srv]<span class="hljs-meta"># mkdir -p /srv/salt</span><br>[root<span class="hljs-symbol">@saltmaster</span> srv]<span class="hljs-meta"># cd /srv/salt</span><br></code></pre></td></tr></table></figure></li>
+<li><p>建立apache.sls文件</p>
+</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">install_httpd:</span><br>    <span class="hljs-attr">pkg.installed:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">httpd</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>使用state模块执行apache.sls</li>
+</ul>
+<figure class="highlight asciidoc"><table><tr><td class="code"><pre><code class="hljs asciidoc">[root@saltmaster salt]# salt <span class="hljs-emphasis">&#x27;minion-one&#x27;</span> state.sls apache<br><span class="hljs-section">minion-one:</span><br><span class="hljs-section">----------</span><br><span class="hljs-code">          ID: install_httpd</span><br><span class="hljs-code">    Function: pkg.installed</span><br><span class="hljs-code">        Name: httpd</span><br><span class="hljs-code">      Result: True</span><br><span class="hljs-code">     Comment: The following packages were installed/updated: httpd</span><br><span class="hljs-code">     Started: 11:44:28.533490</span><br><span class="hljs-code">    Duration: 8349.668 ms</span><br><span class="hljs-code">     Changes:   </span><br><span class="hljs-code">              ----------</span><br><span class="hljs-code">              httpd:</span><br><span class="hljs-code">                  ----------</span><br><span class="hljs-code">                  new:</span><br><span class="hljs-code">                      2.4.6-88.el7.centos</span><br><span class="hljs-code">                  old:</span><br><br><span class="hljs-section">Summary for minion-one</span><br><span class="hljs-section">------------</span><br>Succeeded: 1 (changed=1)<br><span class="hljs-section">Failed:    0</span><br><span class="hljs-section">------------</span><br>Total states run:     1<br>Total run time:   8.350 s<br></code></pre></td></tr></table></figure>
+<p>可以看到用state模块部署Apache软件时我们用了一个描述性的配置文件，命令行调用了state模块的SLS函数，从返回的结果上看也是成功部署了httpd。</p>
+<p>为了看出区别我们再执行一次：</p>
+<figure class="highlight asciidoc"><table><tr><td class="code"><pre><code class="hljs asciidoc">[root@saltmaster salt]# salt <span class="hljs-emphasis">&#x27;minion-one&#x27;</span> state.sls apache<br><span class="hljs-section">minion-one:</span><br><span class="hljs-section">----------</span><br><span class="hljs-code">          ID: install_httpd</span><br><span class="hljs-code">    Function: pkg.installed</span><br><span class="hljs-code">        Name: httpd</span><br><span class="hljs-code">      Result: True</span><br><span class="hljs-code">     Comment: All specified packages are already installed</span><br><span class="hljs-code">     Started: 11:49:56.301971</span><br><span class="hljs-code">    Duration: 1233.84 ms</span><br><span class="hljs-code">     Changes:   </span><br><br><span class="hljs-section">Summary for minion-one</span><br><span class="hljs-section">------------</span><br>Succeeded: 1<br><span class="hljs-section">Failed:    0</span><br><span class="hljs-section">------------</span><br>Total states run:     1<br>Total run time:   1.234 s<br></code></pre></td></tr></table></figure>
+
+<p>从返回的结果来看httpd软件已经安装过了，多次运行也会得到和上面相同的结果。这就表明了执行模块和状态模块之间的主要区别–执行模块是过程式的，状态模块是描述性的。这意味着当你连续几次调用同一个执行模块时将执行相同的逻辑和指令，而状态模块则相反，<strong>当我们执行时state模块会首先做判断，判断httpd是否已经安装了，如果没有则进行安装，如果有则什么都不做，这种性质叫做幂等性，只有当真实状态和所需状态不同的情况下才执行功能</strong>。</p>
+<h2 id="4-2-状态配置文件的各个要素"><a href="#4-2-状态配置文件的各个要素" class="headerlink" title="4.2 状态配置文件的各个要素"></a>4.2 状态配置文件的各个要素</h2><p>下面我们来看一下状态文件的构成，以刚才的Apache.sls文件为例:</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">install_httpd:</span><br>    <span class="hljs-attr">pkg.installed:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">httpd</span><br></code></pre></td></tr></table></figure>
+<p>sls配置文件使用YAML语言描述，默认的sls文件的renderer是YAML renderer，YAML renderer的工作是将YAML数据格式的结构编译成为Python的数据结构给salt使用。</p>
+<p>主要记住三个规则就可以使用YAML语法写SLS文件了：</p>
+<ol>
+<li><p>规则一： 缩进<br>YAML使用了一个固定的缩进风格来标书数据层结构关系，salt需要每个缩进级别由两个空格组成，不要使用tabs。</p>
+</li>
+<li><p>规则二： 冒号<br>Python字典的keys在YAML中的表现形式是一个以冒号结尾的字符串。values的表现形式是冒号下面的每一行用一个空格隔开：</p>
+<figure class="highlight avrasm"><table><tr><td class="code"><pre><code class="hljs avrasm"><span class="hljs-symbol">my_key:</span> my_value<br></code></pre></td></tr></table></figure>
+<p>另一种选择，一个value可以通过缩进与key连接</p>
+<figure class="highlight avrasm"><table><tr><td class="code"><pre><code class="hljs avrasm"><span class="hljs-symbol">mykey:</span><br>  my_value<br></code></pre></td></tr></table></figure></li>
+<li><p>规则三：短横杠<br>用一个短横杠加一个空格来表示列表项，多个项使用同样的缩进级别来作为同一列表的一部分。</p>
+<figure class="highlight haml"><table><tr><td class="code"><pre><code class="hljs haml">my_dictionary:<br>  -<span class="ruby"> list_value_one</span><br><span class="ruby"></span>  -<span class="ruby"> list_value_two</span><br><span class="ruby"></span>  -<span class="ruby"> list_value_three</span><br></code></pre></td></tr></table></figure>
+<p>在Python中将被映射为：<br><code>&#123;&quot;my_dictionary&quot;: [&quot;list_value_one&quot;,&quot;list_value_two&quot;, “list_value_three”]&#125;</code></p>
+</li>
+</ol>
+<p>下面详细说一下配置文件的格式：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">ID</span> <span class="hljs-attr">Declaration</span>&gt;</span>:<br>  <span class="hljs-tag">&lt;<span class="hljs-name">State</span> <span class="hljs-attr">Module</span>&gt;</span>.<span class="hljs-tag">&lt;<span class="hljs-name">Function</span>&gt;</span>:<br>    - name: <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span><br>    - <span class="hljs-tag">&lt;<span class="hljs-name">Function</span> <span class="hljs-attr">Arg</span>&gt;</span><br>    - <span class="hljs-tag">&lt;<span class="hljs-name">Function</span> <span class="hljs-attr">Arg</span>&gt;</span><br>    - <span class="hljs-tag">&lt;<span class="hljs-name">Function</span> <span class="hljs-attr">Arg</span>&gt;</span><br>    - <span class="hljs-tag">&lt;<span class="hljs-name">Requisite</span> <span class="hljs-attr">Declaration</span>&gt;</span><br>      - <span class="hljs-tag">&lt;<span class="hljs-name">Requisite</span> <span class="hljs-attr">Reference</span>&gt;</span><br></code></pre></td></tr></table></figure>
+<p>每个状态的<ID Declaretion>字符串必须独一无二。<ID Declartion>可以包含字母、数字、空格和下划线。ID尽量保持简洁明了。<State Module>.<Function>即上文提到的远程执行命令采用的相同格式。</p>
+<p>最后是函数参数，收个参数通常是name,然后是状态所需的其他参数。这里不同点是所有使用的模块都是状态模块而不是普通的远程执行模块。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.saltstack.com/en/latest/ref/states/highstate.html#large-example">更多请参见官方文档</a></p>
+<h2 id="4-3-常用的状态模块用法"><a href="#4-3-常用的状态模块用法" class="headerlink" title="4.3 常用的状态模块用法"></a>4.3 常用的状态模块用法</h2><h3 id="file模块"><a href="#file模块" class="headerlink" title="file模块"></a>file模块</h3><p>file模块包含许多函数，比较常用的有：</p>
+<p><code>file.managed</code>下发文件，确保文件存在</p>
+<figure class="highlight vim"><table><tr><td class="code"><pre><code class="hljs vim">/etc/foo.<span class="hljs-keyword">conf</span>:<br>  <span class="hljs-keyword">file</span>.manager:<br>    - <span class="hljs-keyword">source</span>:<br>      - <span class="hljs-keyword">sal</span><span class="hljs-variable">t:</span>//foo.<span class="hljs-keyword">conf</span><br>    - user: qtj<br>    - group: users<br>    - <span class="hljs-keyword">mode</span>: <span class="hljs-number">644</span> <br></code></pre></td></tr></table></figure>
+
+<p><code>file.directory</code>建立目录：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">/srv/stuff/substuff:</span><br>  <span class="hljs-attr">file.directory:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">user:</span> <span class="hljs-string">qtj</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">group:</span> <span class="hljs-string">users</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">mode:</span> <span class="hljs-number">755</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">makedirs:</span> <span class="hljs-literal">True</span><br></code></pre></td></tr></table></figure>
+
+<p>file.symlink建立软连接：</p>
+<figure class="highlight gradle"><table><tr><td class="code"><pre><code class="hljs gradle"><span class="hljs-regexp">/etc/g</span>rub.conf:<br>  <span class="hljs-keyword">file</span>.symlink:<br>    - target: <span class="hljs-regexp">/boot/g</span>rub/grub.conf<br></code></pre></td></tr></table></figure>
+
+<p>file.recurse下发整个目录：</p>
+<figure class="highlight gradle"><table><tr><td class="code"><pre><code class="hljs gradle"><span class="hljs-regexp">/opt/</span>code/flask:<br>  <span class="hljs-keyword">file</span>.recurse:<br>  - <span class="hljs-keyword">source</span>: salt:<span class="hljs-comment">//code/flask</span><br>  - include_empty: <span class="hljs-keyword">True</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="pkg模块"><a href="#pkg模块" class="headerlink" title="pkg模块"></a>pkg模块</h3><p>pkg.installed软件安装：</p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><code class="hljs markdown">mypkgs:<br>  pkg.installed:<br><span class="hljs-bullet">  -</span> pkgs:<br><span class="hljs-bullet">    -</span> foo<br><span class="hljs-bullet">    -</span> bar: 1.2.3-4<br><span class="hljs-bullet">    -</span> baz<br></code></pre></td></tr></table></figure>
+<p>后面可以指定软件rpm来源，如果什么都不带则默认安装最新版本</p>
+<h3 id="service模块"><a href="#service模块" class="headerlink" title="service模块"></a>service模块</h3><p>启动redis服务：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">redis:</span><br>  <span class="hljs-attr">service.running:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">enable:</span> <span class="hljs-literal">True</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">reload:</span> <span class="hljs-literal">True</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">watch:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">pkg:</span> <span class="hljs-string">redis</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="cron模块"><a href="#cron模块" class="headerlink" title="cron模块"></a>cron模块</h3><p>每五分钟执行一次：</p>
+<figure class="highlight qml"><table><tr><td class="code"><pre><code class="hljs qml"><span class="hljs-built_in">date</span> &gt; <span class="hljs-regexp">/tmp/</span><span class="hljs-attribute">crontest</span>:<br>       <span class="hljs-attribute">cron.present</span>:<br>       - <span class="hljs-attribute">user</span>: root<br>       - minute：<span class="hljs-string">&quot;*/5&quot;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="user模块"><a href="#user模块" class="headerlink" title="user模块"></a>user模块</h3><p>user.present:</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">user.present:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">fullname:</span> <span class="hljs-string">lym</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">shell:</span> <span class="hljs-string">/bin/bash</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">home:</span> <span class="hljs-string">/home/lym</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">uid:</span> <span class="hljs-number">5200</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">gid:</span> <span class="hljs-number">5200</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">groups:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">users</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="sysctl模块"><a href="#sysctl模块" class="headerlink" title="sysctl模块"></a>sysctl模块</h3><p>调整内核参数：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">vm.swappiness:</span><br>  <span class="hljs-attr">sysctl.present:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">value:</span> <span class="hljs-number">20</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="pip模块"><a href="#pip模块" class="headerlink" title="pip模块"></a>pip模块</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">django:</span><br>  <span class="hljs-attr">pip.installed:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">django</span> <span class="hljs-string">&gt;=1.11.6,</span> <span class="hljs-string">&lt;=</span> <span class="hljs-number">1.11</span><span class="hljs-number">.12</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">require:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">pkg:</span> <span class="hljs-string">python-pip</span><br></code></pre></td></tr></table></figure>
+
+
+<h2 id="4-4-使用requisites对状态进行排序控制"><a href="#4-4-使用requisites对状态进行排序控制" class="headerlink" title="4.4 使用requisites对状态进行排序控制"></a>4.4 使用requisites对状态进行排序控制</h2><p>如果一个主机涉及多个状态，并且状态之间相互关联，需要在执行顺序上有先后之分，那就必须引入requisites来进行控制。</p>
+<p>下面以安装Apache为例说明：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml">[<span class="hljs-string">root@saltmaster</span> <span class="hljs-string">salt</span>]<span class="hljs-comment"># cat apache.sls </span><br><span class="hljs-attr">install_httpd:</span><br>    <span class="hljs-attr">pkg.installed:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">httpd</span><br><span class="hljs-attr">httpd_running:</span><br>    <span class="hljs-attr">service.running:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">httpd</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">enable:</span> <span class="hljs-literal">True</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">require:</span><br>          <span class="hljs-bullet">-</span> <span class="hljs-attr">pkg:</span> <span class="hljs-string">install_httpd</span><br></code></pre></td></tr></table></figure>
+<p>这段示例中定义了两个状态，分别是安装httpd和启动httpd,很明显必须先安装完成再启动httpd。这里我们通过require指定httpd running操作必须在install_httpd安装完成以后才可以执行。</p>
+<p>进一步地</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">install_httpd:</span><br>    <span class="hljs-attr">pkg.installed:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">httpd</span><br><span class="hljs-attr">httpd_running:</span><br>    <span class="hljs-attr">service.running:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">httpd</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">enable:</span> <span class="hljs-literal">True</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">require:</span><br>          <span class="hljs-bullet">-</span> <span class="hljs-attr">pkg:</span> <span class="hljs-string">install_httpd</span><br>          <span class="hljs-bullet">-</span> <span class="hljs-attr">watch:</span><br>              <span class="hljs-bullet">-</span> <span class="hljs-attr">file:</span> <span class="hljs-string">httdp_conf</span><br><span class="hljs-attr">httdp_conf:</span><br>  <span class="hljs-attr">file.managed:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">/etc/httpd/conf/httdp.conf</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">source:</span> <span class="hljs-string">salt://httdp.conf</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">user:</span> <span class="hljs-string">root</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">group:</span> <span class="hljs-string">root</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">mode:</span> <span class="hljs-number">600</span><br></code></pre></td></tr></table></figure>
+<p>加入了一个httpd.conf文件下发的配置，首先安装httpd,然后确定httpd进程启动，最后对比需要下发的httpd.conf文件是否和minion上相同，如果不同就下发，之后通过watch指定触发重新加载httpd进程生效。</p>
+<h1 id="5-通过Jinja2-模板以及Grain和Pillar扩展主机状态"><a href="#5-通过Jinja2-模板以及Grain和Pillar扩展主机状态" class="headerlink" title="5 通过Jinja2 模板以及Grain和Pillar扩展主机状态"></a>5 通过Jinja2 模板以及Grain和Pillar扩展主机状态</h1><h2 id="5-1-Jinja2-模板语言的基础"><a href="#5-1-Jinja2-模板语言的基础" class="headerlink" title="5.1 Jinja2 模板语言的基础"></a>5.1 Jinja2 模板语言的基础</h2><h3 id="Jinja2变量"><a href="#Jinja2变量" class="headerlink" title="Jinja2变量"></a>Jinja2变量</h3><p>Jinja2模板包含变量和表达式：变量用<code>&#123;&#123;&#125;&#125;</code>包围，表达式用<code>&#123;% %&#125;</code>包围。<br>从一个例子开始：</p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><code class="hljs csharp">[<span class="hljs-meta">root@saltmaster salt</span>]<span class="hljs-meta"># cat var.sls </span><br>&#123;% <span class="hljs-keyword">set</span> <span class="hljs-keyword">var</span>=<span class="hljs-string">&#x27;Hello World!&#x27;</span> %&#125;<br>test_var:<br>  cmd.run:<br>    - name: echo <span class="hljs-string">&quot;var is &#123;&#123; var &#125;&#125;&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>运行并查看Jinja2变量的输出：</p>
+<figure class="highlight asciidoc"><table><tr><td class="code"><pre><code class="hljs asciidoc">[root@saltmaster salt]# salt &quot;minion-one&quot; state.sls var<br><span class="hljs-section">minion-one:</span><br><span class="hljs-section">----------</span><br><span class="hljs-code">          ID: test_var</span><br><span class="hljs-code">    Function: cmd.run</span><br><span class="hljs-code">        Name: echo &quot;var is Hello World!&quot;</span><br><span class="hljs-code">      Result: True</span><br><span class="hljs-code">     Comment: Command &quot;echo &quot;var is Hello World!&quot;&quot; run</span><br><span class="hljs-code">     Started: 18:08:14.434038</span><br><span class="hljs-code">    Duration: 16.576 ms</span><br><span class="hljs-code">     Changes:   </span><br><span class="hljs-code">              ----------</span><br><span class="hljs-code">              pid:</span><br><span class="hljs-code">                  17044</span><br><span class="hljs-code">              retcode:</span><br><span class="hljs-code">                  0</span><br><span class="hljs-code">              stderr:</span><br><span class="hljs-code">              stdout:</span><br><span class="hljs-code">                  var is Hello World!</span><br><br><span class="hljs-section">Summary for minion-one</span><br><span class="hljs-section">------------</span><br>Succeeded: 1 (changed=1)<br><span class="hljs-section">Failed:    0</span><br><span class="hljs-section">------------</span><br>Total states run:     1<br>Total run time:  16.576 ms<br></code></pre></td></tr></table></figure>
+
+<h3 id="流程控制语句"><a href="#流程控制语句" class="headerlink" title="流程控制语句"></a>流程控制语句</h3><ul>
+<li>For</li>
+</ul>
+<p>遍历序列中的每一项:</p>
+<figure class="highlight django"><table><tr><td class="code"><pre><code class="hljs django"><span class="hljs-template-tag">&#123;% <span class="hljs-name"><span class="hljs-name">for</span></span> user <span class="hljs-keyword">in</span> users %&#125;</span><span class="xml"></span><br><span class="xml">  </span><span class="hljs-template-variable">&#123;&#123;user&#125;&#125;</span><span class="xml"></span><br><span class="xml"></span><span class="hljs-template-tag">&#123;% <span class="hljs-name"><span class="hljs-name">endfor</span></span> %&#125;</span><br></code></pre></td></tr></table></figure>
+<p>变量是一个字典：</p>
+<figure class="highlight clojure"><table><tr><td class="code"><pre><code class="hljs clojure">&#123;% for key, value in my_dict.items() %&#125;<br>&#123;&#123; key &#125;&#125;<br>&#123;&#123; value &#125;&#125;<br>&#123;% endfor %&#125;<br></code></pre></td></tr></table></figure>
+<p>与Python不同是是模板循环内不能有break或continue语句。</p>
+<ul>
+<li>if<figure class="highlight django"><table><tr><td class="code"><pre><code class="hljs django"><span class="hljs-template-tag">&#123;% <span class="hljs-name"><span class="hljs-name">if</span></span> users %&#125;</span><span class="xml"></span><br><span class="xml"></span><span class="hljs-template-tag">&#123;% <span class="hljs-name"><span class="hljs-name">for</span></span> user <span class="hljs-keyword">in</span> users %&#125;</span><span class="xml"></span><br><span class="xml">    </span><span class="hljs-template-variable">&#123;&#123; user.username &#125;&#125;</span><span class="xml"></span><br><span class="xml"></span><span class="hljs-template-tag">&#123;% <span class="hljs-name"><span class="hljs-name">endfor</span></span> %&#125;</span><span class="xml"></span><br><span class="xml"></span><span class="hljs-template-tag">&#123;% <span class="hljs-name"><span class="hljs-name">endif</span></span> %&#125;</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="5-2-Grain和Pillar的概念及设置"><a href="#5-2-Grain和Pillar的概念及设置" class="headerlink" title="5.2 Grain和Pillar的概念及设置"></a>5.2 Grain和Pillar的概念及设置</h2><h3 id="Grain的概念"><a href="#Grain的概念" class="headerlink" title="Grain的概念"></a>Grain的概念</h3><p>Grains是存储在minion上的一种静态数据，minion启动后就进行Grains的计算，包括操作系统类型、版本、CPU核数、内存大小等等，这些数据不经常变化。Grain让salt变得更加灵活。</p>
+<h3 id="Grain相关的基本命令"><a href="#Grain相关的基本命令" class="headerlink" title="Grain相关的基本命令"></a>Grain相关的基本命令</h3><p>列出所有minion上的Grains项</p>
+<figure class="highlight haml"><table><tr><td class="code"><pre><code class="hljs haml">[root@saltmaster ~]# salt &quot;minion-one&quot; grains.ls<br>minion-one:<br>    -<span class="ruby"> SSDs</span><br><span class="ruby"></span>    -<span class="ruby"> biosreleasedate</span><br><span class="ruby"></span>    -<span class="ruby"> biosversion</span><br><span class="ruby"></span>    -<span class="ruby"> cpu_flags</span><br><span class="ruby"></span>    -<span class="ruby"> cpu_model</span><br><span class="ruby"></span>    -<span class="ruby"> cpuarch</span><br><span class="ruby"></span>    -<span class="ruby"> disks</span><br><span class="ruby"></span>    -<span class="ruby"> dns</span><br><span class="ruby"></span>    -<span class="ruby"> domain</span><br><span class="ruby"></span>    -<span class="ruby"> fqdn</span><br><span class="ruby"></span>    -<span class="ruby"> fqdn_ip4</span><br><span class="ruby"></span>......以下省略<br></code></pre></td></tr></table></figure>
+
+<p>查询minion上某一具体的Grain值：</p>
+<figure class="highlight llvm"><table><tr><td class="code"><pre><code class="hljs llvm">[root<span class="hljs-title">@saltmaster</span> ~]# salt <span class="hljs-string">&quot;minion-one&quot;</span> grains.item cpu_model<br>minion-<span class="hljs-keyword">one</span>:<br>    ----------<br>    cpu_model:<br>        Intel(R) Core(TM) <span class="hljs-type">i5</span><span class="hljs-number">-4210</span>U CPU @ <span class="hljs-number">1.70</span>GHz<br></code></pre></td></tr></table></figure>
+
+<p>列出对应minion上所有Grain的详细信息：</p>
+<figure class="highlight dts"><table><tr><td class="code"><pre><code class="hljs dts">[root@saltmaster ~]<span class="hljs-meta"># salt <span class="hljs-string">&quot;minion-one&quot;</span> grains.items</span><br>minion-one:<br>    ----------<br><span class="hljs-symbol">    SSDs:</span><br><span class="hljs-symbol">    biosreleasedate:</span><br>        <span class="hljs-number">04</span>/<span class="hljs-number">13</span>/<span class="hljs-number">2018</span><br><span class="hljs-symbol">    biosversion:</span><br>        <span class="hljs-number">6.00</span><br><span class="hljs-symbol">    cpu_flags:</span><br>        - fpu<br>        - vme<br>        - de<br>......以下省略<br></code></pre></td></tr></table></figure>
+
+<h3 id="设置Grains数据"><a href="#设置Grains数据" class="headerlink" title="设置Grains数据"></a>设置Grains数据</h3><p>salt为我们提供了很多默认的Grains数据，但有一些场景下需要用户自定义Grains的数据，下面讲解常用的设置方法：</p>
+<ul>
+<li>命令行方式<br>单个值设置：<figure class="highlight sql"><table><tr><td class="code"><pre><code class="hljs sql">[root<span class="hljs-variable">@saltmaster</span> <span class="hljs-operator">~</span>]# salt &quot;minion-one&quot; grains.setval my_grain bar<br>minion<span class="hljs-operator">-</span><span class="hljs-keyword">one</span>:<br>    <span class="hljs-comment">----------</span><br>    my_grain:<br>        bar<br></code></pre></td></tr></table></figure></li>
+</ul>
+<p>多个值设置：</p>
+<figure class="highlight dts"><table><tr><td class="code"><pre><code class="hljs dts">[root@saltmaster ~]<span class="hljs-meta">#  salt <span class="hljs-string">&#x27;*&#x27;</span> grains.setval key <span class="hljs-string">&quot;&#123;&#x27;key1&#x27;: &#x27;val1&#x27;, &#x27;key2&#x27;: &#x27;val2&#x27;&#125;&quot;</span></span><br>minion-one:<br>    ----------<br><span class="hljs-symbol">    key:</span><br>        ----------<br><span class="hljs-symbol">        key1:</span><br>            val1<br><span class="hljs-symbol">        key2:</span><br>            val2<br>minion-two:<br>    ----------<br><span class="hljs-symbol">    key:</span><br>        ----------<br><span class="hljs-symbol">        key1:</span><br>            val1<br><span class="hljs-symbol">        key2:</span><br>            val2<br></code></pre></td></tr></table></figure>
+
+<p>列表结构设置：</p>
+<figure class="highlight stata"><table><tr><td class="code"><pre><code class="hljs stata">[root@saltmaster ~]#  salt &#x27;*&#x27; grains.setval my_grain_dict &#x27;[<span class="hljs-string">&quot;one&quot;</span>, <span class="hljs-string">&quot;two&quot;</span>, <span class="hljs-string">&quot;three&quot;</span>]&#x27;<br>minion-<span class="hljs-keyword">one</span>:<br>    ----------<br>    my_grain_dict:<br>        - <span class="hljs-keyword">one</span><br>        - <span class="hljs-keyword">two</span><br>        - three<br>minion-<span class="hljs-keyword">two</span>:<br>    ----------<br>    my_grain_dict:<br>        - <span class="hljs-keyword">one</span><br>        - <span class="hljs-keyword">two</span><br>        - three<br></code></pre></td></tr></table></figure>
+
+<p>设置成功后通过下面的命令查询：</p>
+<figure class="highlight haml"><table><tr><td class="code"><pre><code class="hljs haml">[root@saltmaster ~]# salt &#x27;*&#x27; grains.item my_grain_dict<br>minion-one:<br>    -<span class="ruby">---------</span><br><span class="ruby"></span>    my_grain_dict:<br>        -<span class="ruby"> one</span><br><span class="ruby"></span>        -<span class="ruby"> two</span><br><span class="ruby"></span>        -<span class="ruby"> three</span><br><span class="ruby"></span>minion-two:<br>    -<span class="ruby">---------</span><br><span class="ruby"></span>    my_grain_dict:<br>        -<span class="ruby"> one</span><br><span class="ruby"></span>        -<span class="ruby"> two</span><br><span class="ruby"></span>        -<span class="ruby"> three</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>以上变量已经写入了minion的/etc/salt/grains文件中，通过查看对应文件可以获得</strong></p>
+<ul>
+<li>grains_module的方式设置</li>
+</ul>
+<p>a. 在master上建立模块对应的目录：</p>
+<figure class="highlight gradle"><table><tr><td class="code"><pre><code class="hljs gradle">#mkdir -pv <span class="hljs-regexp">/src/</span>salt/_grains<br></code></pre></td></tr></table></figure>
+<p>b. 写入一个模块：</p>
+<figure class="highlight pgsql"><table><tr><td class="code"><pre><code class="hljs pgsql">vim my_grain_mod.py<br><span class="hljs-keyword">import</span> <span class="hljs-type">time</span><br><br>def now():<br>  grains = &#123;&#125;<br>  grains[<span class="hljs-string">&#x27;now&#x27;</span>] = <span class="hljs-type">time</span>.time()<br>  <span class="hljs-keyword">return</span> grains<br></code></pre></td></tr></table></figure>
+
+<p>c. 同步模块到minion</p>
+<figure class="highlight dts"><table><tr><td class="code"><pre><code class="hljs dts">[root@saltmaster _grains]<span class="hljs-meta"># salt <span class="hljs-string">&quot;minion-one&quot;</span> saltutil.sync_all</span><br>minion-one:<br>    ----------<br><span class="hljs-symbol">    beacons:</span><br><span class="hljs-symbol">    clouds:</span><br><span class="hljs-symbol">    engines:</span><br><span class="hljs-symbol">    grains:</span><br>        - grains.my_grain_mod<br><span class="hljs-symbol">    log_handlers:</span><br><span class="hljs-symbol">    matchers:</span><br><span class="hljs-symbol">    modules:</span><br><span class="hljs-symbol">    output:</span><br><span class="hljs-symbol">    proxymodules:</span><br><span class="hljs-symbol">    renderers:</span><br><span class="hljs-symbol">    returners:</span><br><span class="hljs-symbol">    sdb:</span><br><span class="hljs-symbol">    serializers:</span><br><span class="hljs-symbol">    states:</span><br><span class="hljs-symbol">    thorium:</span><br><span class="hljs-symbol">    utils:</span><br></code></pre></td></tr></table></figure>
+
+<p>d. 重载一次模块</p>
+<figure class="highlight autoit"><table><tr><td class="code"><pre><code class="hljs autoit">[root<span class="hljs-symbol">@saltmaster</span> _grains]<span class="hljs-meta"># salt <span class="hljs-string">&quot;minion-one&quot;</span> sys.reload_modules</span><br>minion-one:<br>    <span class="hljs-literal">True</span><br></code></pre></td></tr></table></figure>
+
+<p>e. 查看新设置的Grains</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><code class="hljs sql">[root<span class="hljs-variable">@saltmaster</span> _grains]# salt &quot;minion-one&quot; grains.item now<br>minion<span class="hljs-operator">-</span><span class="hljs-keyword">one</span>:<br>    <span class="hljs-comment">----------</span><br>    now:<br>        <span class="hljs-number">1552442351.143724</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p>在minion端设置<br>通过修改minion的配置文件同样可以自定义Grains,登录到一台minion上：</p>
+<figure class="highlight haxe"><table><tr><td class="code"><pre><code class="hljs haxe">[root@salt-minion ~]<span class="hljs-meta"># vim /etc/salt/minion.d/grain.conf</span><br>grains:<span class="hljs-type"></span><br>  <span class="hljs-keyword">new</span><span class="hljs-type">_grain</span>: bar<br>  <span class="hljs-keyword">new</span><span class="hljs-type">_grain_dict</span>:<br>    - one<br>    - two<br>    - three<br></code></pre></td></tr></table></figure>
+<p>然后重启salt-minion 加载配置文件，之后在master上可以查看的新变量:</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><code class="hljs sql">[root<span class="hljs-variable">@saltmaster</span> _grains]# salt &quot;minion-one&quot; grains.item new_grain<br>minion<span class="hljs-operator">-</span><span class="hljs-keyword">one</span>:<br>    <span class="hljs-comment">----------</span><br>    new_grain:<br>        bar<br>[root<span class="hljs-variable">@saltmaster</span> _grains]# salt &quot;minion-one&quot; grains.item new_grain_dict<br>minion<span class="hljs-operator">-</span><span class="hljs-keyword">one</span>:<br>    <span class="hljs-comment">----------</span><br>    new_grain_dict:<br>        <span class="hljs-operator">-</span> <span class="hljs-keyword">one</span><br>        <span class="hljs-operator">-</span> two<br>        <span class="hljs-operator">-</span> three<br></code></pre></td></tr></table></figure></li>
+<li><p>删除自定义Grains</p>
+<figure class="highlight arduino"><table><tr><td class="code"><pre><code class="hljs arduino"><span class="hljs-meta"># salt <span class="hljs-meta-string">&quot;minion-one&quot;</span> grains.delval my_grain</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="Pillar的概念"><a href="#Pillar的概念" class="headerlink" title="Pillar的概念"></a>Pillar的概念</h3><p>Grains是静态数据，如果是动态数据则需要使用Pillar，Pillar数据存储在master上，指定的minion只能看到自己的Pillar数据，其他的minion看不到任何Pillar数据，这一点和状态文件正好相反–所有通过认证的minion都可以获取状态文件，但是每个minion却自己有一套Pillar数据，并且这些数据都是加密的。</p>
+<h3 id="Pillar相关的基本概念"><a href="#Pillar相关的基本概念" class="headerlink" title="Pillar相关的基本概念"></a>Pillar相关的基本概念</h3><p>列出对应minion上所有的Pillar的详细信息：</p>
+<figure class="highlight arduino"><table><tr><td class="code"><pre><code class="hljs arduino"><span class="hljs-meta"># salt <span class="hljs-meta-string">&quot;minion-one&quot;</span> pillar.items</span><br></code></pre></td></tr></table></figure>
+<p>查询minion上某一具体Grain的值：</p>
+<figure class="highlight autoit"><table><tr><td class="code"><pre><code class="hljs autoit"><span class="hljs-meta"># salt <span class="hljs-string">&#x27;minion-one&#x27;</span> pillar.item foo</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="设置Pillar数据"><a href="#设置Pillar数据" class="headerlink" title="设置Pillar数据"></a>设置Pillar数据</h3><p>设计这样一个场景：现在有三台minion，每台需要从master获取自己需要的私钥，私钥在传输过程中必须加密，且私钥不能够让任何其他minion获取到。下面用三个不同的字符串来代表私钥：</p>
+<p>首先建立目录，然后为每个minion编写对应的SLS文件：</p>
+<figure class="highlight vala"><table><tr><td class="code"><pre><code class="hljs vala"><span class="hljs-meta"># mkdir -pv /srv/pillar  # 目录是固定的，写在其他地方不识别！</span><br><span class="hljs-meta"># vim minion_one_key.sls</span><br>private_key: minion_one_key<br><span class="hljs-meta"># vim minion_two_key.sls</span><br>private_key: minion_twp_key<br></code></pre></td></tr></table></figure>
+
+<p>之后建立入口文件：</p>
+<figure class="highlight sml"><table><tr><td class="code"><pre><code class="hljs sml">base:<br>  <span class="hljs-symbol">&#x27;minion</span>-one&#x27;:<br>    - minion_one_key<br>  <span class="hljs-symbol">&#x27;minion</span>-two&#x27;:<br>    - minion_two_key<br></code></pre></td></tr></table></figure>
+<p>top.sls文件中可以使用第二节讲解过的各种匹配模式，这里使用了通用匹配，只匹配对应的minion名字，设置完毕后执行下面命令刷新Pillar数据：</p>
+<figure class="highlight arduino"><table><tr><td class="code"><pre><code class="hljs arduino"><span class="hljs-meta"># salt <span class="hljs-meta-string">&#x27;*&#x27;</span> saltutil.refresh_pillar</span><br></code></pre></td></tr></table></figure>
+
+<p>然后查看所有Pillar数据：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><code class="hljs sql">[root<span class="hljs-variable">@saltmaster</span> pillar]# salt <span class="hljs-string">&#x27;*&#x27;</span> pillar.items<br>minion<span class="hljs-operator">-</span><span class="hljs-keyword">one</span>:<br>    <span class="hljs-comment">----------</span><br>    private_key:<br>        minion_one_key<br>minion<span class="hljs-operator">-</span>two:<br>    <span class="hljs-comment">----------</span><br>    private_key:<br>        minion_two_key<br></code></pre></td></tr></table></figure>
+<p>可以看到不同的minion获取了自己私有的字符串，这就完成了Pillar下发敏感数据的过程，通信加密，且minion之间不可见。</p>
+<h2 id="5-3-用Jinjia2配合Grain和Pillar扩展SLS配置文件"><a href="#5-3-用Jinjia2配合Grain和Pillar扩展SLS配置文件" class="headerlink" title="5.3 用Jinjia2配合Grain和Pillar扩展SLS配置文件"></a>5.3 用Jinjia2配合Grain和Pillar扩展SLS配置文件</h2><h3 id="扩展Apache-sls配置文件"><a href="#扩展Apache-sls配置文件" class="headerlink" title="扩展Apache.sls配置文件"></a>扩展Apache.sls配置文件</h3><p>之前我们学习了如何用Apache.sls状态文件部署Apache，sls文件内容如下：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml">[<span class="hljs-string">root@saltmaster</span> <span class="hljs-string">salt</span>]<span class="hljs-comment"># cat apache.sls</span><br><span class="hljs-attr">install_httpd:</span><br>    <span class="hljs-attr">pkg.installed:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">httpd</span><br></code></pre></td></tr></table></figure>
+<p>这个文件仅仅适用于Redhat系的Linux系统，如果是Ubuntu系统，它对应的Apache安装包名叫做apache2，这个安装脚本就不适用了。</p>
+<p>上面这种情况抽象出来，就是根据minion的不同属性，SLS状态文件需要有逻辑判断来执行不同的操作。而Grains是描述minion固有属性的数据，Jinjia2可以做流程和逻辑控制，那么两者结合起来就可以满足上面的需求。</p>
+<p>修改后的sls状态文件如下：</p>
+<figure class="highlight django"><table><tr><td class="code"><pre><code class="hljs django"><span class="xml">install_httpd:</span><br><span class="xml">  pkg.installed:</span><br><span class="xml">  </span><span class="hljs-template-tag">&#123;% <span class="hljs-name"><span class="hljs-name">if</span></span> grains[&#x27;os_family&#x27;] == &#x27;Debian&#x27; %&#125;</span><span class="xml"></span><br><span class="xml">    - name: apache2</span><br><span class="xml">  </span><span class="hljs-template-tag">&#123;% <span class="hljs-name"><span class="hljs-name">elif</span></span> grains[&#x27;os_family&#x27;] == &#x27;RedHat&#x27; %&#125;</span><span class="xml"></span><br><span class="xml">    - name: httpd</span><br><span class="xml">  </span><span class="hljs-template-tag">&#123;% <span class="hljs-name"><span class="hljs-name">endif</span></span> %&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="多系统vim安装实例"><a href="#多系统vim安装实例" class="headerlink" title="多系统vim安装实例"></a>多系统vim安装实例</h3><p>根据不同操作系统安装下不同的vim包下发不同的配置文件：</p>
+<figure class="highlight vim"><table><tr><td class="code"><pre><code class="hljs vim">[root@saltmaster salt]# <span class="hljs-keyword">cat</span> <span class="hljs-keyword">vim</span>.sls<br><span class="hljs-keyword">vim</span>:<br>  pk<span class="hljs-variable">g:</span><br>    - installed<br>    &#123;% <span class="hljs-keyword">if</span> grains[<span class="hljs-string">&#x27;os_family&#x27;</span>] == <span class="hljs-string">&#x27;RedHat&#x27;</span> %&#125;<br>    - name: <span class="hljs-keyword">vim</span>-enhanced<br>    &#123;% elif grains[<span class="hljs-string">&#x27;os_family&#x27;</span>] == <span class="hljs-string">&#x27;Debian&#x27;</span> %&#125;<br>    - name: <span class="hljs-keyword">vim</span>-nox<br>    &#123;% <span class="hljs-keyword">endif</span> %&#125;<br><br>&#123;% <span class="hljs-keyword">if</span> grains[<span class="hljs-string">&#x27;os&#x27;</span>] == <span class="hljs-string">&#x27;Arch&#x27;</span> %&#125;<br><span class="hljs-keyword">file</span>:<br>  - managed<br>  - <span class="hljs-keyword">source</span>: <span class="hljs-keyword">sal</span><span class="hljs-variable">t:</span>//<span class="hljs-keyword">vim</span>/vimrc<br>  - user: root<br>  - group: root<br>  - <span class="hljs-keyword">mode</span>: <span class="hljs-number">644</span><br>  - template: jinja<br>  - makedir<span class="hljs-variable">s:</span> True<br>  - require:<br>      - pk<span class="hljs-variable">g:</span> <span class="hljs-keyword">vim</span><br>&#123;% <span class="hljs-keyword">endif</span> %&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="iptables根据系统不同下发"><a href="#iptables根据系统不同下发" class="headerlink" title="iptables根据系统不同下发"></a>iptables根据系统不同下发</h3><figure class="highlight vim"><table><tr><td class="code"><pre><code class="hljs vim">iptable<span class="hljs-variable">s:</span><br>  pk<span class="hljs-variable">g:</span><br>    - installed<br>  service:<br>    - running<br>    - watch:<br>        - pk<span class="hljs-variable">g:</span> iptables<br>        - <span class="hljs-keyword">file</span>: iptables<br>  <span class="hljs-keyword">file</span>:<br>    - managed<br>    - <span class="hljs-keyword">source</span>: <span class="hljs-keyword">sal</span><span class="hljs-variable">t:</span>//iptables/iptables<br>    &#123;% <span class="hljs-keyword">if</span> grains[<span class="hljs-string">&#x27;os&#x27;</span>] == <span class="hljs-string">&#x27;CentOS&#x27;</span> <span class="hljs-built_in">or</span> grains[<span class="hljs-string">&#x27;os&#x27;</span>] == <span class="hljs-string">&#x27;Fedora&#x27;</span> %&#125;<br>    - name: /etc/sysconfig/iptables<br>    &#123;% elif grains[<span class="hljs-string">&#x27;os&#x27;</span>] == <span class="hljs-string">&#x27;Arch&#x27;</span> %&#125;<br>    - name: /etc/<span class="hljs-keyword">conf</span>.d/iptables<br>    &#123;% <span class="hljs-keyword">endif</span> %&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="通过Pillar扩展SLS配置"><a href="#通过Pillar扩展SLS配置" class="headerlink" title="通过Pillar扩展SLS配置"></a>通过Pillar扩展SLS配置</h3><p>Jinjia2模板语言和Pillar的结合在使用上和Grains没有任何区别。下面举一个例子，有三台minion分别设置了它们的Pillar的user值如下:</p>
+<figure class="highlight haml"><table><tr><td class="code"><pre><code class="hljs haml">[root@saltmaster pillar]# salt &#x27;*&#x27; pillar.items<br>minion-one:<br>    -<span class="ruby">---------</span><br><span class="ruby"></span>    user:<br>        -<span class="ruby"> mysql1</span><br><span class="ruby"></span>        -<span class="ruby"> mysql2</span><br><span class="ruby"></span>        -<span class="ruby"> mysql3</span><br><span class="ruby"></span>minion-two:<br>    -<span class="ruby">---------</span><br><span class="ruby"></span>    user:<br>        -<span class="ruby"> web1</span><br><span class="ruby"></span>        -<span class="ruby"> web2</span><br><span class="ruby"></span>        -<span class="ruby"> web3</span><br></code></pre></td></tr></table></figure>
+
+<p>要在这两台机器上根据它们的Pillar值分别建立相关的用户,sls脚本代码如下：</p>
+<figure class="highlight django"><table><tr><td class="code"><pre><code class="hljs django"><span class="xml">[root@saltmaster salt]# cat adduser.sls </span><br><span class="xml"></span><span class="hljs-template-tag">&#123;% <span class="hljs-name"><span class="hljs-name">for</span></span> i <span class="hljs-keyword">in</span> pillar[&#x27;user&#x27;] %&#125;</span><span class="xml"></span><br><span class="xml">add_</span><span class="hljs-template-variable">&#123;&#123; i &#125;&#125;</span><span class="xml">:</span><br><span class="xml">  user.present:</span><br><span class="xml">    - name: </span><span class="hljs-template-variable">&#123;&#123; i &#125;&#125;</span><span class="xml"></span><br><span class="xml"></span><span class="hljs-template-tag">&#123;% <span class="hljs-name"><span class="hljs-name">endfor</span></span> %&#125;</span><br></code></pre></td></tr></table></figure>
+<p>运行结果如下：</p>
+<figure class="highlight asciidoc"><table><tr><td class="code"><pre><code class="hljs asciidoc">[root@saltmaster salt]# salt <span class="hljs-emphasis">&#x27;*&#x27;</span> state.sls adduser<br><span class="hljs-section">minion-one:</span><br><span class="hljs-section">----------</span><br><span class="hljs-code">          ID: add_mysql1</span><br><span class="hljs-code">    Function: user.present</span><br><span class="hljs-code">        Name: mysql1</span><br><span class="hljs-code">      Result: True</span><br><span class="hljs-code">     Comment: New user mysql1 created</span><br><span class="hljs-code">     Started: 13:45:04.686551</span><br><span class="hljs-code">    Duration: 92.536 ms</span><br><span class="hljs-code">     Changes:   </span><br><span class="hljs-code">              ----------</span><br><span class="hljs-code">              fullname:</span><br><span class="hljs-code">              gid:</span><br><span class="hljs-code">                  1001</span><br><span class="hljs-code">              groups:</span><br><span class="hljs-code">                  - mysql1</span><br><span class="hljs-code">              home:</span><br><span class="hljs-code">                  /home/mysql1</span><br><span class="hljs-code">              homephone:</span><br><span class="hljs-code">              name:</span><br><span class="hljs-code">                  mysql1</span><br><span class="hljs-code">              other:</span><br><span class="hljs-code">              passwd:</span><br><span class="hljs-code">                  x</span><br><span class="hljs-code">              roomnumber:</span><br><span class="hljs-code">              shell:</span><br><span class="hljs-code">                  /bin/bash</span><br><span class="hljs-code">              uid:</span><br><span class="hljs-code">                  1001</span><br><span class="hljs-code">              workphone:</span><br>......中间部分省略<br><br><span class="hljs-section">Summary for minion-one</span><br><span class="hljs-section">------------</span><br>Succeeded: 3 (changed=3)<br><span class="hljs-section">Failed:    0</span><br><span class="hljs-section">------------</span><br>Total states run:     3<br>Total run time: 164.397 ms<br>......以下省略<br></code></pre></td></tr></table></figure>
+
+<h2 id="5-4-用Jianjia2配合Grains和Pilliar动态下发配置文件"><a href="#5-4-用Jianjia2配合Grains和Pilliar动态下发配置文件" class="headerlink" title="5.4 用Jianjia2配合Grains和Pilliar动态下发配置文件"></a>5.4 用Jianjia2配合Grains和Pilliar动态下发配置文件</h2><p>第四节我们学习过file模块的一个状态函数managed，这个模块可以从master下发配置文件到匹配的minion上，这种下发方式使所有minion得到一份同样的配置文件。</p>
+<p>但是现实情况是不同的minion有不同的CPU核数，不同的内存大小，很多软件需要根据这些配置进行不同的相应调整。Jinjia2配合Grain和Pillar可以很好地决绝此类问题，下面我们学校如何通过模板文件动态地生成配置文件。</p>
+<h3 id="一个简单模板下发实例"><a href="#一个简单模板下发实例" class="headerlink" title="一个简单模板下发实例"></a>一个简单模板下发实例</h3><p>首先编辑状态文件：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml">[<span class="hljs-string">root@saltmaster</span> <span class="hljs-string">salt</span>]<span class="hljs-comment"># cat template.sls </span><br><span class="hljs-attr">template_test:</span><br>  <span class="hljs-attr">file.managed:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">source:</span> <span class="hljs-string">salt://test.j2</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">/tmp/test.conf</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">user:</span> <span class="hljs-string">root</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">group:</span> <span class="hljs-string">root</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">mode:</span> <span class="hljs-number">644</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">template:</span> <span class="hljs-string">jinja</span><br></code></pre></td></tr></table></figure>
+
+<p>编辑模板文件：</p>
+<figure class="highlight handlebars"><table><tr><td class="code"><pre><code class="hljs handlebars"><span class="xml">[root@saltmaster salt]# cat test.j2 </span><br><span class="xml">cpu_num = </span><span class="hljs-template-variable">&#123;&#123; <span class="hljs-name">grains</span>[&#x27;num_cpus&#x27;] &#125;&#125;</span><span class="xml"></span><br><span class="xml">mem_total = </span><span class="hljs-template-variable">&#123;&#123; <span class="hljs-name">grains</span>[&#x27;mem_total&#x27;] &#125;&#125;</span><span class="xml"></span><br><span class="xml">hostname = </span><span class="hljs-template-variable">&#123;&#123; <span class="hljs-name">grains</span>[&#x27;host&#x27;] &#125;&#125;</span><span class="xml"></span><br><span class="xml">user = </span><span class="hljs-template-variable">&#123;&#123; <span class="hljs-name">pillar</span>[&#x27;user&#x27;][0] &#125;&#125;</span><br></code></pre></td></tr></table></figure>
+<p>测试模板文件下发：</p>
+<figure class="highlight asciidoc"><table><tr><td class="code"><pre><code class="hljs asciidoc">[root@saltmaster salt]# salt &quot;minion-one&quot; state.sls template<br><span class="hljs-section">minion-one:</span><br><span class="hljs-section">----------</span><br><span class="hljs-code">          ID: template_test</span><br><span class="hljs-code">    Function: file.managed</span><br><span class="hljs-code">        Name: /tmp/test.conf</span><br><span class="hljs-code">      Result: True</span><br><span class="hljs-code">     Comment: File /tmp/test.conf updated</span><br><span class="hljs-code">     Started: 14:02:28.037462</span><br><span class="hljs-code">    Duration: 122.729 ms</span><br><span class="hljs-code">     Changes:   </span><br><span class="hljs-code">              ----------</span><br><span class="hljs-code">              diff:</span><br><span class="hljs-code">                  New file</span><br><span class="hljs-code">              mode:</span><br><span class="hljs-code">                  0644</span><br><br><span class="hljs-section">Summary for minion-one</span><br><span class="hljs-section">------------</span><br>Succeeded: 1 (changed=1)<br><span class="hljs-section">Failed:    0</span><br><span class="hljs-section">------------</span><br>Total states run:     1<br>Total run time: 122.729 ms<br></code></pre></td></tr></table></figure>
+
+<p>登录到minion-one查看下发的配置文件：</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[root@salt-minion ~]</span><span class="hljs-comment"># cat /tmp/test.conf</span><br><span class="hljs-attr">cpu_num</span> = <span class="hljs-number">1</span><br><span class="hljs-attr">mem_total</span> = <span class="hljs-number">972</span><br><span class="hljs-attr">hostname</span> = salt-minion<br><span class="hljs-attr">user</span> = mysql1<br></code></pre></td></tr></table></figure>
+
+<p>进一步地，如果在这个例子中加入部分Jinja2的逻辑控制功能：</p>
+<figure class="highlight django"><table><tr><td class="code"><pre><code class="hljs django"><span class="xml">[root@saltmaster salt]# vim test.j2 </span><br><span class="xml"></span><br><span class="xml"></span><span class="hljs-template-tag">&#123;% <span class="hljs-name"><span class="hljs-name">if</span></span> grains[&#x27;num_cpus&#x27;] &gt;= 8 %&#125;</span><span class="xml"></span><br><span class="xml">cpu_num = 8</span><br><span class="xml"></span><span class="hljs-template-tag">&#123;% <span class="hljs-name"><span class="hljs-name">else</span></span> %&#125;</span><span class="xml"></span><br><span class="xml">cpu_num = </span><span class="hljs-template-variable">&#123;&#123; grains[&#x27;num_cpus&#x27;] &#125;&#125;</span><span class="xml"></span><br><span class="xml"></span><span class="hljs-template-tag">&#123;% <span class="hljs-name"><span class="hljs-name">endif</span></span> %&#125;</span><span class="xml"></span><br><span class="xml"></span><span class="hljs-template-tag">&#123;% <span class="hljs-name"><span class="hljs-name">if</span></span> grains[&#x27;mem_total&#x27;] &lt;= 512 %&#125;</span><span class="xml"></span><br><span class="xml">mem_total &lt;= 512</span><br><span class="xml"></span><span class="hljs-template-tag">&#123;% <span class="hljs-name"><span class="hljs-name">elif</span></span> grains[&#x27;mem_total&#x27;] &lt;= 1024 %&#125;</span><span class="xml"></span><br><span class="xml">mem_total = </span><span class="hljs-template-variable">&#123;&#123; grains[&#x27;mem_total&#x27;] &#125;&#125;</span><span class="xml"></span><br><span class="xml"></span><span class="hljs-template-tag">&#123;% <span class="hljs-name"><span class="hljs-name">else</span></span> %&#125;</span><span class="xml"></span><br><span class="xml">mem_total = 1024</span><br><span class="xml"></span><span class="hljs-template-tag">&#123;% <span class="hljs-name"><span class="hljs-name">endif</span></span> %&#125;</span><span class="xml"></span><br><span class="xml">hostname = </span><span class="hljs-template-variable">&#123;&#123; grains[&#x27;host&#x27;] &#125;&#125;</span><span class="xml"></span><br><span class="xml"></span><span class="hljs-template-tag">&#123;% <span class="hljs-name"><span class="hljs-name">for</span></span> i <span class="hljs-keyword">in</span> pillar[&#x27;user&#x27;] %&#125;</span><span class="xml"></span><br><span class="xml">  </span><span class="hljs-template-variable">&#123;&#123; i &#125;&#125;</span><span class="xml"></span><br><span class="xml"></span><span class="hljs-template-tag">&#123;% <span class="hljs-name"><span class="hljs-name">endfor</span></span> %&#125;</span><br></code></pre></td></tr></table></figure>
+<p>测试模板下发：</p>
+<figure class="highlight asciidoc"><table><tr><td class="code"><pre><code class="hljs asciidoc">[root@saltmaster salt]# salt &quot;minion-one&quot; state.sls template<br><span class="hljs-section">minion-one:</span><br><span class="hljs-section">----------</span><br><span class="hljs-code">          ID: template_test</span><br><span class="hljs-code">    Function: file.managed</span><br><span class="hljs-code">        Name: /tmp/test.conf</span><br><span class="hljs-code">      Result: True</span><br><span class="hljs-code">     Comment: File /tmp/test.conf updated</span><br><span class="hljs-code">     Started: 14:34:54.882206</span><br><span class="hljs-code">    Duration: 89.375 ms</span><br><span class="hljs-code">     Changes:   </span><br><span class="hljs-code">              ----------</span><br><span class="hljs-code">              diff:</span><br><span class="hljs-code">                  --- </span><br><span class="hljs-code">                  +++ </span><br><span class="hljs-code">                  @@ -1,4 +1,8 @@</span><br><span class="hljs-code">                   </span><br><span class="hljs-code">                  +cpu_num = 1</span><br><span class="hljs-code">                  +</span><br><span class="hljs-code">                  +</span><br><span class="hljs-code">                  +mem_total = 972</span><br><span class="hljs-code">                  +</span><br><span class="hljs-code">                  +  mysql1</span><br><span class="hljs-code">                  +</span><br><span class="hljs-code">                  +  mysql2</span><br><span class="hljs-code">                  +</span><br><span class="hljs-code">                  +  mysql3</span><br><span class="hljs-code">                  +</span><br><br><span class="hljs-code">                   hostname = salt-minion</span><br><span class="hljs-code">                   </span><br><br><span class="hljs-section">Summary for minion-one</span><br><span class="hljs-section">------------</span><br>Succeeded: 1 (changed=1)<br><span class="hljs-section">Failed:    0</span><br><span class="hljs-section">------------</span><br>Total states run:     1<br>Total run time:  89.375 ms<br></code></pre></td></tr></table></figure>
+
+<p>登录到minion-one， 查看下发的配置文件:</p>
+<figure class="highlight makefile"><table><tr><td class="code"><pre><code class="hljs makefile">[root@salt-minion ~]<span class="hljs-comment"># cat /tmp/test.conf</span><br>cpu_num = 1<br>mem_total = 972<br>hostname = salt-minion<br>  mysql1<br>  mysql2<br>  mysql3<br></code></pre></td></tr></table></figure>
+<p>配置文件下发完成。</p>
+<h2 id="5-5-Jinja与Grains和Pillar的补充"><a href="#5-5-Jinja与Grains和Pillar的补充" class="headerlink" title="5.5 Jinja与Grains和Pillar的补充"></a>5.5 Jinja与Grains和Pillar的补充</h2><p>前面我们已经知道，如果有一个叫做user的Grain/Pillar属性，可以通过如下方法访问:</p>
+<figure class="highlight handlebars"><table><tr><td class="code"><pre><code class="hljs handlebars"><span class="xml">The user </span><span class="hljs-template-variable">&#123;&#123; <span class="hljs-name">grains</span>[&#x27;user&#x27;] &#125;&#125;</span><span class="xml"> is referred to here.</span><br><span class="xml">The user </span><span class="hljs-template-variable">&#123;&#123; <span class="hljs-name">pillar</span>[&#x27;user&#x27;] &#125;&#125;</span><span class="xml"> is referred to here.</span><br></code></pre></td></tr></table></figure>
+<p>但如果Pillar或者Grains没有设置user，模板将无法正确渲染，比较安全的方法是使用内置的salt交叉执行模块：</p>
+<figure class="highlight handlebars"><table><tr><td class="code"><pre><code class="hljs handlebars"><span class="xml">The user </span><span class="hljs-template-variable">&#123;&#123; <span class="hljs-name">salt</span>[&#x27;grains.get&#x27;](<span class="hljs-name">&#x27;user&#x27;</span>, <span class="hljs-string">&#x27;larry&#x27;</span>) &#125;&#125;</span><span class="xml"> is referred to here.</span><br><span class="xml">The user </span><span class="hljs-template-variable">&#123;&#123; <span class="hljs-name">salt</span>[&#x27;grains.get&#x27;](<span class="hljs-name">&#x27;user&#x27;</span>, <span class="hljs-string">&#x27;larry&#x27;</span>) &#125;&#125;</span><span class="xml"> is referred to here.</span><br></code></pre></td></tr></table></figure>
+<p>如果user没有设置，则会默认使用Larry这个值。</p>
+<p>我们还可以通过搜索Grains和Pillar来让模板变得更加动态。使用<code>config.get</code>方法，salt会首先搜索minion配置文件中的值，如果没有找到则会检查Grain，如果还没有，则会检查Pillar，如果还没有，则会搜索Master配置，如果全部没有，则会使用默认提供的值：</p>
+<figure class="highlight handlebars"><table><tr><td class="code"><pre><code class="hljs handlebars"><span class="xml">The user </span><span class="hljs-template-variable">&#123;&#123; <span class="hljs-name">salt</span>[&#x27;config.get&#x27;](<span class="hljs-name">&#x27;user&#x27;</span>, <span class="hljs-string">&#x27;larry&#x27;</span>) &#125;&#125;</span><span class="xml"> is referred to here.</span><br></code></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Ops/" rel="tag"># Ops</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/07/08/ansible%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="prev" title="ansible学习笔记">
+      <i class="fa fa-chevron-left"></i> ansible学习笔记
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/07/11/SaltStack%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E6%B7%B1%E5%85%A5salt%E5%86%85%E9%83%A8/" rel="next" title="SaltStack学习笔记-深入salt内部">
+      SaltStack学习笔记-深入salt内部 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#saltstack%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0"><span class="nav-number">1.</span> <span class="nav-text">saltstack学习笔记</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1-%E5%85%A5%E9%97%A8"><span class="nav-number">2.</span> <span class="nav-text">1 入门</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-saltstack%E6%9E%B6%E6%9E%84"><span class="nav-number">2.1.</span> <span class="nav-text">1.1 saltstack架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-%E5%AE%89%E8%A3%85saltstack"><span class="nav-number">2.2.</span> <span class="nav-text">1.2 安装saltstack</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E6%96%B9%E6%B3%95"><span class="nav-number">2.2.1.</span> <span class="nav-text">配置方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#a-%E8%84%9A%E6%9C%AC%E4%B8%AD%E7%9A%84%E5%9F%9F%E5%90%8D%E4%BF%AE%E6%94%B9"><span class="nav-number">2.2.1.1.</span> <span class="nav-text">a.脚本中的域名修改</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#b-%E9%85%8D%E7%BD%AE%E4%B8%AD%E7%9A%84%E5%9F%9F%E5%90%8D%E4%BF%AE%E6%94%B9"><span class="nav-number">2.2.1.2.</span> <span class="nav-text">b.配置中的域名修改</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-%E9%85%8D%E7%BD%AEsalt"><span class="nav-number">2.3.</span> <span class="nav-text">1.3 配置salt</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-1-Salt-minion%E9%85%8D%E7%BD%AE"><span class="nav-number">2.3.1.</span> <span class="nav-text">1.3.1 Salt minion配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-2-%E5%9C%A8master%E4%B8%8A%E6%8E%A5%E5%8F%97minion%E5%AF%86%E9%92%A5"><span class="nav-number">2.3.2.</span> <span class="nav-text">1.3.2 在master上接受minion密钥</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-3-%E8%BF%90%E8%A1%8C%E7%AC%AC%E4%B8%80%E6%9D%A1salt%E5%91%BD%E4%BB%A4"><span class="nav-number">2.3.3.</span> <span class="nav-text">1.3.3 运行第一条salt命令</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-%E9%80%9A%E8%BF%87salt%E8%BF%9C%E7%A8%8B%E6%89%A7%E8%A1%8C%E7%AE%A1%E7%90%86minion"><span class="nav-number">3.</span> <span class="nav-text">2 通过salt远程执行管理minion</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-%E8%BF%9C%E7%A8%8B%E5%91%BD%E4%BB%A4%E7%9A%84%E7%BB%84%E6%88%90%E7%BB%93%E6%9E%84"><span class="nav-number">3.1.</span> <span class="nav-text">2.1 远程命令的组成结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-1-%E5%91%BD%E4%BB%A4%E8%A1%8C%E9%80%89%E9%A1%B9"><span class="nav-number">3.1.1.</span> <span class="nav-text">2.1.1 命令行选项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-2-%E7%9B%AE%E6%A0%87%E5%AE%9A%E4%BD%8D%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="nav-number">3.1.2.</span> <span class="nav-text">2.1.2 目标定位字符串</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%A8%E5%B1%80%E5%8C%B9%E9%85%8D"><span class="nav-number">3.1.2.1.</span> <span class="nav-text">全局匹配</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%8C%B9%E9%85%8D"><span class="nav-number">3.1.2.2.</span> <span class="nav-text">正则表达式匹配</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%97%E8%A1%A8%E5%8C%B9%E9%85%8D"><span class="nav-number">3.1.2.3.</span> <span class="nav-text">列表匹配</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Grain%E5%92%8CPillar%E5%8C%B9%E9%85%8D"><span class="nav-number">3.1.2.4.</span> <span class="nav-text">Grain和Pillar匹配</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Grains%E5%8C%B9%E9%85%8D"><span class="nav-number">3.1.2.5.</span> <span class="nav-text">Grains匹配</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Pillars%E5%8C%B9%E9%85%8D"><span class="nav-number">3.1.2.6.</span> <span class="nav-text">Pillars匹配</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%8D%E5%90%88%E5%8C%B9%E9%85%8D"><span class="nav-number">3.1.2.7.</span> <span class="nav-text">复合匹配</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-%E8%BF%9C%E7%A8%8B%E6%89%A7%E8%A1%8C%E6%A8%A1%E5%9D%97%E5%92%8C%E5%87%BD%E6%95%B0"><span class="nav-number">3.2.</span> <span class="nav-text">2.2 远程执行模块和函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%BF%9C%E7%A8%8B%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%A8%A1%E5%9D%97"><span class="nav-number">3.2.1.</span> <span class="nav-text">1. 远程命令执行模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%AE%89%E8%A3%85%E5%8C%85%E7%AE%A1%E7%90%86"><span class="nav-number">3.2.2.</span> <span class="nav-text">2. 安装包管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1%E6%A8%A1%E5%9D%97"><span class="nav-number">3.2.3.</span> <span class="nav-text">3. 管理服务模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97"><span class="nav-number">3.2.4.</span> <span class="nav-text">4. 文件管理模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E7%94%A8%E6%88%B7%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97"><span class="nav-number">3.2.5.</span> <span class="nav-text">5. 用户管理模块</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-%E7%BC%96%E5%86%99%E8%87%AA%E5%B7%B1%E7%9A%84%E6%A8%A1%E5%9D%97%E4%BB%A3%E7%A0%81"><span class="nav-number">4.</span> <span class="nav-text">3 编写自己的模块代码</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-%E7%90%86%E8%A7%A3salt%E5%BA%95%E5%B1%82%E6%89%A7%E8%A1%8C%E7%9A%84%E5%8E%9F%E7%90%86"><span class="nav-number">4.1.</span> <span class="nav-text">3.1 理解salt底层执行的原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-%E6%89%A7%E8%A1%8C%E6%A8%A1%E5%9D%97%E7%9A%84%E6%9E%84%E6%88%90%E7%BB%93%E6%9E%84%E5%92%8C%E7%BC%96%E5%86%99%E8%87%AA%E5%B7%B1%E7%9A%84%E6%A8%A1%E5%9D%97"><span class="nav-number">4.2.</span> <span class="nav-text">3.2 执行模块的构成结构和编写自己的模块</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-%E9%80%9A%E8%BF%87state%E6%A8%A1%E5%9D%97%E5%AE%9A%E4%B9%89%E4%B8%BB%E6%9C%BA%E7%8A%B6%E6%80%81"><span class="nav-number">5.</span> <span class="nav-text">4 通过state模块定义主机状态</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-%E7%8A%B6%E6%80%81%E7%9A%84%E6%A6%82%E5%BF%B5%E4%BB%A5%E5%8F%8A%E5%A6%82%E4%BD%95%E6%92%B0%E5%86%99%E7%AC%AC%E4%B8%80%E6%9D%A1%E7%8A%B6%E6%80%81"><span class="nav-number">5.1.</span> <span class="nav-text">4.1 状态的概念以及如何撰写第一条状态</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2-%E7%8A%B6%E6%80%81%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E7%9A%84%E5%90%84%E4%B8%AA%E8%A6%81%E7%B4%A0"><span class="nav-number">5.2.</span> <span class="nav-text">4.2 状态配置文件的各个要素</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-3-%E5%B8%B8%E7%94%A8%E7%9A%84%E7%8A%B6%E6%80%81%E6%A8%A1%E5%9D%97%E7%94%A8%E6%B3%95"><span class="nav-number">5.3.</span> <span class="nav-text">4.3 常用的状态模块用法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#file%E6%A8%A1%E5%9D%97"><span class="nav-number">5.3.1.</span> <span class="nav-text">file模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pkg%E6%A8%A1%E5%9D%97"><span class="nav-number">5.3.2.</span> <span class="nav-text">pkg模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#service%E6%A8%A1%E5%9D%97"><span class="nav-number">5.3.3.</span> <span class="nav-text">service模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cron%E6%A8%A1%E5%9D%97"><span class="nav-number">5.3.4.</span> <span class="nav-text">cron模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#user%E6%A8%A1%E5%9D%97"><span class="nav-number">5.3.5.</span> <span class="nav-text">user模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sysctl%E6%A8%A1%E5%9D%97"><span class="nav-number">5.3.6.</span> <span class="nav-text">sysctl模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pip%E6%A8%A1%E5%9D%97"><span class="nav-number">5.3.7.</span> <span class="nav-text">pip模块</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-4-%E4%BD%BF%E7%94%A8requisites%E5%AF%B9%E7%8A%B6%E6%80%81%E8%BF%9B%E8%A1%8C%E6%8E%92%E5%BA%8F%E6%8E%A7%E5%88%B6"><span class="nav-number">5.4.</span> <span class="nav-text">4.4 使用requisites对状态进行排序控制</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-%E9%80%9A%E8%BF%87Jinja2-%E6%A8%A1%E6%9D%BF%E4%BB%A5%E5%8F%8AGrain%E5%92%8CPillar%E6%89%A9%E5%B1%95%E4%B8%BB%E6%9C%BA%E7%8A%B6%E6%80%81"><span class="nav-number">6.</span> <span class="nav-text">5 通过Jinja2 模板以及Grain和Pillar扩展主机状态</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#5-1-Jinja2-%E6%A8%A1%E6%9D%BF%E8%AF%AD%E8%A8%80%E7%9A%84%E5%9F%BA%E7%A1%80"><span class="nav-number">6.1.</span> <span class="nav-text">5.1 Jinja2 模板语言的基础</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Jinja2%E5%8F%98%E9%87%8F"><span class="nav-number">6.1.1.</span> <span class="nav-text">Jinja2变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6%E8%AF%AD%E5%8F%A5"><span class="nav-number">6.1.2.</span> <span class="nav-text">流程控制语句</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-2-Grain%E5%92%8CPillar%E7%9A%84%E6%A6%82%E5%BF%B5%E5%8F%8A%E8%AE%BE%E7%BD%AE"><span class="nav-number">6.2.</span> <span class="nav-text">5.2 Grain和Pillar的概念及设置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Grain%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="nav-number">6.2.1.</span> <span class="nav-text">Grain的概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Grain%E7%9B%B8%E5%85%B3%E7%9A%84%E5%9F%BA%E6%9C%AC%E5%91%BD%E4%BB%A4"><span class="nav-number">6.2.2.</span> <span class="nav-text">Grain相关的基本命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AEGrains%E6%95%B0%E6%8D%AE"><span class="nav-number">6.2.3.</span> <span class="nav-text">设置Grains数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Pillar%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="nav-number">6.2.4.</span> <span class="nav-text">Pillar的概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Pillar%E7%9B%B8%E5%85%B3%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">6.2.5.</span> <span class="nav-text">Pillar相关的基本概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AEPillar%E6%95%B0%E6%8D%AE"><span class="nav-number">6.2.6.</span> <span class="nav-text">设置Pillar数据</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-3-%E7%94%A8Jinjia2%E9%85%8D%E5%90%88Grain%E5%92%8CPillar%E6%89%A9%E5%B1%95SLS%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">6.3.</span> <span class="nav-text">5.3 用Jinjia2配合Grain和Pillar扩展SLS配置文件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%A9%E5%B1%95Apache-sls%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">6.3.1.</span> <span class="nav-text">扩展Apache.sls配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A%E7%B3%BB%E7%BB%9Fvim%E5%AE%89%E8%A3%85%E5%AE%9E%E4%BE%8B"><span class="nav-number">6.3.2.</span> <span class="nav-text">多系统vim安装实例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#iptables%E6%A0%B9%E6%8D%AE%E7%B3%BB%E7%BB%9F%E4%B8%8D%E5%90%8C%E4%B8%8B%E5%8F%91"><span class="nav-number">6.3.3.</span> <span class="nav-text">iptables根据系统不同下发</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E8%BF%87Pillar%E6%89%A9%E5%B1%95SLS%E9%85%8D%E7%BD%AE"><span class="nav-number">6.3.4.</span> <span class="nav-text">通过Pillar扩展SLS配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-4-%E7%94%A8Jianjia2%E9%85%8D%E5%90%88Grains%E5%92%8CPilliar%E5%8A%A8%E6%80%81%E4%B8%8B%E5%8F%91%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">6.4.</span> <span class="nav-text">5.4 用Jianjia2配合Grains和Pilliar动态下发配置文件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E6%A8%A1%E6%9D%BF%E4%B8%8B%E5%8F%91%E5%AE%9E%E4%BE%8B"><span class="nav-number">6.4.1.</span> <span class="nav-text">一个简单模板下发实例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-5-Jinja%E4%B8%8EGrains%E5%92%8CPillar%E7%9A%84%E8%A1%A5%E5%85%85"><span class="nav-number">6.5.</span> <span class="nav-text">5.5 Jinja与Grains和Pillar的补充</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">QinTianJun</p>
+  <div class="site-description" itemprop="description">一个菜鸟的成长之路</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QinTianJun</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

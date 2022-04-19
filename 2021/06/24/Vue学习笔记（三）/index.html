@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.qintianjun.top","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Vue学习笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vue学习笔记（三）-前端模块化">
+<meta property="og:url" content="http://www.qintianjun.top/2021/06/24/Vue%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/index.html">
+<meta property="og:site_name" content="Freedom_ATX Blog">
+<meta property="og:description" content="Vue学习笔记">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/image-20200206145331311.png">
+<meta property="og:image" content="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/image-20200206150133931.png">
+<meta property="article:published_time" content="2021-06-24T14:02:08.000Z">
+<meta property="article:modified_time" content="2021-06-24T14:02:50.253Z">
+<meta property="article:author" content="QinTianJun">
+<meta property="article:tag" content="前端">
+<meta property="article:tag" content="Vue">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/image-20200206145331311.png">
+
+<link rel="canonical" href="http://www.qintianjun.top/2021/06/24/Vue%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Vue学习笔记（三）-前端模块化 | Freedom_ATX Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Freedom_ATX Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://www.qintianjun.top/2021/06/24/Vue%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="QinTianJun">
+      <meta itemprop="description" content="一个菜鸟的成长之路">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Freedom_ATX Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Vue学习笔记（三）-前端模块化
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-06-24 22:02:08 / Modified: 22:02:50" itemprop="dateCreated datePublished" datetime="2021-06-24T22:02:08+08:00">2021-06-24</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%89%8D%E7%AB%AF/" itemprop="url" rel="index"><span itemprop="name">前端</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%89%8D%E7%AB%AF/Vue/" itemprop="url" rel="index"><span itemprop="name">Vue</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="3-前端模块化"><a href="#3-前端模块化" class="headerlink" title="3 前端模块化"></a>3 前端模块化</h1><h2 id="3-1-ES模块化的导入和导出"><a href="#3-1-ES模块化的导入和导出" class="headerlink" title="3.1 ES模块化的导入和导出"></a>3.1 ES模块化的导入和导出</h2><p><strong>export基本使用</strong></p>
+<p>export指令用于导出变量，比如下面的代码：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-comment">//info.js</span><br><span class="hljs-keyword">export</span> <span class="hljs-keyword">let</span> name = <span class="hljs-string">&#x27;freedom&#x27;</span><br><span class="hljs-keyword">export</span> <span class="hljs-keyword">let</span> age = <span class="hljs-number">18</span><br><span class="hljs-keyword">export</span> <span class="hljs-keyword">let</span> height = <span class="hljs-number">1.88</span><br></code></pre></td></tr></table></figure>
+
+<p>上面的代码还有另一种写法：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-comment">// info.js</span><br><span class="hljs-keyword">let</span> name = <span class="hljs-string">&#x27;freedom&#x27;</span><br><span class="hljs-keyword">let</span> age = <span class="hljs-number">18</span><br><span class="hljs-keyword">let</span> height = <span class="hljs-number">1.88</span><br><br><span class="hljs-keyword">export</span> &#123;name, age, height&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在需要使用的地方导入：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">import</span> &#123;name, age, height&#125; <span class="hljs-keyword">from</span>  <span class="hljs-string">&#x27;./info.js&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>export default</strong></p>
+<p>某些情况下，一个模块中包含某个功能，我们并不希望给这个功能命名，而且让导入者自己来命名</p>
+<ul>
+<li><p>这个时候就可以使用export default</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-comment">// info.js</span><br><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>&#123;<br>	<span class="hljs-built_in">console</span>.log(<span class="hljs-string">&#x27;default function&#x27;</span>);<br>&#125;<br></code></pre></td></tr></table></figure></li>
+<li><p>我们来到main.js中，这样使用就可以了</p>
+<ul>
+<li>这里myFunc是我自己命名的，你可以根据需要命名它对应的名字</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">import</span> myFunc <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./info.js&#x27;</span><br><br>myFunc()<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p>另外要注意：</p>
+<ul>
+<li><p>export default在同一个模块中，不允许同时存在多个。</p>
+</li>
+<li><p>但是通常情况下我们需要给*起一个别名，方便后续使用</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> info <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./info.js&#x27;</span><br><br><span class="hljs-built_in">console</span>.log(info.name, info.age, info.height);<br></code></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+<h2 id="3-2-WebPack"><a href="#3-2-WebPack" class="headerlink" title="3.2 WebPack"></a>3.2 WebPack</h2><h3 id="3-2-1-前模块化"><a href="#3-2-1-前模块化" class="headerlink" title="3.2.1 前模块化"></a>3.2.1 前模块化</h3><ul>
+<li>在前面学习中,我已经用了大量的篇幅解释了为什么前端需更模块化。而且也提到了目前使用前端模块化的一些方案: AMD. CMD. CommonJs, ES6.</li>
+<li>在ES6之前,我们要想进行模块化开发,就必须借助于其他的工具,让我们可以进行模块化开发,并且在通过模块化开发完成了项目后,还需要处理模块间的各种依赖,并且将其进行整合打包。</li>
+<li>而webpack其中一个核心就是让我们可能进行模块化开发,并且会帮助我们处理模块间的依赖关系,而且不仅仅是JavaScript文件,我们的CSS,图片、json文件等等在webpack中都可以被当做模块来使用(在后续我们会看到)。</li>
+</ul>
+<p>这就是webpack中模块化的概念</p>
+<p><strong>打包如何理解呢</strong></p>
+<ul>
+<li>理解了webpack可以帮助我们进行模块化,并且处理模块间的各种复杂关系后,打包的概念就非常好理解了.</li>
+<li>就是将webpack中的各种资源模块进行打包合并成一个或多个包(Bundle).</li>
+<li>并且在打包的过程中,还可以对资源进行处理比如压缩图片,将scss转成css,将ES6语法转成ES5语法,将TypeScript转成JavaScript等等操作。</li>
+<li>但是打包的操作似乎grunt/gulpt可以帮助我们完成,它们有什么不高呢</li>
+</ul>
+<p><strong>WebPack模块打包</strong></p>
+<p>WebPack为了可以正常运行，必须依赖node环境，node环境为了可以正常执行很多代码，必须包含各种各样依赖的包，npm工具是node的包管理工具。</p>
+<h3 id="3-2-2-WebPack安装"><a href="#3-2-2-WebPack安装" class="headerlink" title="3.2.2 WebPack安装"></a>3.2.2 WebPack安装</h3><p>安装WebPack首先需要安装Node.js,Node.js自带了软件包管理工具npm</p>
+<p>查看自己的node版本：<code>node -v</code></p>
+<p>全局安装WebPack（这里我们先指定3.6版本）</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">npm</span> install webpack@<span class="hljs-number">3</span>.<span class="hljs-number">6</span>.<span class="hljs-number">9</span> -g<br></code></pre></td></tr></table></figure>
+
+<p>局部安装WebPack(后续才需要)</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">cd</span> 对应的目录<br><span class="hljs-attribute">npm</span> install webpack@<span class="hljs-number">3</span>.<span class="hljs-number">6</span>.<span class="hljs-number">0</span> --save-dev<br></code></pre></td></tr></table></figure>
+
+<p>–save-dev 是开发时依赖，项目打包后不需要继续使用的</p>
+<p>为什么全局安装后，还需要局部安装呢？</p>
+<ul>
+<li>在终端直接执行WebPack命令，使用的全局安装的WebPack</li>
+<li>当在package.json中定义了scripts时，其中包含了WebPack命令，那么使用的是局部WebPack</li>
+</ul>
+<h3 id="3-2-3-WebPack简单使用"><a href="#3-2-3-WebPack简单使用" class="headerlink" title="3.2.3 WebPack简单使用"></a>3.2.3 WebPack简单使用</h3><p>目录结构如下：</p>
+<p><img src="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/image-20200206145331311.png" alt="image-20200206145331311"></p>
+<p>文件内容如下：</p>
+<p>info.js:</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> name = <span class="hljs-string">&#x27;freedom&#x27;</span>;<br><span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> age = <span class="hljs-number">18</span>;<br><span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> height = <span class="hljs-number">1.80</span>;<br><br></code></pre></td></tr></table></figure>
+
+<p>mathUtils.js:</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">add</span>(<span class="hljs-params">num1, num2</span>) </span>&#123;<br>    <span class="hljs-keyword">return</span> num1 + num2<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">mul</span>(<span class="hljs-params">num1, num2</span>) </span>&#123;<br>    <span class="hljs-keyword">return</span> num1 * num2<br>&#125;<br><br><span class="hljs-built_in">module</span>.exports = &#123;<br>    add,<br>    mul<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>在main.js中使用上述两个文件中内容：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> &#123;add, mul&#125; = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;./mathUtils.js&#x27;</span>)<br><br><span class="hljs-built_in">console</span>.log(add(<span class="hljs-number">20</span>, <span class="hljs-number">30</span>));<br><span class="hljs-built_in">console</span>.log(mul(<span class="hljs-number">20</span>, <span class="hljs-number">30</span>));<br><br><span class="hljs-keyword">import</span> &#123;name, age, height&#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./info.js&#x27;</span><br><br><span class="hljs-built_in">console</span>.log(name);<br><span class="hljs-built_in">console</span>.log(age);<br><span class="hljs-built_in">console</span>.log(height);<br></code></pre></td></tr></table></figure>
+
+<p>此时在命令行使用<code>webpack ./src/main.js ./dist/bundle.js</code>命令，将上述文件打包到dist目录下的bundle.js文件中</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">D</span>:\vue\vue_learning\webpack&gt;webpack ./src/main.js ./dist/bundle.js<br><span class="hljs-attribute">Hash</span>: <span class="hljs-number">259</span>c<span class="hljs-number">6</span>b<span class="hljs-number">56</span>d<span class="hljs-number">630</span>dacf<span class="hljs-number">141</span>e<br><span class="hljs-attribute">Version</span>: webpack <span class="hljs-number">3</span>.<span class="hljs-number">6</span>.<span class="hljs-number">0</span><br><span class="hljs-attribute">Time</span>: <span class="hljs-number">60</span>ms<br>    <span class="hljs-attribute">Asset</span>     Size  Chunks             Chunk Names<br><span class="hljs-attribute">bundle</span>.js  <span class="hljs-number">3</span>.<span class="hljs-number">58</span> kB       <span class="hljs-number">0</span> <span class="hljs-meta"> [emitted]  main</span><br></code></pre></td></tr></table></figure>
+
+<p>如上所示，表明打包成功。</p>
+<p>在index.html中引入bundle.js:</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span><br>。。。。。。<br><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;./dist/bundle.js&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>可以在页面控制台看到之前main.js中引入的代码已经正确执行：</p>
+<p><img src="https://awsbucketforqtj.s3.ap-east-1.amazonaws.com/img/image-20200206150133931.png" alt="image-20200206150133931"></p>
+<p><strong>JS文件打包</strong></p>
+<p>现在的js文件中使用了模块化的方式进行开发,他们可以直接使用吗?不可以。</p>
+<ul>
+<li>因为如果直接在index.htmlsl入这两个js文件,浏览器并不识别其中的模块化代码。</li>
+<li>另外,在真实项目中当有许多这样的js文件时,我们一个个引用非常麻烦,并且后期非常不方便对它们进行管理。</li>
+</ul>
+<p>我们应该怎么做呢?使用webpack工具,对多个js文件进行打包。</p>
+<ul>
+<li>我们知道, webpack就是一个模块化的打包工具,所以它支持我们代码中写模块化,可以对模块化的代码进行处理。(如何处理的,待会儿在原理中,我会讲解)</li>
+<li>另外,如果在处理完所有模块之间的关系后,将多个js打包到一个js文件中,引入时就变得非常方便了。OK,如何打包呢?使用webpack的指令即可</li>
+</ul>
+<p><strong>局部安装WebPack</strong></p>
+<p>目前,我们使用的webpack是全局的webpack,如果我们想使用局部来打包呢?</p>
+<ul>
+<li><p>因为一个项目往往依赖特定的webpack版本,全局的版本可能很这个项目的webpack版本不一致,导出打包出现问题。</p>
+<p>所以通常一个项目,都有自己局部的webpack.</p>
+</li>
+</ul>
+<p>第一步, 项目中需要安装自己局部的webpack</p>
+<ul>
+<li><p>这里我们让局部安装webpack3.6.0</p>
+</li>
+<li><p>Vue CL13中已经升级到webpack4 ,但是它将配置文件隐藏了起来,所以查看起来不是很方便</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">npm</span> install webpack@<span class="hljs-number">3</span>.<span class="hljs-number">6</span>.<span class="hljs-number">0</span> --save-dev<br></code></pre></td></tr></table></figure></li>
+</ul>
+<p>第二步，通过<code>node_moduels/.bin/webpack</code>启动WebPack打包</p>
+<figure class="highlight dts"><table><tr><td class="code"><pre><code class="hljs dts"><span class="hljs-symbol">D:</span>\vue\vue_learning\webpack&gt;node_modules\.bin\webpack<br><span class="hljs-symbol">Hash:</span> <span class="hljs-number">259</span>c6b56d630dacf141e<br><span class="hljs-symbol">Version:</span> webpack <span class="hljs-number">3.6</span><span class="hljs-number">.0</span><br><span class="hljs-symbol">Time:</span> <span class="hljs-number">54</span>ms<br>    Asset     Size  Chunks             Chunk Names<br>bundle.js  <span class="hljs-number">3.58</span> kB       <span class="hljs-number">0</span>  [emitted]  main<br>   [<span class="hljs-number">0</span>] .<span class="hljs-meta-keyword">/src/</span>main.js <span class="hljs-number">212</span> <span class="hljs-class">bytes </span>&#123;<span class="hljs-number">0</span>&#125; [built]<br>   [<span class="hljs-number">1</span>] .<span class="hljs-meta-keyword">/src/</span>mathUtils.js <span class="hljs-number">156</span> <span class="hljs-class">bytes </span>&#123;<span class="hljs-number">0</span>&#125; [built]<br>   [<span class="hljs-number">2</span>] .<span class="hljs-meta-keyword">/src/</span>info.js <span class="hljs-number">85</span> <span class="hljs-class">bytes </span>&#123;<span class="hljs-number">0</span>&#125; [built]<br><br></code></pre></td></tr></table></figure>
+
+<p><strong>package.json中定义启动</strong></p>
+<p>但是,每次执行都敲这么一长串有没有觉得不方便呢?</p>
+<ul>
+<li>ок,我们可以在package.json的scripts中定义自己的执行脚本。</li>
+</ul>
+<p>package.json中的scripts的脚本在执行时,会按照一定的顺序寻找命令对应的位置。</p>
+<ul>
+<li>首先,会寻找本地的node_modules/.bin路径中对应的命令。</li>
+<li>如果没有找到,会去全局的环境变量中寻找。</li>
+<li>如何执行我们的build指令呢?<code>npm run build</code></li>
+</ul>
+<figure class="highlight json"><table><tr><td class="code"><pre><code class="hljs json">&#123;<br>  <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;meet_webpack&quot;</span>,<br>  <span class="hljs-attr">&quot;version&quot;</span>: <span class="hljs-string">&quot;1.0.0&quot;</span>,<br>  <span class="hljs-attr">&quot;description&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>  <span class="hljs-attr">&quot;main&quot;</span>: <span class="hljs-string">&quot;index.js&quot;</span>,<br>  <span class="hljs-attr">&quot;scripts&quot;</span>: &#123;<br>    <span class="hljs-attr">&quot;test&quot;</span>: <span class="hljs-string">&quot;echo \&quot;Error: no test specified\&quot; &amp;&amp; exit 1&quot;</span>,<br>    <span class="hljs-attr">&quot;build&quot;</span>: <span class="hljs-string">&quot;webpack&quot;</span> # 这里，npm会在scripts找build对应的命令<br>  &#125;,<br>  <span class="hljs-attr">&quot;author&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>  <span class="hljs-attr">&quot;license&quot;</span>: <span class="hljs-string">&quot;ISC&quot;</span>,<br>  <span class="hljs-attr">&quot;devDependencies&quot;</span>: &#123;<br>    <span class="hljs-attr">&quot;webpack&quot;</span>: <span class="hljs-string">&quot;^3.6.0&quot;</span><br>  &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="3-2-4-loader"><a href="#3-2-4-loader" class="headerlink" title="3.2.4 loader"></a>3.2.4 loader</h3><p><strong>什么是loader</strong></p>
+<p>loader是webpack中一个非常核心的概念。</p>
+<ul>
+<li>webpack用来做什么呢?<ul>
+<li>在我们之前的实例中,我们主要是用webpack来处理我们写的js代码,并且webpack会自动处理js之间相关的依赖。</li>
+<li>但是,在开发中我们不仅仅有基本的js代码处理,我们也需要加载css、图片,也包括一些高级的将ES6转成ES5代码,将TypeScript转成ES5代码,将scss, less转成css ,将jsx. .vue文件转成js文件等等</li>
+<li>对于webpack本身的能力来说,对于这些转化是不支持的</li>
+</ul>
+</li>
+</ul>
+<p>那怎么办呢?给webpack扩展对应的loader就可以啦。</p>
+<p><strong>loader使用过程</strong></p>
+<ul>
+<li><p>步骤一:通过npm安装需要使用的loader</p>
+</li>
+<li><p>步骤二:在webpack.config.js中的modules关键字下进行配置</p>
+</li>
+</ul>
+<p>大部分loader我们都可以在webpack的官网中找到,并且学习对应的用法</p>
+<p><strong>css文件处理— style-loader</strong></p>
+<p>我们来安装style-loader：</p>
+<p><code>npm instatt -save-dev style-loader</code></p>
+<p>注意: style-loader需要放在css-loader的前面。</p>
+<ul>
+<li>疑惑:不对吧?按照我们的逻辑,在处理css文件过程中，应该是css-loader先加载css文件,再由style-oader来进行进一步的处理,为什么会将style-loader放在前面呢?</li>
+</ul>
+<ul>
+<li>答案:这次因为webpack在读取使用的loader的过程中,是按照从右向左的顺序读取的。</li>
+</ul>
+<p>目前, <code>webpack.config.js</code>的全部配置如下:</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;path&#x27;</span>)<br><br><span class="hljs-built_in">module</span>.exports = &#123;<br>    <span class="hljs-comment">// 入口: 可以是字符串/数组/对象，这里我们的入口只有一个，</span><br>    <span class="hljs-comment">// 所以写一个字符串即可</span><br>    <span class="hljs-attr">entry</span>: <span class="hljs-string">&#x27;./src/main.js&#x27;</span>,<br>    <span class="hljs-comment">// 出口：通常是一个对象，里面至少要包含两个重要属性, path 和filename</span><br>    <span class="hljs-attr">output</span>: &#123;<br>        <span class="hljs-attr">path</span>: path.resolve(__dirname, <span class="hljs-string">&#x27;dist&#x27;</span>),<br>        <span class="hljs-attr">filename</span>: <span class="hljs-string">&quot;bundle.js&quot;</span><br>    &#125;,<br>    <span class="hljs-attr">module</span>: &#123;<br>        <span class="hljs-attr">rules</span>: [<br>            &#123;<br>                <span class="hljs-attr">test</span>: <span class="hljs-regexp">/\.css$/</span>,<br>                <span class="hljs-comment">// css-loader只负责将css文件进行加载</span><br>                <span class="hljs-comment">// style-loader负责将样式加载到DOM中</span><br>                <span class="hljs-comment">// 使用多个loader时，是从右向左读的</span><br>                use: [<span class="hljs-string">&#x27;style-loader&#x27;</span>, <span class="hljs-string">&#x27;css-loader&#x27;</span>]<br>            &#125;<br>        ]<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>less文件处理</strong></p>
+<p>继续在官方中查找,我们会找到ess-loader相关的使用说明.和css文件类似：</p>
+<ul>
+<li><p>首先,还是需要安装对应的loader</p>
+<ul>
+<li><p>注意:我们这里还安装了less ,因为webpack会使用less对less文件进行编译</p>
+<p><code>npe install -save-dev less-loader tess</code></p>
+</li>
+</ul>
+</li>
+<li><p>其次,修改对应的配置文件</p>
+<ul>
+<li>添加一个rules选项,用于处理less文件</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-built_in">module</span>: &#123;<br>    <span class="hljs-attr">rules</span>: [<br>......<br>        &#123;<br>            <span class="hljs-attr">test</span>: <span class="hljs-regexp">/\.less$/</span>,<br>            use: [<br>                &#123;<br>                <span class="hljs-attr">loader</span>: <span class="hljs-string">&quot;style-loader&quot;</span> <span class="hljs-comment">// creates style nodes from JS strings</span><br>                &#125;, <br>                &#123;<br>                <span class="hljs-attr">loader</span>: <span class="hljs-string">&quot;css-loader&quot;</span> <span class="hljs-comment">// translates CSS into CommonJS</span><br>                &#125;, <br>                &#123;<br>                <span class="hljs-attr">loader</span>: <span class="hljs-string">&quot;less-loader&quot;</span> <span class="hljs-comment">// compiles Less to CSS</span><br>                &#125;<br>            ]<br>        &#125;<br>    ]<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>图片文件处理</strong></p>
+<p>和上面类似，使用npm命令安装相关包：</p>
+<figure class="highlight q"><table><tr><td class="code"><pre><code class="hljs q">npm install --<span class="hljs-built_in">save</span>-<span class="hljs-built_in">dev</span> url-loader <span class="hljs-comment">//对于小于指定大小的会由url-loader编译为base64字符串，后有说明</span><br>npm install --<span class="hljs-built_in">save</span>-<span class="hljs-built_in">dev</span> file-loader <span class="hljs-comment">//对于大于指定大小的会由file-loader作为文件引入</span><br></code></pre></td></tr></table></figure>
+
+<p>只有在<code>webpack.config.js</code>中新增配置:</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript">output: &#123;<br>。。。。。。<br>        <span class="hljs-attr">publicPath</span>: <span class="hljs-string">&#x27;dist/&#x27;</span>  # 指定文件相对路径的起始目录<br>    &#125;,<br>    <span class="hljs-attr">module</span>: &#123;<br>        <span class="hljs-attr">rules</span>: [<br>            。。。。。。<br>            &#123;<br>                <span class="hljs-attr">test</span>: <span class="hljs-regexp">/\.(png|jpg|gif)$/</span>,<br>                use: [<br>                    &#123;<br>                        <span class="hljs-attr">loader</span>: <span class="hljs-string">&#x27;url-loader&#x27;</span>,<br>                        <span class="hljs-attr">options</span>: &#123;<br>                            <span class="hljs-comment">// 当加载的图片小于limit时，会将图片编译成base64字符串形式</span><br>                            <span class="hljs-comment">// 当加载的图片大于limit时，需要使用file-loader模块进行处理</span><br>                            <span class="hljs-attr">limit</span>: <span class="hljs-number">8192</span><br>                        &#125;<br>                    &#125;<br>                ]<br>            &#125;<br>        ]<br>    &#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p>我们发现webpack自动帮助我们生成一个非常长的名字</p>
+<ul>
+<li><p>这是一个32位hash值,目的是防止名字重复</p>
+</li>
+<li><p>但是,真实开发中,我们可能对打包的图片名字有一定的要求</p>
+</li>
+<li><p>比如,将所有的图片放在一个文件夹中,跟上图片原来的名称,同时也防止重复</p>
+<p>最终正确配置：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript">&#123;<br>    <span class="hljs-attr">test</span>: <span class="hljs-regexp">/\.(png|jpg|gif)$/</span>,<br>    use: [<br>        &#123;<br>            <span class="hljs-attr">loader</span>: <span class="hljs-string">&#x27;url-loader&#x27;</span>,<br>            <span class="hljs-attr">options</span>: &#123;<br>                <span class="hljs-comment">// 当加载的图片小于limit时，会将图片编译成base64字符串形式</span><br>                <span class="hljs-comment">// 当加载的图片大于limit时，需要使用file-loader模块进行处理</span><br>                <span class="hljs-attr">limit</span>: <span class="hljs-number">8192</span>,<br>                <span class="hljs-attr">name</span>: <span class="hljs-string">&#x27;img/[name].[hash:8].[ext]&#x27;</span> <span class="hljs-comment">//定义命名规则</span><br>            &#125;<br>        &#125;<br>    ]<br>&#125;<br></code></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>所以,我们可以在options中添加上如下选项:</p>
+<ul>
+<li>img :文件要打包到的文件夹</li>
+<li>name :获取图片原来的名字,放在该位置</li>
+<li>hash:8:为了防止图片名称中突,依然使用hash ,但是我们只保留8位Dext:使用图片原来的扩展名</li>
+</ul>
+</li>
+<li><p>但是,我们发现图片并没有显示出来,这是因为图片使用的路径不正确</p>
+<ul>
+<li>默认情况下, webpack会将生成的路径直接返回给使用者</li>
+<li>但是,我们整个程序是打包在dist文件夹下的,所以这里我们需要在路径下再添加一个<code>dist/</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>ES6转ES5</strong></p>
+<p>如果你仔细阅读webpack打包的js文件,发现写的ES6语法并没有转成ES5 ,那么就意味着可能一些对ES6还不支持的浏览器没有办法很好的运行我们的代码</p>
+<ul>
+<li><p>在前面我们说过,如果希望将ES6的语法转成ES5 ,那么就需要使用babel.</p>
+<ul>
+<li><p>而在webpack中,我们直接使用babel对应的loader就可以了</p>
+<p><code>npm install babel-loader babel-core babel-preset-env webpack</code></p>
+</li>
+</ul>
+</li>
+<li><p>之后同样修改<code>webpack.config.js</code>文件</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript">&#123;<br>	<span class="hljs-attr">test</span>: <span class="hljs-regexp">/\.js$/</span>,<br>	exclude: <span class="hljs-regexp">/(node_modules|bower_components)/</span>,<br>	use: &#123;<br>		<span class="hljs-attr">loader</span>: <span class="hljs-string">&#x27;babel-loader&#x27;</span>,<br>		<span class="hljs-attr">options</span>: &#123;<br>			<span class="hljs-attr">presets</span>: [<span class="hljs-string">&#x27;es2015&#x27;</span>]<br>		&#125;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure></li>
+</ul>
+<p>之后重新编译即可</p>
+<h2 id="3-3-Vue-Cli"><a href="#3-3-Vue-Cli" class="headerlink" title="3.3 Vue Cli"></a>3.3 Vue Cli</h2><h3 id="3-3-1-介绍"><a href="#3-3-1-介绍" class="headerlink" title="3.3.1 介绍"></a>3.3.1 介绍</h3><p>如果你只是简单写几个Vue的demo程序，那么你不需要Vue Cli</p>
+<p>如果你在开发大型项目，那么你需要并且必然需要使用Vue Cli</p>
+<ul>
+<li>使用Vue.js开发大型应用时，我们需要考虑代码目录结构、项目结构和部署、热加载、代码单元测试等事情</li>
+<li>如果每个项目都要手动完成这些工作，那无疑效率比较低，所以通常我们会使用一些脚手架工具来帮助完成这些事情</li>
+</ul>
+<p><strong>cli是什么意思？</strong></p>
+<ul>
+<li>cli是Command-Line-Interface，翻译为命令行界面，但是俗称脚手架</li>
+<li>Vue Cli是一个官方发布vue.js项目脚手架</li>
+<li>使用vue-cli 可以快速搭建Vue开发环境以及对应的webpack配置</li>
+</ul>
+<p><strong>Vue-cli使用前提</strong></p>
+<ol>
+<li>安装NodeJS</li>
+<li>检测安装的版本<ul>
+<li>默认情况下自动安装Node和NPM</li>
+<li>Node环境要求8.9以上或者更高版本<code>node -v</code></li>
+</ul>
+</li>
+</ol>
+<blockquote>
+<p>notes： 由于国内直接使用npm官方镜像是非常慢的，这里推荐使用淘宝NPM镜像</p>
+<p>你可以使用淘宝定制的cnpm（gzip压缩支持）命令行工具代替默认的npm:</p>
+<p><code>npm install -g cnpm --registry=https://registry.npm.taobao.org</code></p>
+<p>这样就可以使用cnpm命令来安装模块了：<code>cnpm install [name]</code></p>
+</blockquote>
+<ol start="3">
+<li><p>WebPack</p>
+<ul>
+<li><p>Vue.js官方脚手架工具就使用了webpack模板</p>
+<ul>
+<li>对所有的资源会压缩等优化操作</li>
+<li>它在开发过程中提供了一套完整的功能，能够使得我们开发过程中变得高效</li>
+</ul>
+</li>
+<li><p>webpack全局安装：<code>npm install webpack -gs</code></p>
+</li>
+</ul>
+</li>
+</ol>
+<p><strong>什么是NPM呢？</strong></p>
+<ul>
+<li>NPM的全称是Node Package Manager</li>
+<li>是一个NodeJS包管理和分发工具，已经成为了非官方的发布Node模块（包）的标准</li>
+<li>后续我们会经常使用NPM来安装一些开发过程中依赖包</li>
+</ul>
+<h3 id="3-3-2-Vue-Cli的使用"><a href="#3-3-2-Vue-Cli的使用" class="headerlink" title="3.3.2 Vue Cli的使用"></a>3.3.2 Vue Cli的使用</h3><p>安装Vue脚手架</p>
+<p><code>npm install -g @vue/cli</code></p>
+<p>注意： 上面安装的是Vue Cli 3的版本，如果需要安装Vue Cli 2的方式初始化项目是不可以的</p>
+<blockquote>
+<p>notes: 注意3版本是不能直接兼容2版本的，需要使用如下命令拉取2版本的模板：<code>npm install @vue/cli-init -g</code>，</p>
+<p>vue cli 2初始化项目: <code>vue init wepack [my-project]</code></p>
+<p>vue cli 3初始化项目： <code>vue create [my-project]</code></p>
+</blockquote>
+<p><strong>vue-cli3 与 2的区别</strong></p>
+<ul>
+<li>vue-cli3 是基于webpack 4打造，vue-cli2 还是基于webpack 3</li>
+<li>vue-cli3的设计原则是“0配置”， 移除了配置文件的<code>.build</code>和<code>config</code>等目录</li>
+<li>vue-cli3提供了vue ui命令，提供了可视化配置，更加人性化</li>
+<li>移除了static文件夹，新增了public文件夹，并且index.html移动到public中</li>
+</ul>
+<p><strong>Runtime-Compiler和Runtime-only的区别</strong></p>
+<ul>
+<li><p>如果你需要在客户端编译模板（例如，向template选项传入一个子模板中的非dom和HTML挂载到一个元素），你需要带有编译器的版本</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-comment">// 这种情况需要编译器（compiler）</span><br><span class="hljs-keyword">new</span> Vue(&#123;<br>	<span class="hljs-attr">template</span>: <span class="hljs-string">&#x27;&lt;div&gt;&#123;&#123; hi &#125;&#125;&lt;/div&gt;&#x27;</span><br>&#125;)<br><br><span class="hljs-comment">// 这种情况不需要编译</span><br><span class="hljs-keyword">new</span> Vue(&#123;<br>	render (h) &#123;<br>		<span class="hljs-keyword">return</span> h(<span class="hljs-string">&#x27;div&#x27;</span>, <span class="hljs-built_in">this</span>.hi)<br>	&#125;<br>&#125;)<br></code></pre></td></tr></table></figure>
+
+
+
+<p>在使用vue-loader或vueify时, *.vue文件中的模板会在构建时(build time)预编译(precompilet为Javascript,最终生成的bundle中你不再需要编译器(compilen),因此可以直接使用只含有进行时的构建版本runtime ontyl.</p>
+<p>由于只含有运行时构建版本runtime-only)t完整构建版本full-bulil轻大约30%,你应该尽可能使用只含有运行时的构建版本,如果你还是希望使用完整构建版本,则常要在打包器中配置名</p>
+<p>由于运行时版本的构建比其全面版本的重量轻约30%,因此你可以随时使用它,如果你仍然希望使用完整版本,则需要在期M程序中配置别名:</p>
+</li>
+</ul>
+<p><em><strong>vue 3目录结构详解</strong></em></p>
+<figure class="highlight stylus"><table><tr><td class="code"><pre><code class="hljs stylus">public/ 相当于CLI2中的static目录<br><span class="hljs-attribute">src</span>/ 源代码目录<br><span class="hljs-selector-class">.browserslistrc</span> 浏览器相关支持情况<br><span class="hljs-selector-class">.gitignore</span> git忽略的文件<br>babel<span class="hljs-selector-class">.config</span><span class="hljs-selector-class">.js</span> ES语法转换<br>postcss<span class="hljs-selector-class">.config</span><span class="hljs-selector-class">.js</span> CSS相关转换<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-3-3-补：匿名函数"><a href="#3-3-3-补：匿名函数" class="headerlink" title="3.3.3 补：匿名函数"></a>3.3.3 补：匿名函数</h3><p>ES5函数写法：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> obj = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">aaa</span>(<span class="hljs-params"></span>) </span>&#123;<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">100</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>匿名函数的写法：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> obj = <span class="hljs-function">() =&gt;</span> &#123;<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">100</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>放入一个参数</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> power = <span class="hljs-function"><span class="hljs-params">num</span> =&gt;</span> &#123;<br>	<span class="hljs-keyword">return</span> num * num<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>放入两个参数</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> sum = <span class="hljs-function">(<span class="hljs-params">num1, num2</span>) =&gt;</span> &#123;<br>	<span class="hljs-keyword">return</span> num1 + num2<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>函数中</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-comment">// 函数代码块中有多行代码时</span><br><span class="hljs-keyword">const</span> test = <span class="hljs-function">() =&gt;</span> &#123;<br>	<span class="hljs-comment">// 1.打印hello world</span><br>	<span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;Hello World&quot;</span>);<br>	<span class="hljs-comment">// 2.打印Hello Vuejs</span><br>	<span class="hljs-built_in">console</span>.log(<span class="hljs-string">&#x27;Hello Vuejs&#x27;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-comment">// 函数代码块中只有一行代码</span><br><span class="hljs-keyword">const</span> sum = <span class="hljs-function">(<span class="hljs-params">num1, num2</span>) =&gt;</span> &#123;<br>	<span class="hljs-keyword">return</span> num1 * num2<br>&#125;<br><span class="hljs-comment">// 可以简写为</span><br><span class="hljs-keyword">const</span> mul = <span class="hljs-function">(<span class="hljs-params">num1, num2</span>) =&gt;</span> num1 * num2<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-comment">// 只有一行打印时</span><br><span class="hljs-keyword">const</span> demo = <span class="hljs-function">() =&gt;</span> &#123;<br>	<span class="hljs-built_in">console</span>.log(<span class="hljs-string">&#x27;Hello Demo&#x27;</span>);<br>&#125;<br><span class="hljs-comment">// 可以简写为</span><br><span class="hljs-keyword">const</span> demo = <span class="hljs-function">() =&gt;</span> <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&#x27;Hello Demo&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<p> <strong>箭头函数的this使用</strong></p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><code class="hljs javascript"><span class="hljs-comment">// 什么时候使用箭头</span><br><span class="hljs-built_in">setTimeout</span>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>&#123;<br>	<span class="hljs-built_in">console</span>.log(<span class="hljs-built_in">this</span>);<br>&#125;, <span class="hljs-number">1000</span>)<br><br><span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =&gt;</span> &#123;<br>	<span class="hljs-built_in">console</span>.log(<span class="hljs-built_in">this</span>);<br>&#125;, <span class="hljs-number">1000</span>)<br><span class="hljs-comment">// 问题: 箭头函数中的this是如何查找的</span><br><span class="hljs-comment">// 结论：向外层作用域中，一层层查找this, 直到有this的定义</span><br><span class="hljs-keyword">const</span> obj = &#123;<br>    <span class="hljs-function"><span class="hljs-title">aaa</span>(<span class="hljs-params"></span>)</span> &#123;<br>        <span class="hljs-built_in">setTimeout</span>(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>&#123;<br>            <span class="hljs-built_in">console</span>.log(<span class="hljs-built_in">this</span>); <span class="hljs-comment">// window</span><br>        &#125;)<br>    &#125;<br>    <br>    <span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =&gt;</span> &#123;<br>        <span class="hljs-built_in">console</span>.log(<span class="hljs-built_in">this</span>); <span class="hljs-comment">// obj对象</span><br>    &#125;)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%89%8D%E7%AB%AF/" rel="tag"># 前端</a>
+              <a href="/tags/Vue/" rel="tag"># Vue</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/06/24/Vue%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/" rel="prev" title="Vue学习笔记（二）-组件">
+      <i class="fa fa-chevron-left"></i> Vue学习笔记（二）-组件
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/06/24/Vue%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/" rel="next" title="Vue学习笔记（四）- Vue Router">
+      Vue学习笔记（四）- Vue Router <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#3-%E5%89%8D%E7%AB%AF%E6%A8%A1%E5%9D%97%E5%8C%96"><span class="nav-number">1.</span> <span class="nav-text">3 前端模块化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-ES%E6%A8%A1%E5%9D%97%E5%8C%96%E7%9A%84%E5%AF%BC%E5%85%A5%E5%92%8C%E5%AF%BC%E5%87%BA"><span class="nav-number">1.1.</span> <span class="nav-text">3.1 ES模块化的导入和导出</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-WebPack"><span class="nav-number">1.2.</span> <span class="nav-text">3.2 WebPack</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-1-%E5%89%8D%E6%A8%A1%E5%9D%97%E5%8C%96"><span class="nav-number">1.2.1.</span> <span class="nav-text">3.2.1 前模块化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-2-WebPack%E5%AE%89%E8%A3%85"><span class="nav-number">1.2.2.</span> <span class="nav-text">3.2.2 WebPack安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-3-WebPack%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8"><span class="nav-number">1.2.3.</span> <span class="nav-text">3.2.3 WebPack简单使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-4-loader"><span class="nav-number">1.2.4.</span> <span class="nav-text">3.2.4 loader</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-3-Vue-Cli"><span class="nav-number">1.3.</span> <span class="nav-text">3.3 Vue Cli</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-1-%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.3.1.</span> <span class="nav-text">3.3.1 介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-2-Vue-Cli%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-number">1.3.2.</span> <span class="nav-text">3.3.2 Vue Cli的使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-3-%E8%A1%A5%EF%BC%9A%E5%8C%BF%E5%90%8D%E5%87%BD%E6%95%B0"><span class="nav-number">1.3.3.</span> <span class="nav-text">3.3.3 补：匿名函数</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">QinTianJun</p>
+  <div class="site-description" itemprop="description">一个菜鸟的成长之路</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QinTianJun</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
