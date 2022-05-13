@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="zh-CN,en,default">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.qintianjun.top","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Kubernetes组件etcd相关知识点总结，使用minio+velero方式备份etcd数据">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kubernetes组件etcd相关知识点总结">
+<meta property="og:url" content="http://www.qintianjun.top/2022/05/13/Kubernetes%E7%BB%84%E4%BB%B6etcd%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86%E7%82%B9%E6%80%BB%E7%BB%93/index.html">
+<meta property="og:site_name" content="Freedom_ATX&#39;s Blog">
+<meta property="og:description" content="Kubernetes组件etcd相关知识点总结，使用minio+velero方式备份etcd数据">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2022/05/13/vN6nTPK83OJewMd.png">
+<meta property="og:image" content="https://s2.loli.net/2022/05/13/YV4om15QUNu89Ag.png">
+<meta property="og:image" content="https://s2.loli.net/2022/05/13/1rXgGoMKVnOU5cC.png">
+<meta property="og:image" content="https://s2.loli.net/2022/05/13/zD6IdlZpwAmCPQg.png">
+<meta property="og:image" content="https://s2.loli.net/2022/05/13/HBEKUIO9bxYSigL.png">
+<meta property="og:image" content="https://s2.loli.net/2022/05/13/OxTXUh2bA5m6ZFw.png">
+<meta property="og:image" content="https://s2.loli.net/2022/05/13/ovRQdty6xKDL3Ia.png">
+<meta property="og:image" content="https://s2.loli.net/2022/05/13/q2fUDtQF7oCM6gx.png">
+<meta property="og:image" content="https://s2.loli.net/2022/05/13/ZW6TrV8tgJ4sk3d.png">
+<meta property="article:published_time" content="2022-05-13T01:33:25.000Z">
+<meta property="article:modified_time" content="2022-05-13T01:41:48.020Z">
+<meta property="article:author" content="QinTianJun">
+<meta property="article:tag" content="Ops">
+<meta property="article:tag" content="k8s">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2022/05/13/vN6nTPK83OJewMd.png">
+
+<link rel="canonical" href="http://www.qintianjun.top/2022/05/13/Kubernetes%E7%BB%84%E4%BB%B6etcd%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86%E7%82%B9%E6%80%BB%E7%BB%93/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Kubernetes组件etcd相关知识点总结 | Freedom_ATX's Blog</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?b8f33cffae5a7adb95d2bdb812879d09";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Freedom_ATX's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Freedom_ATX's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.qintianjun.top/2022/05/13/Kubernetes%E7%BB%84%E4%BB%B6etcd%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86%E7%82%B9%E6%80%BB%E7%BB%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/logo.jpeg">
+      <meta itemprop="name" content="QinTianJun">
+      <meta itemprop="description" content="一个菜鸟的成长之路">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Freedom_ATX's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Kubernetes组件etcd相关知识点总结
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-05-13 09:33:25 / 修改时间：09:41:48" itemprop="dateCreated datePublished" datetime="2022-05-13T09:33:25+08:00">2022-05-13</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Ops/" itemprop="url" rel="index"><span itemprop="name">Ops</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Ops/Cloud/" itemprop="url" rel="index"><span itemprop="name">Cloud</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Kubernetes组件etcd相关知识点总结"><a href="#Kubernetes组件etcd相关知识点总结" class="headerlink" title="Kubernetes组件etcd相关知识点总结"></a>Kubernetes组件etcd相关知识点总结</h1><p>本文总结补充自马哥教育相关视频</p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>etcd是CoreOS团队于2013年6月发起的开源项目，其的目标是构建一个高可用的分布式键值（key-value）数据库。Etcd内部采用raft协议作为一致性算法等基于Go语言实现。</p>
+<p>官方网站：<a target="_blank" rel="noopener" href="https://etcd.io/">https://etcd.io/</a> </p>
+<p>github 地址：<a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd">https://github.com/etcd-io/etcd</a></p>
+<p>官方硬件推荐：<a target="_blank" rel="noopener" href="https://etcd.io/docs/v3.4/op-guide/hardware/">https://etcd.io/docs/v3.4/op-guide/hardware/</a></p>
+<p>etcd具有下面这些属性: </p>
+<ul>
+<li>完全复制:集群中的每个节点都可以使用完整的存档</li>
+<li>高可用性:Etcd可用于避免硬件的单点故障或网络问题</li>
+<li>一致性:每次读取都会返回跨多主机的最新写入 </li>
+<li>简单:包括一个定义良好、面向用户的API(gRPC) </li>
+<li>安全:实现了带有可选的客户端证书身份验证的自动化TLS </li>
+<li>快速:每秒10000次写入的基准速度 </li>
+<li>可靠:使用Raft算法实现了存储的合理分布Etcd的工作原理</li>
+</ul>
+<h2 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h2><p>etcd可以直接将启动参数写在service文件中</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><code class="hljs bash">[Unit]<br>Description=Etcd Server<br>After=network.target<br>After=network-online.target<br>Wants=network-online.target<br>Documentation=https://github.com/coreos<br><br>[Service]<br>Type=notify<br>WorkingDirectory=/var/lib/etcd/  <span class="hljs-comment"># 数据保存目录</span><br>ExecStart=/opt/kube/bin/etcd \  <span class="hljs-comment"># 二进制文件路径</span><br>  --name=etcd-192.168.174.134 \<br>  --cert-file=/etc/kubernetes/ssl/etcd.pem \<br>  --key-file=/etc/kubernetes/ssl/etcd-key.pem \<br>  --peer-cert-file=/etc/kubernetes/ssl/etcd.pem \<br>  --peer-key-file=/etc/kubernetes/ssl/etcd-key.pem \<br>  --trusted-ca-file=/etc/kubernetes/ssl/ca.pem \<br>  --peer-trusted-ca-file=/etc/kubernetes/ssl/ca.pem \<br>  --initial-advertise-peer-urls=https://192.168.174.134:2380 \  <span class="hljs-comment"># 通告自己的集群端口</span><br>  --listen-peer-urls=https://192.168.174.134:2380 \  <span class="hljs-comment"># 集群之间通讯端口</span><br>  --listen-client-urls=https://192.168.174.134:2379,http://127.0.0.1:2379 \  <span class="hljs-comment"># 客户端访问地址</span><br>  --advertise-client-urls=https://192.168.174.134:2379 \  <span class="hljs-comment"># 通告自己的客户端端口</span><br>  --initial-cluster-token=etcd-cluster-0 \  <span class="hljs-comment"># 创建集群使用的token，一个集群内的节点保持一致</span><br>  --initial-cluster=etcd-192.168.174.134=https://192.168.174.134:2380,etcd-192.168.174.128=https://192.168.174.128:2380,etcd-192.168.174.135=https://192.168.174.135:2380 \  <span class="hljs-comment"># 集群所有节点信息 </span><br>  --initial-cluster-state=new \  <span class="hljs-comment"># 新建集群的时候的值为new, 如果是已经存在的集群为existing</span><br>  --data-dir=/var/lib/etcd \  <span class="hljs-comment"># 数据目录路径</span><br>  --snapshot-count=50000 \<br>  --auto-compaction-retention=1 \<br>  --max-request-bytes=10485760 \<br>  --auto-compaction-mode=periodic \<br>  --quota-backend-bytes=8589934592<br>Restart=always<br>RestartSec=15<br>LimitNOFILE=65536<br>OOMScoreAdjust=-999<br><br>[Install]<br>WantedBy=multi-user.target<br></code></pre></td></tr></table></figure>
+
+<p>或者可以不将启动参数写在service文件中，使用config文件方式定义，例如：</p>
+<p>创建etcd配置文件</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><code class="hljs bash">vim /etc/etcd/etcd.conf<br><br><span class="hljs-comment"># 节点名称</span><br>ETCD_NAME=<span class="hljs-string">&quot;etcd0&quot;</span><br><span class="hljs-comment"># 指定数据文件存放位置</span><br>ETCD_DATA_DIR=<span class="hljs-string">&quot;/var/lib/etcd/&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>创建systemd配置文件</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><code class="hljs bash">vim /etc/systemd/system/etcd.service<br><br>[Unit]<br>Description=Etcd Server<br>After=network.target<br>After=network-online.target<br>Wants=network-online.target<br> <br>[Service]<br>User=root<br>Type=notify<br>WorkingDirectory=/var/lib/etcd/<br><span class="hljs-comment">## 根据实际情况修改EnvironmentFile和ExecStart这两个参数值</span><br><span class="hljs-comment">## 1.EnvironmentFile即配置文件的位置，注意“-”不能少</span><br>EnvironmentFile=-/etc/etcd/etcd.conf<br><span class="hljs-comment">## 2.ExecStart即etcd启动程序位置</span><br>ExecStart=/usr/local/bin/etcd<br>Restart=on-failure<br>LimitNOFILE=65536<br> <br>[Install]<br>WantedBy=multi-user.target<br></code></pre></td></tr></table></figure>
+
+<h2 id="etcd-的基本使用"><a href="#etcd-的基本使用" class="headerlink" title="etcd 的基本使用"></a>etcd 的基本使用</h2><p>etcd有多个不同的API访问版本，v1版本已经废弃，etcd v2 和 v3本质上是共享同一套raft 协议代码的两个独立应用，接口不一样，存储不一样，数据互相隔离，也就是说如果从etcd v2 升级到 v3 原来v2 的数据还是只能用v2 的接口访问，v3 的接口创建的数据也只能通过v3 的接口访问</p>
+<h3 id="增加和修改，如果存在则替换"><a href="#增加和修改，如果存在则替换" class="headerlink" title="增加和修改，如果存在则替换"></a>增加和修改，如果存在则替换</h3><figure class="highlight pf"><table><tr><td class="code"><pre><code class="hljs pf">查询<br>etcdctl put <span class="hljs-variable">&lt;键名&gt;</span> <span class="hljs-variable">&lt;键值&gt;</span> <br>删除<br>etcdctl get <span class="hljs-variable">&lt;键名&gt;</span> <br>查看集群状态<br>etcdctl del <span class="hljs-variable">&lt;键名&gt;</span><br>watch命令<br>etcdctl endpoint status --write-out=<span class="hljs-built_in">table</span> <span class="hljs-comment"># watch是监听键或前缀发生改变的事件流。</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="对某个key监听操作，当-x2F-key1发生改变时，会返回最新值"><a href="#对某个key监听操作，当-x2F-key1发生改变时，会返回最新值" class="headerlink" title="对某个key监听操作，当&#x2F;key1发生改变时，会返回最新值"></a>对某个key监听操作，当&#x2F;key1发生改变时，会返回最新值</h3><p><code>etcdctl watch /key1 </code></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 在node1中监听/data</span><br>[root@node1 ~]<span class="hljs-comment"># etcdctl watch /data</span><br><span class="hljs-comment"># 在node2中给/data节点赋值</span><br>[root@node2 ~]<span class="hljs-comment"># etcdctl put /data &quot;hello etcd&quot;</span><br>OK<br>此时node1监听到节点对应值<br>[root@node1 ~]<span class="hljs-comment"># etcdctl watch /data</span><br>PUT<br>/data<br>hello etcd<br></code></pre></td></tr></table></figure>
+
+<h3 id="监听key前缀"><a href="#监听key前缀" class="headerlink" title="监听key前缀"></a>监听key前缀</h3><p><code>etcdctl watch /key --prefix </code></p>
+<h3 id="监听到改变后执行相关操作"><a href="#监听到改变后执行相关操作" class="headerlink" title="监听到改变后执行相关操作"></a>监听到改变后执行相关操作</h3><p><code>etcdctl watch /key1 -- etcdctl member list</code></p>
+<h3 id="etcd-集群成员的心跳信息"><a href="#etcd-集群成员的心跳信息" class="headerlink" title="etcd 集群成员的心跳信息"></a>etcd 集群成员的心跳信息</h3><figure class="highlight bash"><table><tr><td class="code"><pre><code class="hljs bash">root@node1:~<span class="hljs-comment"># export NODE_IPS=&quot;192.168.174.134 192.168.174.128 192.168.174.135&quot;</span><br><br>root@node2:~<span class="hljs-comment"># for ip in $&#123;NODE_IPS&#125;; do ETCDCTL_API=3 /usr/local/bin/etcdctl --endpoints=https://$&#123;ip&#125;:2379 --cacert=/etc/kubernetes/ssl/ca.pem --cert=/etc/kubernetes/ssl/etcd.pem --key=/etc/kubernetes/ssl/etcd-key.pem endpoint health; done</span><br>https://192.168.174.134:2379 is healthy: successfully committed proposal: took = 14.611795ms<br>https://192.168.174.128:2379 is healthy: successfully committed proposal: took = 11.889947ms<br>https://192.168.174.135:2379 is healthy: successfully committed proposal: took = 12.589934ms<br></code></pre></td></tr></table></figure>
+
+<h3 id="etcd-集群的成员信息"><a href="#etcd-集群的成员信息" class="headerlink" title="etcd 集群的成员信息"></a>etcd 集群的成员信息</h3><figure class="highlight bash"><table><tr><td class="code"><pre><code class="hljs bash">------------------------------+------------+<br>[root@node1 ~]<span class="hljs-comment"># ETCDCTL_API=3 etcdctl --write-out=table member list --endpoints=https://192.168.174.134:2379 --cacert=/etc/kubernetes/ssl/ca.pem --cert=/etc/kubernetes/ssl/etcd.pem --key=/etc/kubernetes/ssl/etcd-key.pem</span><br>+------------------+---------+----------------------+------------------------------+------------------------------+------------+<br>|        ID        | STATUS  |         NAME         |          PEER ADDRS          |         CLIENT ADDRS         | IS LEARNER |<br>+------------------+---------+----------------------+------------------------------+------------------------------+------------+<br>| 65f8d952bfce7d85 | started | etcd-192.168.174.128 | https://192.168.174.128:2380 | https://192.168.174.128:2379 |      <span class="hljs-literal">false</span> |<br>| 9d16670b8c95b723 | started | etcd-192.168.174.134 | https://192.168.174.134:2380 | https://192.168.174.134:2379 |      <span class="hljs-literal">false</span> |<br>| b36760bf3ef3fc98 | started | etcd-192.168.174.135 | https://192.168.174.135:2380 | https://192.168.174.135:2379 |      <span class="hljs-literal">false</span> |<br>+------------------+---------+----------------------+------------------------------+------------------------------+------------+<br></code></pre></td></tr></table></figure>
+
+<h3 id="显示etcd群集的详细信息"><a href="#显示etcd群集的详细信息" class="headerlink" title="显示etcd群集的详细信息"></a>显示etcd群集的详细信息</h3><figure class="highlight bash"><table><tr><td class="code"><pre><code class="hljs bash">[root@node1 ~]<span class="hljs-comment"># export NODE_IPS=&quot;192.168.174.128 192.168.174.134 192.168.174.135&quot;</span><br>[root@node1 ~]<span class="hljs-comment"># for ip in $&#123;NODE_IPS&#125;; do ETCDCTL_API=3 etcdctl --write-out=table endpoint status --endpoints=https://$&#123;ip&#125;:2379 --cacert=/etc/kubernetes/ssl/ca.pem --cert=/etc/kubernetes/ssl/etcd.pem --key=/etc/kubernetes/ssl/etcd-key.pem; done</span><br>+------------------------------+------------------+---------+---------+-----------+------------+-----------+------------+--------------------+--------+<br>|           ENDPOINT           |        ID        | VERSION | DB SIZE | IS LEADER | IS LEARNER | RAFT TERM | RAFT INDEX | RAFT APPLIED INDEX | ERRORS |<br>+------------------------------+------------------+---------+---------+-----------+------------+-----------+------------+--------------------+--------+<br>| https://192.168.174.128:2379 | 65f8d952bfce7d85 |  3.4.13 |   20 kB |     <span class="hljs-literal">false</span> |      <span class="hljs-literal">false</span> |       768 |         32 |                 32 |        |<br>+------------------------------+------------------+---------+---------+-----------+------------+-----------+------------+--------------------+--------+<br>+------------------------------+------------------+---------+---------+-----------+------------+-----------+------------+--------------------+--------+<br>|           ENDPOINT           |        ID        | VERSION | DB SIZE | IS LEADER | IS LEARNER | RAFT TERM | RAFT INDEX | RAFT APPLIED INDEX | ERRORS |<br>+------------------------------+------------------+---------+---------+-----------+------------+-----------+------------+--------------------+--------+<br>| https://192.168.174.134:2379 | 9d16670b8c95b723 |  3.4.13 |   25 kB |     <span class="hljs-literal">false</span> |      <span class="hljs-literal">false</span> |       768 |         32 |                 32 |        |<br>+------------------------------+------------------+---------+---------+-----------+------------+-----------+------------+--------------------+--------+<br>+------------------------------+------------------+---------+---------+-----------+------------+-----------+------------+--------------------+--------+<br>|           ENDPOINT           |        ID        | VERSION | DB SIZE | IS LEADER | IS LEARNER | RAFT TERM | RAFT INDEX | RAFT APPLIED INDEX | ERRORS |<br>+------------------------------+------------------+---------+---------+-----------+------------+-----------+------------+--------------------+--------+<br>| https://192.168.174.135:2379 | b36760bf3ef3fc98 |  3.4.13 |   20 kB |      <span class="hljs-literal">true</span> |      <span class="hljs-literal">false</span> |       768 |         32 |                 32 |        |<br>+------------------------------+------------------+---------+---------+-----------+------------+-----------+------------+--------------------+--------+<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="查看所有的key"><a href="#查看所有的key" class="headerlink" title="查看所有的key"></a>查看所有的key</h3><figure class="highlight bash"><table><tr><td class="code"><pre><code class="hljs bash">[root@node1 ~]<span class="hljs-comment"># ETCDCTL_API=3 etcdctl get / --prefix --keys-only  #以路径的⽅式所有key信息</span><br>/data<br>/data/user<br>...<br></code></pre></td></tr></table></figure>
+
+<h2 id="etcd-中查询k8s相关信息"><a href="#etcd-中查询k8s相关信息" class="headerlink" title="etcd 中查询k8s相关信息"></a>etcd 中查询k8s相关信息</h2><h3 id="查看所有的key-1"><a href="#查看所有的key-1" class="headerlink" title="查看所有的key"></a>查看所有的key</h3><figure class="highlight awk"><table><tr><td class="code"><pre><code class="hljs awk">root@etcd01:~<span class="hljs-comment"># ETCDCTL_API=3 etcdctl get / --prefix --keys-only  #以路径的⽅式所有key信息</span><br>......<br><span class="hljs-regexp">/registry/</span>services<span class="hljs-regexp">/endpoints/</span>kubernetes-dashboard/kubernetes-dashboard<br><br><span class="hljs-regexp">/registry/</span>services<span class="hljs-regexp">/specs/</span>default/kubernetes<br><br><span class="hljs-regexp">/registry/</span>services<span class="hljs-regexp">/specs/</span>kube-system/kube-dns<br><br><span class="hljs-regexp">/registry/</span>services<span class="hljs-regexp">/specs/</span>kubernetes-dashboard/dashboard-metrics-scraper<br><br><span class="hljs-regexp">/registry/</span>services<span class="hljs-regexp">/specs/</span>kubernetes-dashboard/kubernetes-dashboard<br></code></pre></td></tr></table></figure>
+
+<h3 id="查看kubernetes中所有pod的信息"><a href="#查看kubernetes中所有pod的信息" class="headerlink" title="查看kubernetes中所有pod的信息"></a>查看kubernetes中所有pod的信息</h3><figure class="highlight awk"><table><tr><td class="code"><pre><code class="hljs awk">root@etcd01:~<span class="hljs-comment"># ETCDCTL_API=3 etcdctl get / --prefix --keys-only | grep pods</span><br><span class="hljs-regexp">/registry/</span>pods<span class="hljs-regexp">/kube-system/</span>calico-kube-controllers-<span class="hljs-number">647</span>f956d86-srt9s<br><span class="hljs-regexp">/registry/</span>pods<span class="hljs-regexp">/kube-system/</span>calico-node-<span class="hljs-number">7</span>f2kc<br><span class="hljs-regexp">/registry/</span>pods<span class="hljs-regexp">/kube-system/</span>calico-node-ccv26<br><span class="hljs-regexp">/registry/</span>pods<span class="hljs-regexp">/kube-system/</span>calico-node-kw499<br><span class="hljs-regexp">/registry/</span>pods<span class="hljs-regexp">/kube-system/</span>calico-node-r4kvx<br><span class="hljs-regexp">/registry/</span>pods<span class="hljs-regexp">/kube-system/</span>calico-node-rqm8f<br><span class="hljs-regexp">/registry/</span>pods<span class="hljs-regexp">/kube-system/</span>calico-node-vjm2k<br><span class="hljs-regexp">/registry/</span>pods<span class="hljs-regexp">/kube-system/</span>coredns-<span class="hljs-number">55</span>d54f7cfb-<span class="hljs-number">74</span>vh8<br><span class="hljs-regexp">/registry/</span>pods<span class="hljs-regexp">/kubernetes-dashboard/</span>dashboard-metrics-scraper-<span class="hljs-number">856586</span>f554-<span class="hljs-number">595</span>fb<br><span class="hljs-regexp">/registry/</span>pods<span class="hljs-regexp">/kubernetes-dashboard/</span>kubernetes-dashboard-<span class="hljs-number">79</span>b875f7f8-<span class="hljs-number">5</span>qzn4<br><span class="hljs-comment">#在kubernetes中查看pod信息</span><br>root@k8s-master01:~<span class="hljs-comment"># kubectl get pods -A</span><br>NAMESPACE              NAME                                         READY   STATUS    RESTARTS   AGE<br>kube-system            calico-kube-controllers-<span class="hljs-number">647</span>f956d86-srt9s     <span class="hljs-number">1</span>/<span class="hljs-number">1</span>     Running   <span class="hljs-number">0</span>          <span class="hljs-number">42</span>h<br>kube-system            calico-node-<span class="hljs-number">7</span>f2kc                            <span class="hljs-number">1</span>/<span class="hljs-number">1</span>     Running   <span class="hljs-number">2</span>          <span class="hljs-number">11</span>d<br>kube-system            calico-node-ccv26                            <span class="hljs-number">1</span>/<span class="hljs-number">1</span>     Running   <span class="hljs-number">2</span>          <span class="hljs-number">11</span>d<br>kube-system            calico-node-kw499                            <span class="hljs-number">0</span>/<span class="hljs-number">1</span>     Running   <span class="hljs-number">1</span>          <span class="hljs-number">6</span>d<br>kube-system            calico-node-r4kvx                            <span class="hljs-number">1</span>/<span class="hljs-number">1</span>     Running   <span class="hljs-number">5</span>          <span class="hljs-number">11</span>d<br>kube-system            calico-node-rqm8f                            <span class="hljs-number">1</span>/<span class="hljs-number">1</span>     Running   <span class="hljs-number">2</span>          <span class="hljs-number">11</span>d<br>kube-system            calico-node-vjm2k                            <span class="hljs-number">1</span>/<span class="hljs-number">1</span>     Running   <span class="hljs-number">2</span>          <span class="hljs-number">11</span>d<br>kube-system            coredns-<span class="hljs-number">55</span>d54f7cfb-<span class="hljs-number">74</span>vh8                     <span class="hljs-number">1</span>/<span class="hljs-number">1</span>     Running   <span class="hljs-number">0</span>          <span class="hljs-number">42</span>h<br>kubernetes-dashboard   dashboard-metrics-scraper-<span class="hljs-number">856586</span>f554-<span class="hljs-number">595</span>fb   <span class="hljs-number">1</span>/<span class="hljs-number">1</span>     Running   <span class="hljs-number">0</span>          <span class="hljs-number">42</span>h<br>kubernetes-dashboard   kubernetes-dashboard-<span class="hljs-number">79</span>b875f7f8-<span class="hljs-number">5</span>qzn4        <span class="hljs-number">1</span>/<span class="hljs-number">1</span>     Running   <span class="hljs-number">1</span>          <span class="hljs-number">42</span>h<br></code></pre></td></tr></table></figure>
+
+<h3 id="查看kubernetes中所有namespace的信息"><a href="#查看kubernetes中所有namespace的信息" class="headerlink" title="查看kubernetes中所有namespace的信息"></a>查看kubernetes中所有namespace的信息</h3><figure class="highlight gradle"><table><tr><td class="code"><pre><code class="hljs gradle">root@etcd01:~# ETCDCTL_API=<span class="hljs-number">3</span> etcdctl get / --prefix --keys-only | <span class="hljs-keyword">grep</span> namespaces<br><span class="hljs-regexp">/registry/</span>namespaces/<span class="hljs-keyword">default</span><br><span class="hljs-regexp">/registry/</span>namespaces/kube-node-lease<br><span class="hljs-regexp">/registry/</span>namespaces/kube-<span class="hljs-keyword">public</span><br><span class="hljs-regexp">/registry/</span>namespaces/kube-system<br><span class="hljs-regexp">/registry/</span>namespaces/kubernetes-dashboard<br><br>#在kubernetes中查看namespaces信息<br>root@k8s-master01:~# kubectl get namespaces <br>NAME                   STATUS   AGE<br><span class="hljs-keyword">default</span>                Active   <span class="hljs-number">11</span>d<br>kube-node-lease        Active   <span class="hljs-number">11</span>d<br>kube-<span class="hljs-keyword">public</span>            Active   <span class="hljs-number">11</span>d<br>kube-system            Active   <span class="hljs-number">11</span>d<br>kubernetes-dashboard   Active   <span class="hljs-number">10</span>d<br></code></pre></td></tr></table></figure>
+
+<h3 id="查看kubernetes中所有deployments的信息"><a href="#查看kubernetes中所有deployments的信息" class="headerlink" title="查看kubernetes中所有deployments的信息"></a>查看kubernetes中所有deployments的信息</h3><figure class="highlight awk"><table><tr><td class="code"><pre><code class="hljs awk">root@etcd01:~<span class="hljs-comment"># ETCDCTL_API=3 etcdctl get / --prefix --keys-only | grep deployments</span><br><span class="hljs-regexp">/registry/</span>deployments<span class="hljs-regexp">/kube-system/</span>calico-kube-controllers<br><span class="hljs-regexp">/registry/</span>deployments<span class="hljs-regexp">/kube-system/</span>coredns<br><span class="hljs-regexp">/registry/</span>deployments<span class="hljs-regexp">/kubernetes-dashboard/</span>dashboard-metrics-scraper<br><span class="hljs-regexp">/registry/</span>deployments<span class="hljs-regexp">/kubernetes-dashboard/</span>kubernetes-dashboard<br><br><span class="hljs-comment">#在kubernetes中查看deployments</span><br>root@k8s-master01:~<span class="hljs-comment"># kubectl get deployments -A</span><br>NAMESPACE              NAME                        READY   UP-TO-DATE   AVAILABLE   AGE<br>kube-system            calico-kube-controllers     <span class="hljs-number">1</span>/<span class="hljs-number">1</span>     <span class="hljs-number">1</span>            <span class="hljs-number">1</span>           <span class="hljs-number">11</span>d<br>kube-system            coredns                     <span class="hljs-number">1</span>/<span class="hljs-number">1</span>     <span class="hljs-number">1</span>            <span class="hljs-number">1</span>           <span class="hljs-number">11</span>d<br>kubernetes-dashboard   dashboard-metrics-scraper   <span class="hljs-number">1</span>/<span class="hljs-number">1</span>     <span class="hljs-number">1</span>            <span class="hljs-number">1</span>           <span class="hljs-number">10</span>d<br>kubernetes-dashboard   kubernetes-dashboard        <span class="hljs-number">1</span>/<span class="hljs-number">1</span>     <span class="hljs-number">1</span>            <span class="hljs-number">1</span>           <span class="hljs-number">10</span>d<br></code></pre></td></tr></table></figure>
+
+<h3 id="查看calico网络组件信息"><a href="#查看calico网络组件信息" class="headerlink" title="查看calico网络组件信息"></a>查看calico网络组件信息</h3><figure class="highlight awk"><table><tr><td class="code"><pre><code class="hljs awk">root@etcd01:~<span class="hljs-comment"># ETCDCTL_API=3 etcdctl get / --prefix --keys-only | grep calico</span><br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>assignment<span class="hljs-regexp">/ipv4/</span>block/<span class="hljs-number">172.20</span>.<span class="hljs-number">122.128</span>-<span class="hljs-number">26</span><br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>assignment<span class="hljs-regexp">/ipv4/</span>block/<span class="hljs-number">172.20</span>.<span class="hljs-number">135.128</span>-<span class="hljs-number">26</span><br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>assignment<span class="hljs-regexp">/ipv4/</span>block/<span class="hljs-number">172.20</span>.<span class="hljs-number">32.128</span>-<span class="hljs-number">26</span><br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>assignment<span class="hljs-regexp">/ipv4/</span>block/<span class="hljs-number">172.20</span>.<span class="hljs-number">58.192</span>-<span class="hljs-number">26</span><br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>assignment<span class="hljs-regexp">/ipv4/</span>block/<span class="hljs-number">172.20</span>.<span class="hljs-number">85.192</span>-<span class="hljs-number">26</span><br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>handle/ipip-tunnel-addr-k8s-master01<br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>handle/ipip-tunnel-addr-k8s-master02<br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>handle/ipip-tunnel-addr-k8s-node01<br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>handle/ipip-tunnel-addr-k8s-node02<br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>handle/ipip-tunnel-addr-k8s-node03<br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>handle/k8s-pod-network.<span class="hljs-number">44820</span>babdec34cd55e26d1f73bd1d62dbffc12cb48453380b9d37b8e27cacfbc<br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>handle/k8s-pod-network.<span class="hljs-number">5</span>bf9b2f255631210515d4b6722cc317f0f81fdacf60f47f3746fbcde8a239c0d<br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>handle/k8s-pod-network.b33e81d8d1d9de9cd404d9de66c1615c4bcfcbe9d93fc92972f0fd79f6f0d983<br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>host<span class="hljs-regexp">/k8s-master01/i</span>pv4<span class="hljs-regexp">/block/</span><span class="hljs-number">172.20</span>.<span class="hljs-number">32.128</span>-<span class="hljs-number">26</span><br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>host<span class="hljs-regexp">/k8s-master02/i</span>pv4<span class="hljs-regexp">/block/</span><span class="hljs-number">172.20</span>.<span class="hljs-number">122.128</span>-<span class="hljs-number">26</span><br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>host<span class="hljs-regexp">/k8s-node01/i</span>pv4<span class="hljs-regexp">/block/</span><span class="hljs-number">172.20</span>.<span class="hljs-number">85.192</span>-<span class="hljs-number">26</span><br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>host<span class="hljs-regexp">/k8s-node02/i</span>pv4<span class="hljs-regexp">/block/</span><span class="hljs-number">172.20</span>.<span class="hljs-number">58.192</span>-<span class="hljs-number">26</span><br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>host<span class="hljs-regexp">/k8s-node03/i</span>pv4<span class="hljs-regexp">/block/</span><span class="hljs-number">172.20</span>.<span class="hljs-number">135.128</span>-<span class="hljs-number">26</span><br>......<br></code></pre></td></tr></table></figure>
+
+<h3 id="查看指定的key"><a href="#查看指定的key" class="headerlink" title="查看指定的key"></a>查看指定的key</h3><figure class="highlight routeros"><table><tr><td class="code"><pre><code class="hljs routeros"><span class="hljs-comment">#查看namespaces中default的key</span><br>root@etcd01:~#  <span class="hljs-attribute">ETCDCTL_API</span>=3 etcdctl <span class="hljs-built_in">get</span> /registry/namespaces<span class="hljs-built_in">/default</span><br><span class="hljs-built_in"></span>/registry/namespaces<span class="hljs-built_in">/default</span><br><span class="hljs-built_in"></span>k8s<br><br>v1    Namespace <br><br>default<span class="hljs-string">&quot;*<span class="hljs-variable">$014daf97</span>-460a-4bf1-8c45-7cd238da53532´Z&amp;</span><br><span class="hljs-string">ubernetes.io/metadata.namedefaultz&#123;</span><br><span class="hljs-string">kube-apiserverUpdatev´FieldsV1:I</span><br><span class="hljs-string">G&#123;&quot;</span>f:metadata<span class="hljs-string">&quot;:&#123;&quot;</span>f:labels<span class="hljs-string">&quot;:&#123;&quot;</span>.<span class="hljs-string">&quot;:&#123;&#125;,&quot;</span>f:kubernetes.io/metadata.name<span class="hljs-string">&quot;:&#123;&#125;&#125;&#125;&#125; </span><br><span class="hljs-string"></span><br><span class="hljs-string"></span><br><span class="hljs-string">kubernetes </span><br><span class="hljs-string">Active&quot;</span><br><br><span class="hljs-comment">#查看calico的key</span><br>root@etcd01:~# <span class="hljs-attribute">ETCDCTL_API</span>=3 etcdctl <span class="hljs-built_in">get</span> /calico/ipam/v2/assignment/ipv4/block/172.20.122.128-26<br>/calico/ipam/v2/assignment/ipv4/block/172.20.122.128-26<br>&#123;<span class="hljs-string">&quot;cidr&quot;</span>:<span class="hljs-string">&quot;172.20.122.128/26&quot;</span>,<span class="hljs-string">&quot;affinity&quot;</span>:<span class="hljs-string">&quot;host:k8s-master02&quot;</span>,<span class="hljs-string">&quot;allocations&quot;</span>:[0,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>],<span class="hljs-string">&quot;unallocated&quot;</span>:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63],<span class="hljs-string">&quot;attributes&quot;</span>:[&#123;<span class="hljs-string">&quot;handle_id&quot;</span>:<span class="hljs-string">&quot;ipip-tunnel-addr-k8s-master02&quot;</span>,<span class="hljs-string">&quot;secondary&quot;</span>:&#123;<span class="hljs-string">&quot;node&quot;</span>:<span class="hljs-string">&quot;k8s-master02&quot;</span>,<span class="hljs-string">&quot;type&quot;</span>:<span class="hljs-string">&quot;ipipTunnelAddress&quot;</span>&#125;&#125;],<span class="hljs-string">&quot;deleted&quot;</span>:false&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="查看所有calico的数据"><a href="#查看所有calico的数据" class="headerlink" title="查看所有calico的数据"></a>查看所有calico的数据</h3><figure class="highlight awk"><table><tr><td class="code"><pre><code class="hljs awk">root@etcd01:~<span class="hljs-comment"># ETCDCTL_API=3 etcdctl get --keys-only --prefix /calico</span><br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>assignment<span class="hljs-regexp">/ipv4/</span>block/<span class="hljs-number">172.20</span>.<span class="hljs-number">122.128</span>-<span class="hljs-number">26</span><br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>assignment<span class="hljs-regexp">/ipv4/</span>block/<span class="hljs-number">172.20</span>.<span class="hljs-number">135.128</span>-<span class="hljs-number">26</span><br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>assignment<span class="hljs-regexp">/ipv4/</span>block/<span class="hljs-number">172.20</span>.<span class="hljs-number">32.128</span>-<span class="hljs-number">26</span><br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>assignment<span class="hljs-regexp">/ipv4/</span>block/<span class="hljs-number">172.20</span>.<span class="hljs-number">58.192</span>-<span class="hljs-number">26</span><br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>assignment<span class="hljs-regexp">/ipv4/</span>block/<span class="hljs-number">172.20</span>.<span class="hljs-number">85.192</span>-<span class="hljs-number">26</span><br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>handle/ipip-tunnel-addr-k8s-master01<br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>handle/ipip-tunnel-addr-k8s-master02<br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>handle/ipip-tunnel-addr-k8s-node01<br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>handle/ipip-tunnel-addr-k8s-node02<br><span class="hljs-regexp">/calico/i</span>pam<span class="hljs-regexp">/v2/</span>handle/ipip-tunnel-addr-k8s-node03<br>......<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="etcd备份与恢复"><a href="#etcd备份与恢复" class="headerlink" title="etcd备份与恢复"></a>etcd备份与恢复</h2><h3 id="etcd数据备份流程"><a href="#etcd数据备份流程" class="headerlink" title="etcd数据备份流程"></a>etcd数据备份流程</h3><blockquote>
+<p> ETCD 不同的版本的 etcdctl 命令不一样，但大致差不多，本文备份使用 <code>napshot save</code> , 每次备份<code>一个节点</code>就行。</p>
+</blockquote>
+<p><code>命令备份</code>（k8s-master1 机器上备份）：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><code class="hljs text">$ ETCDCTL_API=3 etcdctl --cacert=/opt/kubernetes/ssl/ca.pem --cert=/opt/kubernetes/ssl/server.pem --key=/opt/kubernetes/ssl/server-key.pem --endpoints=https://192.168.1.36:2379 snapshot save /data/etcd_backup_dir/etcd-snapshot-`date +%Y%m%d`.db<br></code></pre></td></tr></table></figure>
+
+<p><code>备份脚本</code>（k8s-master1 机器上备份）：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><code class="hljs text">#!/usr/bin/env bash<br><br>date;<br><br>CACERT=&quot;/opt/kubernetes/ssl/ca.pem&quot;<br>CERT=&quot;/opt/kubernetes/ssl/server.pem&quot;<br>EKY=&quot;/opt/kubernetes/ssl/server-key.pem&quot;<br>ENDPOINTS=&quot;192.168.1.36:2379&quot;<br><br>ETCDCTL_API=3 etcdctl \<br>--cacert=&quot;$&#123;CACERT&#125;&quot; --cert=&quot;$&#123;CERT&#125;&quot; --key=&quot;$&#123;EKY&#125;&quot; \<br>--endpoints=$&#123;ENDPOINTS&#125; \<br>snapshot save /data/etcd_backup_dir/etcd-snapshot-`date +%Y%m%d`.db<br><br># 备份保留30天<br>find /data/etcd_backup_dir/ -name *.db -mtime +30 -exec rm -f &#123;&#125; \;<br></code></pre></td></tr></table></figure>
+
+<h3 id="etcd-数据恢复流程"><a href="#etcd-数据恢复流程" class="headerlink" title="etcd 数据恢复流程"></a>etcd 数据恢复流程</h3><p>当etcd集群宕机数量超过集群总节点数一半以上的时候（如总数为3台，宕机2台），就会导致集群宕机，后期需要重新恢复数据，则数据恢复流程如下：</p>
+<ol>
+<li>恢复服务器系统</li>
+<li>重新部署etcd集群</li>
+<li>停止kube-apiserver&#x2F;controler-manager&#x2F;scheduler&#x2F;kubelet&#x2F;kube-proxy</li>
+<li>停止ETCD集群</li>
+<li>各ETCD节点恢复同一备份数据</li>
+<li>启动各节点并验证ETCD集群</li>
+<li>启动kube-apiserver&#x2F;controler-manager&#x2F;scheduler&#x2F;kubelet&#x2F;kube-proxy</li>
+<li>验证k8s master 状态及pod 数据</li>
+</ol>
+<h4 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h4><ul>
+<li>停止所有 Master 上 <code>kube-apiserver</code> 服务</li>
+</ul>
+<figure class="highlight text"><table><tr><td class="code"><pre><code class="hljs text">$ systemctl stop kube-apiserver  <br><br># 确认 kube-apiserver 服务是否停止 <br>$ ps -ef | grep kube-apiserver<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>停止集群中所有 ETCD 服务</li>
+</ul>
+<figure class="highlight text"><table><tr><td class="code"><pre><code class="hljs text">$ systemctl stop etcd<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>移除所有 ETCD 存储目录下数据</li>
+</ul>
+<figure class="highlight text"><table><tr><td class="code"><pre><code class="hljs text">$ mv /var/lib/etcd/default.etcd /var/lib/etcd/default.etcd.bak<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>拷贝 ETCD 备份快照</li>
+</ul>
+<figure class="highlight text"><table><tr><td class="code"><pre><code class="hljs text"># 从 k8s-master1 机器上拷贝备份 <br>$ scp /data/etcd_backup_dir/etcd-snapshot-20191222.db root@k8s-master2:/data/etcd_backup_dir/ <br>$ scp /data/etcd_backup_dir/etcd-snapshot-20191222.db root@k8s-master3:/data/etcd_backup_dir/<br></code></pre></td></tr></table></figure>
+
+<h4 id="恢复备份"><a href="#恢复备份" class="headerlink" title="恢复备份"></a>恢复备份</h4><figure class="highlight text"><table><tr><td class="code"><pre><code class="hljs text"># k8s-master1 机器上操作<br>$ ETCDCTL_API=3 etcdctl snapshot restore /data/etcd_backup_dir/etcd-snapshot-20191222.db \<br>  --name etcd-0 \<br>  --initial-cluster &quot;etcd-0=https://192.168.1.36:2380,etcd-1=https://192.168.1.37:2380,etcd-2=https://192.168.1.38:2380&quot; \<br>  --initial-cluster-token etcd-cluster \<br>  --initial-advertise-peer-urls https://192.168.1.36:2380 \<br>  --data-dir=/var/lib/etcd/default.etcd<br>  <br># k8s-master2 机器上操作<br>$ ETCDCTL_API=3 etcdctl snapshot restore /data/etcd_backup_dir/etcd-snapshot-20191222.db \<br>  --name etcd-1 \<br>  --initial-cluster &quot;etcd-0=https://192.168.1.36:2380,etcd-1=https://192.168.1.37:2380,etcd-2=https://192.168.1.38:2380&quot;  \<br>  --initial-cluster-token etcd-cluster \<br>  --initial-advertise-peer-urls https://192.168.1.37:2380 \<br>  --data-dir=/var/lib/etcd/default.etcd<br>  <br># k8s-master3 机器上操作<br>$ ETCDCTL_API=3 etcdctl snapshot restore /data/etcd_backup_dir/etcd-snapshot-20191222.db \<br>  --name etcd-2 \<br>  --initial-cluster &quot;etcd-0=https://192.168.1.36:2380,etcd-1=https://192.168.1.37:2380,etcd-2=https://192.168.1.38:2380&quot;  \<br>  --initial-cluster-token etcd-cluster \<br>  --initial-advertise-peer-urls https://192.168.1.38:2380 \<br>  --data-dir=/var/lib/etcd/default.etcd<br></code></pre></td></tr></table></figure>
+
+<p>上面三台 ETCD 都恢复完成后，依次登陆三台机器启动 ETCD</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><code class="hljs text">$ systemctl start etcd<br></code></pre></td></tr></table></figure>
+
+<p>三台 ETCD 启动完成，检查 ETCD 集群状态</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><code class="hljs text">$ ETCDCTL_API=3 etcdctl --cacert=/opt/kubernetes/ssl/ca.pem --cert=/opt/kubernetes/ssl/server.pem --key=/opt/kubernetes/ssl/server-key.pem --endpoints=https://192.168.1.36:2379,https://192.168.1.37:2379,https://192.168.1.38:2379 endpoint health<br></code></pre></td></tr></table></figure>
+
+<p>三台 ETCD 全部健康，分别到每台 Master 启动 kube-apiserver</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><code class="hljs text">$ systemctl start kube-apiserver<br></code></pre></td></tr></table></figure>
+
+<p>检查 Kubernetes 集群是否恢复正常</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><code class="hljs text">$ kubectl get cs<br></code></pre></td></tr></table></figure>
+
+<h3 id="kubeasz备份恢复"><a href="#kubeasz备份恢复" class="headerlink" title="kubeasz备份恢复"></a>kubeasz备份恢复</h3><figure class="highlight bash"><table><tr><td class="code"><pre><code class="hljs bash">./ezctl backup k8s-01<br>kubectl delete pod net-test1 -n default  <span class="hljs-comment"># 删除pod模拟数据丢失</span><br>./ezctl restore k8s-01  <span class="hljs-comment"># 尝试从备份中恢复pod</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="Velero-结合mino-实现k8s-业务数据备份与恢复"><a href="#Velero-结合mino-实现k8s-业务数据备份与恢复" class="headerlink" title="Velero 结合mino 实现k8s 业务数据备份与恢复"></a>Velero 结合mino 实现k8s 业务数据备份与恢复</h2><p>Velero 是一个云原生的灾难恢复和迁移工具，它本身也是开源的,采用Go语言编写，可以安全的备份、恢复和迁移 Kubernetes集群资源数据。</p>
+<p>Velero 是西班牙语意思是帆船，非常符合Kubernetes社区的命名风格，Velero的开发公司Heptio，已被VMware收购。</p>
+<p>Velero 支持标准的K8S集群，既可以是私有云平台也可以是公有云，除了灾备之外它还能做资源移转，支持把容器应用 从一个集群迁移到另一个集群。</p>
+<p><img src="https://s2.loli.net/2022/05/13/vN6nTPK83OJewMd.png" alt="image-20220512142839572"></p>
+<h3 id="minio-安装"><a href="#minio-安装" class="headerlink" title="minio 安装"></a>minio 安装</h3><figure class="highlight bash"><table><tr><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 拉取镜像</span><br>[root@manager ~]<span class="hljs-comment"># docker pull minio/minio:latest</span><br>latest: Pulling from minio/minio<br>d46336f50433: Pull complete<br>be961ec68663: Pull complete<br>44173c602141: Pull complete<br>a9809a6a679b: Pull complete<br>df29d4a76971: Pull complete<br>2b5a8853d302: Pull complete<br>84f01ee8dfc1: Pull complete<br>Digest: sha256:d786220feef7d8fe0239d41b5d74501dc824f6e7dd0e5a05749c502fff225bf3<br>Status: Downloaded newer image <span class="hljs-keyword">for</span> minio/minio:latest<br>docker.io/minio/minio:latest<br><br><span class="hljs-comment"># 创建数据目录</span><br>[root@manager ~]<span class="hljs-comment"># mkdir -pv /data/minio</span><br><span class="hljs-built_in">mkdir</span>: 已创建目录 <span class="hljs-string">&quot;/data&quot;</span><br><span class="hljs-built_in">mkdir</span>: 已创建目录 <span class="hljs-string">&quot;/data/minio&quot;</span><br><br><span class="hljs-comment"># 创建minio容器,如果不指定,则默认用户名与密码为 minioadmin/minioadmin,可以通过环境变量自定义,如下:</span><br>[root@etcd-1 ~]<span class="hljs-comment"># docker run --name minio -p 9000:9000 -p 9999:9999 \</span><br>&gt; -d --restart=always \<br>&gt; -e <span class="hljs-string">&quot;MINIO_ROOT_USER=admin&quot;</span> \<br>&gt; -e <span class="hljs-string">&quot;MINIO_ROOT_PASSWORD=ddrbdgzy&quot;</span> \<br>&gt; -v /data/minio/data:/data \<br>&gt; minio/minio:latest server /data \<br>&gt; --console-address <span class="hljs-string">&#x27;0.0.0.0:9999&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p>浏览器访问9999端口：</p>
+<p><img src="https://s2.loli.net/2022/05/13/YV4om15QUNu89Ag.png" alt="image-20220512164607646"></p>
+<p>使用创建容器时指定的用户名密码登录，并创建一个名为velerodata的bucket：</p>
+<p><img src="https://s2.loli.net/2022/05/13/1rXgGoMKVnOU5cC.png" alt="image-20220512185752491"></p>
+<h3 id="velero-安装"><a href="#velero-安装" class="headerlink" title="velero 安装"></a>velero 安装</h3><figure class="highlight bash"><table><tr><td class="code"><pre><code class="hljs bash">配置velero认证环境：<br><span class="hljs-comment"># 工作目录：</span><br>[root@etcd-1 /]<span class="hljs-comment">#:~# mkdir  /data/velero -p</span><br><br><span class="hljs-comment"># 认证文件：</span><br>[root@etcd-1 velero]<span class="hljs-comment">#:/data/velero# vim velero-auth.txt </span><br>[default]<br>aws_access_key_id = admin<br>aws_secret_access_key = ddrbdgzy<br><br><span class="hljs-comment"># 准备user-csr文件：</span><br>root@k8s-master1:/data/velero<span class="hljs-comment"># vim awsuser-csr.json</span><br>&#123;<br>  <span class="hljs-string">&quot;CN&quot;</span>: <span class="hljs-string">&quot;awsuser&quot;</span>,<br>  <span class="hljs-string">&quot;hosts&quot;</span>: [],<br>  <span class="hljs-string">&quot;key&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;algo&quot;</span>: <span class="hljs-string">&quot;rsa&quot;</span>,<br>    <span class="hljs-string">&quot;size&quot;</span>: 2048<br>  &#125;,<br>  <span class="hljs-string">&quot;names&quot;</span>: [<br>    &#123;<br>      <span class="hljs-string">&quot;C&quot;</span>: <span class="hljs-string">&quot;CN&quot;</span>,<br>      <span class="hljs-string">&quot;ST&quot;</span>: <span class="hljs-string">&quot;BeiJing&quot;</span>,<br>      <span class="hljs-string">&quot;L&quot;</span>: <span class="hljs-string">&quot;BeiJing&quot;</span>,<br>      <span class="hljs-string">&quot;O&quot;</span>: <span class="hljs-string">&quot;k8s&quot;</span>,<br>      <span class="hljs-string">&quot;OU&quot;</span>: <span class="hljs-string">&quot;System&quot;</span><br>    &#125;<br>  ]<br>&#125;<br><br><span class="hljs-comment"># 准备证书签发环境：</span><br>[root@etcd-1 velero]:/data/velero<span class="hljs-comment"># apt install golang-cfssl</span><br>https://github.com/cloudflare/cfssl/releases/download/v1.6.1/cfssl_1.6.1_linux_amd64 <br>https://github.com/cloudflare/cfssl/releases/download/v1.6.1/cfssljson_1.6.1_linux_amd64 <br>https://github.com/cloudflare/cfssl/releases/download/v1.6.1/cfssl-certinfo_1.6.1_linux_amd64<br><br><span class="hljs-comment"># 执行证书签发</span><br>[root@etcd-1 velero]<span class="hljs-comment"># ./cfssl gencert -ca=/etc/kubernetes/ssl/ca.pem -ca-key=./ca-key.pem -config=./ca-config.json -profile=kubernetes ./awsuser-csr.json | ./cfssljson -bare awsuser</span><br></code></pre></td></tr></table></figure>
+
+<p>签发完成后在当前目录有如下文件：</p>
+<p><img src="https://s2.loli.net/2022/05/13/zD6IdlZpwAmCPQg.png" alt="image-20220512195444916"></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#分发证书到api-server证书路径：</span><br>[root@master ~]<span class="hljs-comment"># ll /etc/kubernetes/ssl/</span><br>总用量 32<br>-rw-r--r--. 1 root root 1679 4月  26 20:18 aggregator-proxy-key.pem<br>-rw-r--r--. 1 root root 1383 4月  26 20:18 aggregator-proxy.pem<br>-rw-r--r--. 1 root root 1679 4月  26 20:18 ca-key.pem<br>-rw-r--r--. 1 root root 1350 4月  26 20:18 ca.pem<br>-rw-r--r--. 1 root root 1675 4月  26 20:18 kubelet-key.pem<br>-rw-r--r--. 1 root root 1452 4月  26 20:18 kubelet.pem<br>-rw-r--r--. 1 root root 1675 4月  26 20:18 kubernetes-key.pem<br>-rw-r--r--. 1 root root 1610 4月  26 20:18 kubernetes.pem<br><br><span class="hljs-comment">#生成集群认证config文件：</span><br><span class="hljs-comment"># export KUBE_APISERVER=&quot;https://192.168.68.152:6443&quot;</span><br><span class="hljs-comment"># kubectl config set-cluster kubernetes \</span><br>--certificate-authority=/etc/kubernetes/ssl/ca.pem \<br>--embed-certs=<span class="hljs-literal">true</span> \<br>--server=<span class="hljs-variable">$&#123;KUBE_APISERVER&#125;</span> \<br>--kubeconfig=./awsuser.kubeconfig<br><br><span class="hljs-comment"># 查看生成的 awsuser.kubeconfig</span><br>[root@master ~]<span class="hljs-comment"># cat awsuser.kubeconfig</span><br>apiVersion: v1<br>clusters:<br>- cluster:<br>    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUR1RENDQXFDZ0F3SUJBZ0lVVGlOV1o4REJEZGFkRTNkQkRGNVAwdVlJMVJvd0RRWUpLb1pJaHZjTkFRRUwKQlFBd1lURUxNQWtHQTFVRUJoTUNRMDR4RVRBUEJnTlZCQWdUQ0VoaGJtZGFhRzkxTVFzd0NRWURWUVFIRXdKWQpVekVNTUFvR0ExVUVDaE1EYXpoek1ROHdEUVlEVlFRTEV3WlRlWE4wWlcweEV6QVJCZ05WQkFNVENtdDFZbVZ5CmJtVjBaWE13SUJjTk1qSXdOREkyTVRFeE9UQXdXaGdQTWpFeU1qQTBNREl4TVRFNU1EQmFNR0V4Q3pBSkJnTlYKQkFZVEFrTk9NUkV3RHdZRFZRUUlFd2hJWVc1bldtaHZkVEVMTUFrR0ExVUVCeE1DV0ZNeEREQUtCZ05WQkFvVApBMnM0Y3pFUE1BMEdBMVVFQ3hNR1UzbHpkR1Z0TVJNd0VRWURWUVFERXdwcmRXSmxjbTVsZEdWek1JSUJJakFOCkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQW5ueGY1Ly9yemg4V2FmeEI5NVljQ3VBaHY3VTIKSUl2cVJOT2g4UmlGTVFHcDVzdHFOaXREcEZ0Rk5BbzhsanJjNjBIQWttdXpwSkRJOXVxdG1vU1NXOFB2Si9VeQo4dzJBbDhxa0c3alhncjF3V2MrUU1qTzhRV1BiRXAzM3djUGE4ckVpZ1hOTzRDckxUM0NKQ2xydk1KbWNFWDkwCjhTUjlKb01hbGtnaEFnNkdsTlVFMTZHZi84dkwzQmdjOWI0ZzV0VWswNWRTV0R4SG5aenRGVHgrZTlxSThYemsKVXUzenF3Wll1MHdwQlpPb3F3bzBqQnQrdnhhbWxOTGFJdG5TaytPcFVXRk8xVGpmS016K3lmeFc2TUg0UThhVgphb2x0N3ZsTkhuZlRUakw3R3VHaCthbmZ6N2hkRUxFbkNJblJkMGY1ellVV1FBWnRhSlRnV0R4QTFRSURBUUFCCm8yWXdaREFPQmdOVkhROEJBZjhFQkFNQ0FRWXdFZ1lEVlIwVEFRSC9CQWd3QmdFQi93SUJBakFkQmdOVkhRNEUKRmdRVWFxVFhmL3VMK3VvcHBBYWFsaTIyY3UvdTlBNHdId1lEVlIwakJCZ3dGb0FVYXFUWGYvdUwrdW9wcEFhYQpsaTIyY3UvdTlBNHdEUVlKS29aSWh2Y05BUUVMQlFBRGdnRUJBRGpldVBLTmFESEhKd3VaWDNiMmNocDliWW5KCkZlbXp4K3JPRzVpckpoeWt6cHprMTZPelJIZlJjMGd4SFdjOC9jZFBBd1hQK2dFdWkzZ1lOdGpSS3lTV2RjNmcKUVJ6bGZlWkovWUpjdFFjWG9QTU1YNlYxS2dWS3IwMlh0QjJNR1FQd0VHR2RrQUp3ekh0RmRaRnRmQmQ3dEQ4NQo3SUNrZ20xM0d0STVmLzBLRXh2VEJKdlhCUWthcjRITEtYTndRc3piUW5yeE14ajdISlo5ZFlidnZDZjgvUkpPCkFvdXBYVFppcURNaXJENnJUVzNUWTdEb05iY2FtcVpKZk5tc2NGdWZJcVBkZGw1L2lHS3VDckJEZXBmMjRVU3QKM1I4TzJSNjFZbHowYkk3TXVhWUk3aHFtWmg5QmFQUFU2T3kxZ2dlMjdpczRaT2h1anBoVkZ6MW9nVk09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K<br>    server: https://192.168.68.152:6443<br>  name: kubernetes<br><span class="hljs-comment"># 后续信息缺失，需要继续生成加入用户的认证信息</span><br>contexts: null<br>current-context: <span class="hljs-string">&quot;&quot;</span><br>kind: Config<br>preferences: &#123;&#125;<br><span class="hljs-built_in">users</span>: null<br><br><span class="hljs-comment"># 设置客户端证书认证</span><br>[root@master ~]<span class="hljs-comment"># kubectl config set-credentials awsuser --client-certificate=/etc/kubernetes/ssl/awsuser.pem --client-key=/etc/kubernetes/ssl/awsuser-key.pem --embed-certs=true --kubeconfig=./awsuser.kubeconfig</span><br>User <span class="hljs-string">&quot;awsuser&quot;</span> <span class="hljs-built_in">set</span>.<br></code></pre></td></tr></table></figure>
+
+<p>再次查看</p>
+<p><img src="https://s2.loli.net/2022/05/13/HBEKUIO9bxYSigL.png" alt="image-20220512202610837"></p>
+<p>可以看到用户公钥私钥已经加入</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#设置上下文参数:</span><br><span class="hljs-comment"># kubectl config set-context kubernetes \</span><br>--cluster=kubernetes \<br>--user=awsuser \<br>--namespace=velero-system \<br>--kubeconfig=./awsuser.kubeconfig<br><br><span class="hljs-comment">#设置默认上下文:</span><br><span class="hljs-comment">#kubectl config use-context kubernetes --kubeconfig=awsuser.kubeconfig</span><br></code></pre></td></tr></table></figure>
+
+<p>可以看到上下文信息已经写入</p>
+<p><img src="https://s2.loli.net/2022/05/13/OxTXUh2bA5m6ZFw.png" alt="image-20220512203235386"></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 执行velero server端安装：</span><br>velero --kubeconfig  ./awsuser.kubeconfig \<br>	install \<br>    --provider aws \<br>    --plugins velero/velero-plugin-for-aws:v1.3.1 \<br>    --bucket velerodata  \<br>    --secret-file ./velero-auth.txt \<br>    --use-volume-snapshots=<span class="hljs-literal">false</span> \<br>	--namespace velero-system \<br>--backup-location-config region=minio,s3ForcePathStyle=<span class="hljs-string">&quot;true&quot;</span>,s3Url=http://192.168.68.148:9000/<br></code></pre></td></tr></table></figure>
+
+<p>可以看到velero已经启动</p>
+<p><img src="https://s2.loli.net/2022/05/13/ovRQdty6xKDL3Ia.png" alt="image-20220512203837164"></p>
+<p><img src="https://s2.loli.net/2022/05/13/q2fUDtQF7oCM6gx.png" alt="image-20220512203908533"></p>
+<p>此时velero安装完成</p>
+<h3 id="使用velero-minio-备份"><a href="#使用velero-minio-备份" class="headerlink" title="使用velero + minio 备份"></a>使用velero + minio 备份</h3><figure class="highlight jboss-cli"><table><tr><td class="code"><pre><code class="hljs jboss-cli"><span class="hljs-comment">#验证安装：</span><br>root@k8s-master1:<span class="hljs-string">/data/velero</span><span class="hljs-comment"># kubectl  describe pod velero-6755cb8697-phfsr -n velero-system  </span><br><br>velero backup create magedu-n66-20220417  <span class="hljs-params">--include-namespaces</span> myserver<br><br><br>DATE=`date +%Y%m%d%H%M%S`<br>velero backup create myserver-ns-backup-$&#123;DATE&#125; \<br><span class="hljs-params">--include-namespaces</span> myserver \<br><span class="hljs-params">--kubeconfig=</span><span class="hljs-string">./awsuser.kubeconfig</span> \<br><span class="hljs-params">--namespace</span> velero-system<br><br>root@k8s-master1:<span class="hljs-string">/data/velero</span><span class="hljs-comment"># kubectl  get pod -n velero-system </span><br>NAME                  READY   STATUS    RESTARTS   AGE<br>velero-6755cb8697-phfsr   1/1     Running     0          5m45s<br><br>velero backup create myserver-ns-backup-2022041621 \<br><span class="hljs-params">--include-namespaces</span> myserver \<br><span class="hljs-params">--kubeconfig=</span><span class="hljs-string">./awsuser.kubeconfig</span> \<br><span class="hljs-params">--namespace</span> velero-system<br><br><br>velero restore create <span class="hljs-params">--from-backup</span> default-backup-20220416205931 <span class="hljs-params">--wait</span> <span class="hljs-params">--kubeconfig=</span><span class="hljs-string">./awsuser.kubeconfig</span> <span class="hljs-params">--namespace</span> velero-system<br><br>velero restore create <span class="hljs-params">--from-backup</span> myserver-ns-backup-20220417155913 <span class="hljs-params">--wait</span> \<br><span class="hljs-params">--kubeconfig=</span><span class="hljs-string">./awsuser.kubeconfig</span> \<br><span class="hljs-params">--namespace</span> velero-system<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://s2.loli.net/2022/05/13/ZW6TrV8tgJ4sk3d.png" alt="image-20220512210852408"></p>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Ops/" rel="tag"># Ops</a>
+              <a href="/tags/k8s/" rel="tag"># k8s</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/04/29/%E4%BD%BF%E7%94%A8kubeasz%E5%AE%89%E8%A3%85k8s%E9%9B%86%E7%BE%A4/" rel="prev" title="使用kubeasz安装k8s集群">
+      <i class="fa fa-chevron-left"></i> 使用kubeasz安装k8s集群
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Kubernetes%E7%BB%84%E4%BB%B6etcd%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86%E7%82%B9%E6%80%BB%E7%BB%93"><span class="nav-number">1.</span> <span class="nav-text">Kubernetes组件etcd相关知识点总结</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">1.2.</span> <span class="nav-text">配置文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#etcd-%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="nav-number">1.3.</span> <span class="nav-text">etcd 的基本使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A2%9E%E5%8A%A0%E5%92%8C%E4%BF%AE%E6%94%B9%EF%BC%8C%E5%A6%82%E6%9E%9C%E5%AD%98%E5%9C%A8%E5%88%99%E6%9B%BF%E6%8D%A2"><span class="nav-number">1.3.1.</span> <span class="nav-text">增加和修改，如果存在则替换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%B9%E6%9F%90%E4%B8%AAkey%E7%9B%91%E5%90%AC%E6%93%8D%E4%BD%9C%EF%BC%8C%E5%BD%93-x2F-key1%E5%8F%91%E7%94%9F%E6%94%B9%E5%8F%98%E6%97%B6%EF%BC%8C%E4%BC%9A%E8%BF%94%E5%9B%9E%E6%9C%80%E6%96%B0%E5%80%BC"><span class="nav-number">1.3.2.</span> <span class="nav-text">对某个key监听操作，当&#x2F;key1发生改变时，会返回最新值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%91%E5%90%ACkey%E5%89%8D%E7%BC%80"><span class="nav-number">1.3.3.</span> <span class="nav-text">监听key前缀</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%91%E5%90%AC%E5%88%B0%E6%94%B9%E5%8F%98%E5%90%8E%E6%89%A7%E8%A1%8C%E7%9B%B8%E5%85%B3%E6%93%8D%E4%BD%9C"><span class="nav-number">1.3.4.</span> <span class="nav-text">监听到改变后执行相关操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#etcd-%E9%9B%86%E7%BE%A4%E6%88%90%E5%91%98%E7%9A%84%E5%BF%83%E8%B7%B3%E4%BF%A1%E6%81%AF"><span class="nav-number">1.3.5.</span> <span class="nav-text">etcd 集群成员的心跳信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#etcd-%E9%9B%86%E7%BE%A4%E7%9A%84%E6%88%90%E5%91%98%E4%BF%A1%E6%81%AF"><span class="nav-number">1.3.6.</span> <span class="nav-text">etcd 集群的成员信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%98%BE%E7%A4%BAetcd%E7%BE%A4%E9%9B%86%E7%9A%84%E8%AF%A6%E7%BB%86%E4%BF%A1%E6%81%AF"><span class="nav-number">1.3.7.</span> <span class="nav-text">显示etcd群集的详细信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E6%89%80%E6%9C%89%E7%9A%84key"><span class="nav-number">1.3.8.</span> <span class="nav-text">查看所有的key</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#etcd-%E4%B8%AD%E6%9F%A5%E8%AF%A2k8s%E7%9B%B8%E5%85%B3%E4%BF%A1%E6%81%AF"><span class="nav-number">1.4.</span> <span class="nav-text">etcd 中查询k8s相关信息</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E6%89%80%E6%9C%89%E7%9A%84key-1"><span class="nav-number">1.4.1.</span> <span class="nav-text">查看所有的key</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8Bkubernetes%E4%B8%AD%E6%89%80%E6%9C%89pod%E7%9A%84%E4%BF%A1%E6%81%AF"><span class="nav-number">1.4.2.</span> <span class="nav-text">查看kubernetes中所有pod的信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8Bkubernetes%E4%B8%AD%E6%89%80%E6%9C%89namespace%E7%9A%84%E4%BF%A1%E6%81%AF"><span class="nav-number">1.4.3.</span> <span class="nav-text">查看kubernetes中所有namespace的信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8Bkubernetes%E4%B8%AD%E6%89%80%E6%9C%89deployments%E7%9A%84%E4%BF%A1%E6%81%AF"><span class="nav-number">1.4.4.</span> <span class="nav-text">查看kubernetes中所有deployments的信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8Bcalico%E7%BD%91%E7%BB%9C%E7%BB%84%E4%BB%B6%E4%BF%A1%E6%81%AF"><span class="nav-number">1.4.5.</span> <span class="nav-text">查看calico网络组件信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E6%8C%87%E5%AE%9A%E7%9A%84key"><span class="nav-number">1.4.6.</span> <span class="nav-text">查看指定的key</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E6%89%80%E6%9C%89calico%E7%9A%84%E6%95%B0%E6%8D%AE"><span class="nav-number">1.4.7.</span> <span class="nav-text">查看所有calico的数据</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#etcd%E5%A4%87%E4%BB%BD%E4%B8%8E%E6%81%A2%E5%A4%8D"><span class="nav-number">1.5.</span> <span class="nav-text">etcd备份与恢复</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#etcd%E6%95%B0%E6%8D%AE%E5%A4%87%E4%BB%BD%E6%B5%81%E7%A8%8B"><span class="nav-number">1.5.1.</span> <span class="nav-text">etcd数据备份流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#etcd-%E6%95%B0%E6%8D%AE%E6%81%A2%E5%A4%8D%E6%B5%81%E7%A8%8B"><span class="nav-number">1.5.2.</span> <span class="nav-text">etcd 数据恢复流程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="nav-number">1.5.2.1.</span> <span class="nav-text">准备工作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%81%A2%E5%A4%8D%E5%A4%87%E4%BB%BD"><span class="nav-number">1.5.2.2.</span> <span class="nav-text">恢复备份</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#kubeasz%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D"><span class="nav-number">1.5.3.</span> <span class="nav-text">kubeasz备份恢复</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Velero-%E7%BB%93%E5%90%88mino-%E5%AE%9E%E7%8E%B0k8s-%E4%B8%9A%E5%8A%A1%E6%95%B0%E6%8D%AE%E5%A4%87%E4%BB%BD%E4%B8%8E%E6%81%A2%E5%A4%8D"><span class="nav-number">1.6.</span> <span class="nav-text">Velero 结合mino 实现k8s 业务数据备份与恢复</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#minio-%E5%AE%89%E8%A3%85"><span class="nav-number">1.6.1.</span> <span class="nav-text">minio 安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#velero-%E5%AE%89%E8%A3%85"><span class="nav-number">1.6.2.</span> <span class="nav-text">velero 安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8velero-minio-%E5%A4%87%E4%BB%BD"><span class="nav-number">1.6.3.</span> <span class="nav-text">使用velero + minio 备份</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="QinTianJun"
+      src="/images/logo.jpeg">
+  <p class="site-author-name" itemprop="name">QinTianJun</p>
+  <div class="site-description" itemprop="description">一个菜鸟的成长之路</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qtj1215" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qtj1215" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:freedom1215@foxmail.com" title="E-Mail → mailto:freedom1215@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.qintianjun.top/atom.xml" title="RSS → https:&#x2F;&#x2F;www.qintianjun.top&#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QinTianJun</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
