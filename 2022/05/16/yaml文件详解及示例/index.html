@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-CN,en,default">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.qintianjun.top","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Kubernetes中yaml文件详解及使用yaml配置nginx+tomcat示例">
+<meta property="og:type" content="article">
+<meta property="og:title" content="yaml文件详解及示例">
+<meta property="og:url" content="http://www.qintianjun.top/2022/05/16/yaml%E6%96%87%E4%BB%B6%E8%AF%A6%E8%A7%A3%E5%8F%8A%E7%A4%BA%E4%BE%8B/index.html">
+<meta property="og:site_name" content="Freedom_ATX&#39;s Blog">
+<meta property="og:description" content="Kubernetes中yaml文件详解及使用yaml配置nginx+tomcat示例">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2022/05/16/6FKw9oVQxGHNlq8.png">
+<meta property="og:image" content="https://s2.loli.net/2022/05/16/xpFTkB1OYmru6ob.png">
+<meta property="og:image" content="https://s2.loli.net/2022/05/16/WG9aJjXhfAD6NKm.png">
+<meta property="og:image" content="https://s2.loli.net/2022/05/16/i8GaxTlLoNMKn5J.png">
+<meta property="article:published_time" content="2022-05-16T11:44:08.000Z">
+<meta property="article:modified_time" content="2022-05-16T11:47:11.179Z">
+<meta property="article:author" content="QinTianJun">
+<meta property="article:tag" content="Ops">
+<meta property="article:tag" content="k8s">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2022/05/16/6FKw9oVQxGHNlq8.png">
+
+<link rel="canonical" href="http://www.qintianjun.top/2022/05/16/yaml%E6%96%87%E4%BB%B6%E8%AF%A6%E8%A7%A3%E5%8F%8A%E7%A4%BA%E4%BE%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>yaml文件详解及示例 | Freedom_ATX's Blog</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?b8f33cffae5a7adb95d2bdb812879d09";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Freedom_ATX's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Freedom_ATX's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.qintianjun.top/2022/05/16/yaml%E6%96%87%E4%BB%B6%E8%AF%A6%E8%A7%A3%E5%8F%8A%E7%A4%BA%E4%BE%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/logo.jpeg">
+      <meta itemprop="name" content="QinTianJun">
+      <meta itemprop="description" content="一个菜鸟的成长之路">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Freedom_ATX's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          yaml文件详解及示例
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-05-16 19:44:08 / 修改时间：19:47:11" itemprop="dateCreated datePublished" datetime="2022-05-16T19:44:08+08:00">2022-05-16</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Ops/" itemprop="url" rel="index"><span itemprop="name">Ops</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Ops/Cloud/" itemprop="url" rel="index"><span itemprop="name">Cloud</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="yaml-文件详解及示例"><a href="#yaml-文件详解及示例" class="headerlink" title="yaml 文件详解及示例"></a>yaml 文件详解及示例</h1><h2 id="Kubernetes-的几个重要概念："><a href="#Kubernetes-的几个重要概念：" class="headerlink" title="Kubernetes 的几个重要概念："></a>Kubernetes 的几个重要概念：</h2><ul>
+<li>资源对象： kubernetes基于声明式API，和资源对象进行交互。</li>
+<li>yaml文件:为了方便后期管理，通过使用yaml文件通过API管理资源对象。 </li>
+<li>yaml必需字段:<ol>
+<li>apiVersion - 创建该对象所使用的 Kubernetes API 的版本</li>
+<li>kind - 想要创建的对象的类型</li>
+<li>metadata - 定义识别对象唯一性的数据，包括一个 name 名称 、可选的 namespace</li>
+<li>spec:定义资源对象的详细规范信息(统一的label标签、容器名称、镜像、端口映射等) </li>
+<li>status(Pod创建完成后k8s自动生成status状态)</li>
+</ol>
+</li>
+<li>Pod：<ol>
+<li>pod是k8s中的最小单元。</li>
+<li>一个pod中可以运行一个容器，也可 以运行多个容器。</li>
+<li>运行多个容器的话，这些容器是一起 被调度的。</li>
+<li>Pod的生命周期是短暂的，不会自愈， 是用完就销毁的实体。</li>
+<li>一般我们是通过Controller来创建和管理pod的</li>
+</ol>
+</li>
+</ul>
+<h2 id="yaml-文件详解"><a href="#yaml-文件详解" class="headerlink" title="yaml 文件详解"></a>yaml 文件详解</h2><h3 id="yaml-文件必需字段"><a href="#yaml-文件必需字段" class="headerlink" title="yaml 文件必需字段"></a>yaml 文件必需字段</h3><ul>
+<li>每个API对象都有3大类属性： 元数据metadata、规范spec和状态status</li>
+<li>spec和status的区别：<ul>
+<li>spec 是期望状态</li>
+<li>status 是实际状态</li>
+</ul>
+</li>
+</ul>
+<p>基于yaml 文件，在k8s 中实现pod的创建与删除等功能</p>
+<h3 id="yaml-与json"><a href="#yaml-与json" class="headerlink" title="yaml 与json"></a>yaml 与json</h3><ul>
+<li><p>yaml和json对比，<br>在线yaml与json编辑器：<a target="_blank" rel="noopener" href="http://www.bejson.com/validators/yaml_editor/">http://www.bejson.com/validators/yaml_editor/</a></p>
+</li>
+<li><p>json格式</p>
+</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span> &#x27;人员名单&#x27;<span class="hljs-punctuation">:</span> <br>	<span class="hljs-punctuation">&#123;</span> &#x27;张三&#x27;<span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span> &#x27;年龄&#x27;<span class="hljs-punctuation">:</span> <span class="hljs-number">18</span><span class="hljs-punctuation">,</span> &#x27;职业&#x27;<span class="hljs-punctuation">:</span> &#x27;Linux运维工程师&#x27;<span class="hljs-punctuation">,</span> &#x27;爱好&#x27;<span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span> &#x27;看书&#x27;<span class="hljs-punctuation">,</span> &#x27;学习&#x27;<span class="hljs-punctuation">,</span> &#x27;加班&#x27; <span class="hljs-punctuation">]</span> <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>	  &#x27;李四&#x27;<span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span> &#x27;年龄&#x27;<span class="hljs-punctuation">:</span> <span class="hljs-number">20</span><span class="hljs-punctuation">,</span> &#x27;职业&#x27;<span class="hljs-punctuation">:</span> &#x27;Java开发工程师&#x27;<span class="hljs-punctuation">,</span> &#x27;爱好&#x27;<span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span> &#x27;开源技术&#x27;<span class="hljs-punctuation">,</span> &#x27;微服务&#x27;<span class="hljs-punctuation">,</span> &#x27;分布式存 储&#x27; <span class="hljs-punctuation">]</span> <span class="hljs-punctuation">&#125;</span> <span class="hljs-punctuation">&#125;</span> <br><span class="hljs-punctuation">&#125;</span> <br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p>json特点：</p>
+<ul>
+<li><p>json 不能注释</p>
+</li>
+<li><p>json 可读性较差</p>
+</li>
+<li><p>json 语法很严格</p>
+</li>
+<li><p>比较适用于API 返回值，也可用于配置文件</p>
+</li>
+</ul>
+</li>
+<li><p>yaml格式</p>
+</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">人员名单:</span> <span class="hljs-string">张三:</span><br><span class="hljs-string">年龄:</span> <span class="hljs-number">18</span> <span class="hljs-comment">#</span><br><span class="hljs-string">职业:</span> <span class="hljs-string">Linux运维工程师</span> <span class="hljs-string">爱好:</span><br><span class="hljs-bullet">-</span> <span class="hljs-string">看书</span> <span class="hljs-bullet">-</span> <span class="hljs-string">学习</span> <span class="hljs-bullet">-</span> <span class="hljs-string">加班</span><br><span class="hljs-string">李四:</span><br><span class="hljs-string">年龄:</span> <span class="hljs-number">20</span><br><span class="hljs-string">职业:</span> <span class="hljs-string">Java开发工程师</span> <span class="hljs-comment"># 这是职业 爱好:</span><br><span class="hljs-bullet">-</span> <span class="hljs-string">开源技术</span><br><span class="hljs-bullet">-</span> <span class="hljs-string">微服务</span><br><span class="hljs-bullet">-</span> <span class="hljs-string">分布式存储</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>大小写敏感<br>使用缩进表示层级关系<br>缩进时不允许使用Tal键，只允许使用空格 缩进的空格数目不重要，只要相同层级的元素左侧对齐即可 使用”#” 表示注释，从这个字符一直到行尾，都会被解析器忽略 比json更适用于配置文件</li>
+</ul>
+<p>k8s中的yaml文件以及其他场景的yaml文件，大部分都是以下类型:</p>
+<ul>
+<li><p>上下级关系</p>
+</li>
+<li><p>列表</p>
+</li>
+<li><p>键值对(也称为maps，即key:value 格式的键值对数据)</p>
+</li>
+<li><h3 id="pod-资源清单详细解读"><a href="#pod-资源清单详细解读" class="headerlink" title="pod 资源清单详细解读"></a>pod 资源清单详细解读</h3></li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span> <span class="hljs-comment">#版本号，例如 v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Pod</span> <span class="hljs-comment">#资源类型，如 Pod</span><br><span class="hljs-attr">metadata:</span> <span class="hljs-comment">#元数据</span><br> <span class="hljs-attr">name:</span> <span class="hljs-string">string</span> <span class="hljs-comment"># Pod 名字</span><br> <span class="hljs-attr">namespace:</span> <span class="hljs-string">string</span> <span class="hljs-comment"># Pod 所属的命名空间</span><br> <span class="hljs-attr">labels:</span> <span class="hljs-comment">#自定义标签</span><br> <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">string</span> <span class="hljs-comment">#自定义标签名字</span><br> <span class="hljs-attr">annotations:</span> <span class="hljs-comment">#自定义注释列表</span><br> <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">string</span><br><span class="hljs-attr">spec:</span> <span class="hljs-comment"># Pod 中容器的详细定义</span><br> <span class="hljs-attr">containers:</span> <span class="hljs-comment"># Pod 中容器列表</span><br> <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">string</span> <span class="hljs-comment">#容器名称</span><br> <span class="hljs-attr">image:</span> <span class="hljs-string">string</span> <span class="hljs-comment">#容器的镜像名称</span><br> <span class="hljs-attr">imagePullPolicy:</span> [<span class="hljs-string">Always</span> <span class="hljs-string">|</span> <span class="hljs-string">Never</span> <span class="hljs-string">|</span> <span class="hljs-string">IfNotPresent</span>] <span class="hljs-comment">#获取镜像的策略 Alawys 表示下载镜像 IfnotPresent 表示优先使用本地镜像，否则下载镜像，Nerver 表示仅使用本地镜像</span><br> <span class="hljs-attr">command:</span> [<span class="hljs-string">string</span>] <span class="hljs-comment">#容器的启动命令列表，如不指定，使用打包时使用的启动命令</span><br> <span class="hljs-attr">args:</span> [<span class="hljs-string">string</span>] <span class="hljs-comment">#容器的启动命令参数列表</span><br> <span class="hljs-attr">workingDir:</span> <span class="hljs-string">string</span> <span class="hljs-comment">#容器的工作目录</span><br> <span class="hljs-attr">volumeMounts:</span> <span class="hljs-comment">#挂载到容器内部的存储卷配置</span><br> <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">string</span> <span class="hljs-comment">#引用 pod 定义的共享存储卷的名称，需用 volumes[]部分定义的的卷名</span><br> <span class="hljs-attr">mountPath:</span> <span class="hljs-string">string</span> <span class="hljs-comment">#存储卷在容器内 mount 的绝对路径，应少于 512 字符</span><br> <span class="hljs-attr">readOnly:</span> <span class="hljs-string">boolean</span> <span class="hljs-comment">#是否为只读模式</span><br> <span class="hljs-attr">ports:</span> <span class="hljs-comment">#需要暴露的端口库号</span><br> <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">string</span> <span class="hljs-comment">#端口号名称</span><br> <span class="hljs-attr">containerPort:</span> <span class="hljs-string">int</span> <span class="hljs-comment">#容器需要监听的端口号</span><br> <span class="hljs-attr">hostPort:</span> <span class="hljs-string">int</span> <span class="hljs-comment">#容器所在主机需要监听的端口号，默认与 Container 相同</span><br> <span class="hljs-attr">protocol:</span> <span class="hljs-string">string</span> <span class="hljs-comment">#端口协议，支持 TCP 和 UDP，默认 TCP</span><br> <span class="hljs-attr">env:</span> <span class="hljs-comment">#容器运行前需设置的环境变量列表</span><br> <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">string</span> <span class="hljs-comment">#环境变量名称</span><br> <span class="hljs-attr">value:</span> <span class="hljs-string">string</span> <span class="hljs-comment">#环境变量的值</span><br> <span class="hljs-attr">resources:</span> <span class="hljs-comment">#资源限制和请求的设置</span><br> <span class="hljs-attr">limits:</span> <span class="hljs-comment">#资源限制的设置</span><br> <span class="hljs-attr">cpu:</span> <span class="hljs-string">string</span> <span class="hljs-comment">#cpu 的限制，单位为 core 数</span><br> <span class="hljs-attr">memory:</span> <span class="hljs-string">string</span> <span class="hljs-comment">#内存限制，单位可以为 Mib/Gib</span><br> <span class="hljs-attr">requests:</span> <span class="hljs-comment">#资源请求的设置</span><br> <span class="hljs-attr">cpu:</span> <span class="hljs-string">string</span> <span class="hljs-comment">#cpu 请求，容器启动的初始可用数量</span><br> <span class="hljs-attr">memory:</span> <span class="hljs-string">string</span> <span class="hljs-comment">#内存请求，容器启动的初始可用内存</span><br> <span class="hljs-attr">livenessProbe:</span> <span class="hljs-comment">#对 Pod 内个容器健康检查的设置，当探测无响应几次后将自动重启该容器，检查方法有 exec、httpGet 和 tcpSocket，对一个容器只需设置其中一种方法即可</span><br> <span class="hljs-attr">exec:</span> <span class="hljs-comment">#对 Pod 容器内检查方式设置为 exec 方式</span><br> <span class="hljs-attr">command:</span> [<span class="hljs-string">string</span>] <span class="hljs-comment">#exec 方式需要制定的命令或脚本</span><br> <span class="hljs-attr">httpGet:</span> <span class="hljs-comment">#对 Pod 内个容器健康检查方法设置为 HttpGet，需要制定 Path、port</span><br> <span class="hljs-attr">path:</span> <span class="hljs-string">string</span><br> <span class="hljs-attr">port:</span> <span class="hljs-string">number</span><br> <span class="hljs-attr">host:</span> <span class="hljs-string">string</span><br> <span class="hljs-attr">scheme:</span> <span class="hljs-string">string</span><br> <span class="hljs-attr">HttpHeaders:</span><br> <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">string</span><br> <span class="hljs-attr">value:</span> <span class="hljs-string">string</span><br> <span class="hljs-attr">tcpSocket:</span> <span class="hljs-comment">#对 Pod 内个容器健康检查方式设置为 tcpSocket 方式</span><br> <span class="hljs-attr">port:</span> <span class="hljs-string">number</span><br> <span class="hljs-attr">initialDelaySeconds:</span> <span class="hljs-number">0</span> <span class="hljs-comment">#容器启动完成后首次探测的时间，单位为秒</span><br> <span class="hljs-attr">timeoutSeconds:</span> <span class="hljs-number">0</span> <span class="hljs-comment">#对容器健康检查探测等待响应的超时时间，单位秒，默认 1 秒</span><br> <span class="hljs-attr">periodSeconds:</span> <span class="hljs-number">0</span> <span class="hljs-comment">#对容器监控检查的定期探测时间设置，单位秒，默认 10 秒一次</span><br> <span class="hljs-attr">successThreshold:</span> <span class="hljs-number">0</span><br> <span class="hljs-attr">failureThreshold:</span> <span class="hljs-number">0</span><br> <span class="hljs-attr">securityContext:</span><br> <span class="hljs-string">privileged:false</span><br> <span class="hljs-attr">restartPolicy:</span> [<span class="hljs-string">Always</span> <span class="hljs-string">|</span> <span class="hljs-string">Never</span> <span class="hljs-string">|</span> <span class="hljs-string">OnFailure</span>]<span class="hljs-comment">#Pod 的重启策略，Always 表示一旦不管以何种方式终止运行，kubelet 都将重启，OnFailure 表示只有 Pod 以非 0 退出码退出才重启，Nerver 表示不再重启该 Pod</span><br> <span class="hljs-attr">nodeSelector:</span> <span class="hljs-string">obeject</span> <span class="hljs-comment">#设置 NodeSelector 表示将该 Pod 调度到包含这个 label 的 node上，以 key：value 的格式指定</span><br> <span class="hljs-attr">imagePullSecrets:</span> <span class="hljs-comment">#Pull 镜像时使用的 secret 名称，以 key：secretkey 格式指定</span><br> <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">string</span><br> <span class="hljs-string">hostNetwork:false</span> <span class="hljs-comment">#是否使用主机网络模式，默认为 false，如果设置为 true，表示使用宿主机网络</span><br> <span class="hljs-attr">volumes:</span> <span class="hljs-comment">#在该 pod 上定义共享存储卷列表</span><br> <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">string</span> <span class="hljs-comment">#共享存储卷名称 （volumes 类型有很多种）</span><br> <span class="hljs-attr">emptyDir:</span> &#123;&#125; <span class="hljs-comment">#类型为 emtyDir 的存储卷，与 Pod 同生命周期的一个临时目录。为空值</span><br> <span class="hljs-attr">hostPath:</span> <span class="hljs-string">string</span> <span class="hljs-comment">#类型为 hostPath 的存储卷，表示挂载 Pod 所在宿主机的目录</span><br> <span class="hljs-attr">path:</span> <span class="hljs-string">string</span> <span class="hljs-comment">#Pod 所在宿主机的目录，将被用于同期中 mount 的目录</span><br> <span class="hljs-attr">secret:</span> <span class="hljs-comment">#类型为 secret 的存储卷，挂载集群与定义的 secre 对象到容器内部</span><br> <span class="hljs-attr">scretname:</span> <span class="hljs-string">string</span> <br> <span class="hljs-attr">items:</span> <br> <span class="hljs-bullet">-</span> <span class="hljs-attr">key:</span> <span class="hljs-string">string</span><br> <span class="hljs-attr">path:</span> <span class="hljs-string">string</span><br> <span class="hljs-attr">configMap:</span> <span class="hljs-comment">#类型为 configMap 的存储卷，挂载预定义的 configMap 对象到容器内部</span><br> <span class="hljs-attr">name:</span> <span class="hljs-string">string</span><br> <span class="hljs-attr">items:</span><br> <span class="hljs-bullet">-</span> <span class="hljs-attr">key:</span> <span class="hljs-string">string</span><br> <span class="hljs-attr">path:</span> <span class="hljs-string">string</span><br></code></pre></td></tr></table></figure>
+
+<p>例子：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment">#test-pod </span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span> <span class="hljs-comment">#指定api版本，此值必须在kubectl apiversion中   </span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Pod</span> <span class="hljs-comment">#指定创建资源的角色/类型   </span><br><span class="hljs-attr">metadata:</span> <span class="hljs-comment">#资源的元数据/属性   </span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">test-pod</span> <span class="hljs-comment">#资源的名字，在同一个namespace中必须唯一   </span><br>  <span class="hljs-attr">labels:</span> <span class="hljs-comment">#设定资源的标签 </span><br>    <span class="hljs-attr">k8s-app:</span> <span class="hljs-string">apache</span>   <br>    <span class="hljs-attr">version:</span> <span class="hljs-string">v1</span>   <br>    <span class="hljs-attr">kubernetes.io/cluster-service:</span> <span class="hljs-string">&quot;true&quot;</span>   <br>  <span class="hljs-attr">annotations:</span>            <span class="hljs-comment">#自定义注解列表   </span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">String</span>        <span class="hljs-comment">#自定义注解名字   </span><br><span class="hljs-attr">spec:</span> <span class="hljs-comment">#specification of the resource content 指定该资源的内容   </span><br>  <span class="hljs-attr">restartPolicy:</span> <span class="hljs-string">Always</span> <span class="hljs-comment">#表明该容器一直运行，默认k8s的策略，在此容器退出后，会立即创建一个相同的容器   </span><br>  <span class="hljs-attr">nodeSelector:</span>     <span class="hljs-comment">#节点选择，先给主机打标签kubectl label nodes kube-node1 zone=node1   </span><br>    <span class="hljs-attr">zone:</span> <span class="hljs-string">node1</span>   <br>  <span class="hljs-attr">containers:</span>   <br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">test-pod</span> <span class="hljs-comment">#容器的名字   </span><br>    <span class="hljs-attr">image:</span> <span class="hljs-number">10.192</span><span class="hljs-number">.21</span><span class="hljs-number">.18</span><span class="hljs-string">:5000/test/chat:latest</span> <span class="hljs-comment">#容器使用的镜像地址   </span><br>    <span class="hljs-attr">imagePullPolicy:</span> <span class="hljs-string">Never</span> <span class="hljs-comment">#三个选择Always、Never、IfNotPresent，每次启动时检查和更新（从registery）images的策略， </span><br>                           <span class="hljs-comment"># Always，每次都检查 </span><br>                           <span class="hljs-comment"># Never，每次都不检查（不管本地是否有） </span><br>                           <span class="hljs-comment"># IfNotPresent，如果本地有就不检查，如果没有就拉取 </span><br>    <span class="hljs-attr">command:</span> [<span class="hljs-string">&#x27;sh&#x27;</span>] <span class="hljs-comment">#启动容器的运行命令，将覆盖容器中的Entrypoint,对应Dockefile中的ENTRYPOINT   </span><br>    <span class="hljs-attr">args:</span> [<span class="hljs-string">&quot;$(str)&quot;</span>] <span class="hljs-comment">#启动容器的命令参数，对应Dockerfile中CMD参数   </span><br>    <span class="hljs-attr">env:</span> <span class="hljs-comment">#指定容器中的环境变量   </span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">str</span> <span class="hljs-comment">#变量的名字   </span><br>      <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;/etc/run.sh&quot;</span> <span class="hljs-comment">#变量的值   </span><br>    <span class="hljs-attr">resources:</span> <span class="hljs-comment">#资源管理 </span><br>      <span class="hljs-attr">requests:</span> <span class="hljs-comment">#容器运行时，最低资源需求，也就是说最少需要多少资源容器才能正常运行   </span><br>        <span class="hljs-attr">cpu:</span> <span class="hljs-number">0.1</span> <span class="hljs-comment">#CPU资源（核数），两种方式，浮点数或者是整数+m，0.1=100m，最少值为0.001核（1m）, 1核心=1000m; 1/2表示是整数的核心cpu</span><br>        <span class="hljs-attr">memory:</span> <span class="hljs-string">32Mi</span> <span class="hljs-comment">#内存使用量   </span><br>      <span class="hljs-attr">limits:</span> <span class="hljs-comment">#资源限制   </span><br>        <span class="hljs-attr">cpu:</span> <span class="hljs-number">0.5</span>   <br>        <span class="hljs-attr">memory:</span> <span class="hljs-string">1000Mi</span>   <br>    <span class="hljs-attr">ports:</span>   <br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">80</span> <span class="hljs-comment">#容器开发对外的端口 </span><br>      <span class="hljs-attr">name:</span> <span class="hljs-string">httpd</span>  <span class="hljs-comment">#名称 </span><br>      <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span>   <br>    <span class="hljs-attr">livenessProbe:</span> <span class="hljs-comment">#pod内容器健康检查的设置 </span><br>      <span class="hljs-attr">httpGet:</span> <span class="hljs-comment">#通过httpget检查健康，返回200-399之间，则认为容器正常   </span><br>        <span class="hljs-attr">path:</span> <span class="hljs-string">/</span> <span class="hljs-comment">#URI地址   </span><br>        <span class="hljs-attr">port:</span> <span class="hljs-number">80</span>   <br>        <span class="hljs-comment">#host: 127.0.0.1 #主机地址   </span><br>        <span class="hljs-attr">scheme:</span> <span class="hljs-string">HTTP</span>   <br>      <span class="hljs-attr">initialDelaySeconds:</span> <span class="hljs-number">180</span> <span class="hljs-comment">#表明第一次检测在容器启动后多长时间后开始   </span><br>      <span class="hljs-attr">timeoutSeconds:</span> <span class="hljs-number">5</span> <span class="hljs-comment">#检测的超时时间   </span><br>      <span class="hljs-attr">periodSeconds:</span> <span class="hljs-number">15</span>  <span class="hljs-comment">#检查间隔时间   </span><br>      <span class="hljs-comment">#也可以用这种方法   </span><br>      <span class="hljs-comment">#exec: 执行命令的方法进行监测，如果其退出码不为0，则认为容器正常   </span><br>      <span class="hljs-comment">#  command:   </span><br>      <span class="hljs-comment">#    - cat   </span><br>      <span class="hljs-comment">#    - /tmp/health   </span><br>      <span class="hljs-comment">#也可以用这种方法   </span><br>      <span class="hljs-comment">#tcpSocket: //通过tcpSocket检查健康    </span><br>      <span class="hljs-comment">#  port: number    </span><br>    <span class="hljs-attr">lifecycle:</span> <span class="hljs-comment">#生命周期管理   </span><br>      <span class="hljs-attr">postStart:</span> <span class="hljs-comment">#容器运行之前运行的任务   </span><br>        <span class="hljs-attr">exec:</span>   <br>          <span class="hljs-attr">command:</span>   <br>            <span class="hljs-bullet">-</span> <span class="hljs-string">&#x27;sh&#x27;</span>   <br>            <span class="hljs-bullet">-</span> <span class="hljs-string">&#x27;yum upgrade -y&#x27;</span>   <br>      <span class="hljs-string">preStop:#容器关闭之前运行的任务</span>   <br>        <span class="hljs-attr">exec:</span>   <br>          <span class="hljs-attr">command:</span> [<span class="hljs-string">&#x27;service httpd stop&#x27;</span>]   <br>    <span class="hljs-attr">volumeMounts:</span>  <span class="hljs-comment">#挂载持久存储卷 </span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">volume</span> <span class="hljs-comment">#挂载设备的名字，与volumes[*].name 需要对应     </span><br>      <span class="hljs-attr">mountPath:</span> <span class="hljs-string">/data</span> <span class="hljs-comment">#挂载到容器的某个路径下   </span><br>      <span class="hljs-attr">readOnly:</span> <span class="hljs-literal">True</span>   <br>  <span class="hljs-attr">volumes:</span> <span class="hljs-comment">#定义一组挂载设备   </span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">volume</span> <span class="hljs-comment">#定义一个挂载设备的名字   </span><br>    <span class="hljs-comment">#meptyDir: &#123;&#125;   </span><br>    <span class="hljs-attr">hostPath:</span>   <br>      <span class="hljs-attr">path:</span> <span class="hljs-string">/opt</span> <span class="hljs-comment">#挂载设备类型为hostPath，路径为宿主机下的/opt,这里设备类型支持很多种 </span><br>    <span class="hljs-comment">#nfs</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="实践nginx-tomcat"><a href="#实践nginx-tomcat" class="headerlink" title="实践nginx+tomcat"></a>实践nginx+tomcat</h3><ol>
+<li>使用yaml创建nginx pod</li>
+</ol>
+<p>Nginx.yaml:</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">kind:</span> <span class="hljs-string">Deployment</span>  <span class="hljs-comment">#类型，是deployment控制器，kubectl explain  Deployment</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">extensions/v1beta1</span>  <span class="hljs-comment">#API版本，# kubectl explain  Deployment.apiVersion</span><br><span class="hljs-attr">metadata:</span> <span class="hljs-comment">#pod的元数据信息，kubectl explain  Deployment.metadata</span><br>  <span class="hljs-attr">labels:</span> <span class="hljs-comment">#自定义pod的标签，# kubectl explain  Deployment.metadata.labels</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">linux66-nginx-deployment-label</span> <span class="hljs-comment">#标签名称为app值为linux66-nginx-deployment-label，后面会用到此标签 </span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">linux66-nginx-deployment</span> <span class="hljs-comment">#pod的名称</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">linux66</span> <span class="hljs-comment">#pod的namespace，默认是defaule</span><br><span class="hljs-attr">spec:</span> <span class="hljs-comment">#定义deployment中容器的详细信息，kubectl explain  Deployment.spec</span><br>  <span class="hljs-attr">replicas:</span> <span class="hljs-number">1</span> <span class="hljs-comment">#创建出的pod的副本数，即多少个pod，默认值为1</span><br>  <span class="hljs-attr">selector:</span> <span class="hljs-comment">#定义标签选择器</span><br>    <span class="hljs-attr">matchLabels:</span> <span class="hljs-comment">#定义匹配的标签，必须要设置</span><br>      <span class="hljs-attr">app:</span> <span class="hljs-string">linux36-nginx-selector</span> <span class="hljs-comment">#匹配的目标标签，</span><br>  <span class="hljs-attr">template:</span> <span class="hljs-comment">#定义模板，必须定义，模板是起到描述要创建的pod的作用</span><br>    <span class="hljs-attr">metadata:</span> <span class="hljs-comment">#定义模板元数据</span><br>      <span class="hljs-attr">labels:</span> <span class="hljs-comment">#定义模板label，Deployment.spec.template.metadata.labels</span><br>        <span class="hljs-attr">app:</span> <span class="hljs-string">linux36-nginx-selector</span> <span class="hljs-comment">#定义标签，等于Deployment.spec.selector.matchLabels</span><br>    <span class="hljs-attr">spec:</span> <span class="hljs-comment">#定义pod信息</span><br>      <span class="hljs-string">containers:#定义pod中容器列表，可以多个至少一个，pod不能动态增减容器</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">linux36-nginx-container</span> <span class="hljs-comment">#容器名称</span><br>        <span class="hljs-attr">image:</span> <span class="hljs-string">harbor.magedu.net/linux36/nginx-web1:v1</span> <span class="hljs-comment">#镜像地址</span><br>        <span class="hljs-comment">#command: [&quot;/apps/tomcat/bin/run_tomcat.sh&quot;] #容器启动执行的命令或脚本</span><br>        <span class="hljs-comment">#imagePullPolicy: IfNotPresent</span><br>        <span class="hljs-attr">imagePullPolicy:</span> <span class="hljs-string">Always</span> <span class="hljs-comment">#拉取镜像策略</span><br>        <span class="hljs-attr">ports:</span> <span class="hljs-comment">#定义容器端口列表</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">80</span> <span class="hljs-comment">#定义一个端口</span><br>          <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span> <span class="hljs-comment">#端口协议</span><br>          <span class="hljs-attr">name:</span> <span class="hljs-string">http</span> <span class="hljs-comment">#端口名称</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">443</span> <span class="hljs-comment">#定义一个端口</span><br>          <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span> <span class="hljs-comment">#端口协议</span><br>          <span class="hljs-attr">name:</span> <span class="hljs-string">https</span> <span class="hljs-comment">#端口名称</span><br>        <span class="hljs-attr">env:</span> <span class="hljs-comment">#配置环境变量</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">&quot;password&quot;</span> <span class="hljs-comment">#变量名称。必须要用引号引起来</span><br>          <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;123456&quot;</span> <span class="hljs-comment">#当前变量的值</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">&quot;age&quot;</span> <span class="hljs-comment">#另一个变量名称</span><br>          <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;18&quot;</span> <span class="hljs-comment">#另一个变量的值</span><br>        <span class="hljs-attr">resources:</span> <span class="hljs-comment">#对资源的请求设置和限制设置</span><br>          <span class="hljs-attr">limits:</span> <span class="hljs-comment">#资源限制设置，上限</span><br>            <span class="hljs-attr">cpu:</span> <span class="hljs-string">500m</span>  <span class="hljs-comment">#cpu的限制，单位为core数，可以写0.5或者500m等CPU压缩值</span><br>            <span class="hljs-attr">memory:</span> <span class="hljs-string">2Gi</span> <span class="hljs-comment">#内存限制，单位可以为Mib/Gib，将用于docker run --memory参数</span><br>          <span class="hljs-attr">requests:</span> <span class="hljs-comment">#资源请求的设置</span><br>            <span class="hljs-attr">cpu:</span> <span class="hljs-string">200m</span> <span class="hljs-comment">#cpu请求数，容器启动的初始可用数量,可以写0.5或者500m等CPU压缩值</span><br>            <span class="hljs-attr">memory:</span> <span class="hljs-string">512Mi</span> <span class="hljs-comment">#内存请求大小，容器启动的初始可用数量，用于调度pod时候使用</span><br>    <br>          <br><span class="hljs-meta">---</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Service</span> <span class="hljs-comment">#类型为service</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span> <span class="hljs-comment">#service API版本， service.apiVersion</span><br><span class="hljs-attr">metadata:</span> <span class="hljs-comment">#定义service元数据，service.metadata</span><br>  <span class="hljs-attr">labels:</span> <span class="hljs-comment">#自定义标签，service.metadata.labels</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">linux66-nginx</span> <span class="hljs-comment">#定义service标签的内容</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">linux66-nginx-spec</span> <span class="hljs-comment">#定义service的名称，此名称会被DNS解析</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">linux66</span> <span class="hljs-comment">#该service隶属于的namespaces名称，即把service创建到哪个namespace里面</span><br><span class="hljs-attr">spec:</span> <span class="hljs-comment">#定义service的详细信息，service.spec</span><br>  <span class="hljs-attr">type:</span> <span class="hljs-string">NodePort</span> <span class="hljs-comment">#service的类型，定义服务的访问方式，默认为ClusterIP， service.spec.type</span><br>  <span class="hljs-attr">ports:</span> <span class="hljs-comment">#定义访问端口， service.spec.ports</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">http</span> <span class="hljs-comment">#定义一个端口名称</span><br>    <span class="hljs-attr">port:</span> <span class="hljs-number">80</span> <span class="hljs-comment">#service 80端口</span><br>    <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span> <span class="hljs-comment">#协议类型</span><br>    <span class="hljs-attr">targetPort:</span> <span class="hljs-number">80</span> <span class="hljs-comment">#目标pod的端口</span><br>    <span class="hljs-attr">nodePort:</span> <span class="hljs-number">30001</span> <span class="hljs-comment">#node节点暴露的端口</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">https</span> <span class="hljs-comment">#SSL 端口</span><br>    <span class="hljs-attr">port:</span> <span class="hljs-number">443</span> <span class="hljs-comment">#service 443端口</span><br>    <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span> <span class="hljs-comment">#端口协议</span><br>    <span class="hljs-attr">targetPort:</span> <span class="hljs-number">443</span> <span class="hljs-comment">#目标pod端口</span><br>    <span class="hljs-attr">nodePort:</span> <span class="hljs-number">30043</span> <span class="hljs-comment">#node节点暴露的SSL端口</span><br>  <span class="hljs-attr">selector:</span> <span class="hljs-comment">#service的标签选择器，定义要访问的目标pod</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">linux66-nginx</span> <span class="hljs-comment">#将流量路到选择的pod上，须等于Deployment.spec.selector.matchLabels</span><br></code></pre></td></tr></table></figure>
+
+<p>创建对应pod：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><code class="hljs bash">[root@master yaml]<span class="hljs-comment"># kubectl apply -f nginx.yaml</span><br>Error from server (NotFound): error when creating <span class="hljs-string">&quot;nginx.yaml&quot;</span>: namespaces <span class="hljs-string">&quot;linux66&quot;</span> not found<br>Error from server (NotFound): error when creating <span class="hljs-string">&quot;nginx.yaml&quot;</span>: namespaces <span class="hljs-string">&quot;linux66&quot;</span> not found<br>[root@master yaml]<span class="hljs-comment"># kubectl create ns linux66</span><br>namespace/linux66 created<br>[root@master yaml]<span class="hljs-comment"># kubectl get ns -A</span><br>NAME                   STATUS   AGE<br>default                Active   19d<br>kube-node-lease        Active   19d<br>kube-public            Active   19d<br>kube-system            Active   19d<br>kubernetes-dashboard   Active   16d<br>linux66                Active   7s<br>[root@master yaml]<span class="hljs-comment"># kubectl apply -f nginx.yaml</span><br>deployment.apps/linux66-nginx-deployment created<br>service/linux66-nginx-service created<br></code></pre></td></tr></table></figure>
+
+<p>查看pod状态可以看到对应pod创建：</p>
+<p><img src="https://s2.loli.net/2022/05/16/6FKw9oVQxGHNlq8.png" alt="image-20220516170456091"></p>
+<p>测试访问Nginx web界面：</p>
+<p><img src="https://s2.loli.net/2022/05/16/xpFTkB1OYmru6ob.png" alt="image-20220516170419125"></p>
+<ol start="2">
+<li>使用yaml创建tomcat pod</li>
+</ol>
+<p>Tomcat.yaml:</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">kind:</span> <span class="hljs-string">Deployment</span><br><span class="hljs-comment">#apiVersion: extensions/v1beta1</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">apps/v1</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">labels:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">linux66-tomcat-app1-deployment-label</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">linux66-tomcat-app1-deployment</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">linux66</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">replicas:</span> <span class="hljs-number">1</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">matchLabels:</span><br>      <span class="hljs-attr">app:</span> <span class="hljs-string">linux66-tomcat-app1-selector</span><br>  <span class="hljs-attr">template:</span><br>    <span class="hljs-attr">metadata:</span><br>      <span class="hljs-attr">labels:</span><br>        <span class="hljs-attr">app:</span> <span class="hljs-string">linux66-tomcat-app1-selector</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">containers:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">linux66-tomcat-app1-container</span><br>        <span class="hljs-attr">image:</span> <span class="hljs-string">tomcat:7.0.94-alpine</span> <br>        <span class="hljs-comment">#command: [&quot;/apps/tomcat/bin/run_tomcat.sh&quot;]</span><br>        <span class="hljs-comment">#imagePullPolicy: IfNotPresent</span><br>        <span class="hljs-attr">imagePullPolicy:</span> <span class="hljs-string">Always</span><br>        <span class="hljs-attr">ports:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">8080</span><br>          <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span><br>          <span class="hljs-attr">name:</span> <span class="hljs-string">http</span><br>        <span class="hljs-attr">env:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">&quot;password&quot;</span><br>          <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;123456&quot;</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">&quot;age&quot;</span><br>          <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;18&quot;</span><br>        <span class="hljs-attr">resources:</span><br>          <span class="hljs-attr">limits:</span><br>            <span class="hljs-attr">cpu:</span> <span class="hljs-number">1</span><br>            <span class="hljs-attr">memory:</span> <span class="hljs-string">&quot;512Mi&quot;</span><br>          <span class="hljs-attr">requests:</span><br>            <span class="hljs-attr">cpu:</span> <span class="hljs-string">500m</span><br>            <span class="hljs-attr">memory:</span> <span class="hljs-string">&quot;512Mi&quot;</span><br><span class="hljs-meta">---</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Service</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">labels:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">linux66-tomcat-app1-service-label</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">linux66-tomcat-app1-service</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">linux66</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-comment">#type: NodePort</span><br>  <span class="hljs-attr">ports:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">http</span><br>    <span class="hljs-attr">port:</span> <span class="hljs-number">80</span><br>    <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span><br>    <span class="hljs-attr">targetPort:</span> <span class="hljs-number">8080</span><br>    <span class="hljs-comment">#nodePort: 40003</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">linux66-tomcat-app1-selector</span><br></code></pre></td></tr></table></figure>
+
+<p>同样使用<code>kubectl apply -f tomcat.yaml</code>创建</p>
+<p><img src="https://s2.loli.net/2022/05/16/WG9aJjXhfAD6NKm.png" alt="image-20220516193135612"></p>
+<p>在nginx容器中添加location, 将login&#x2F;的请求转发给后端tomcat:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 在tomcat 中新建一个测试页</span><br>[root@master yaml]<span class="hljs-comment"># kubectl get pod -n linux66 -o wide # 查询pod信息</span><br>NAME                                             READY   STATUS    RESTARTS   AGE     IP            NODE             NOMINATED NODE   READINESS GATES<br>linux66-nginx-deployment-5b456947b4-6scvj        1/1     Running   0          52m     172.20.2.22   192.168.68.149   &lt;none&gt;           &lt;none&gt;<br>linux66-tomcat-app1-deployment-78b9b46cc-7jh7f   1/1     Running   0          2m42s   172.20.1.24   192.168.68.150   &lt;none&gt;           &lt;none&gt;<br>[root@master yaml]<span class="hljs-comment"># kubectl exec -it linux66-tomcat-app1-deployment-78b9b46cc-7jh7f bash -n linux66</span><br>bash-4.4<span class="hljs-comment"># cd /usr/local/tomcat/webapps</span><br>bash-4.4<span class="hljs-comment"># mkdir  login/</span><br>bash-4.4<span class="hljs-comment"># echo &quot;&lt;h1&gt;tomcat login web page.&lt;/h1&gt;&quot; &gt;&gt; login/index.jsp</span><br>bash-4.4<span class="hljs-comment"># exit</span><br>----<br>[root@master yaml]<span class="hljs-comment"># kubectl get pod -n linux66 -o wide  # 查询pod信息</span><br>NAME                                             READY   STATUS    RESTARTS   AGE     IP            NODE             NOMINATED NODE   READINESS GATES<br>linux66-nginx-deployment-5b456947b4-6scvj        1/1     Running   0          55m     172.20.2.22   192.168.68.149   &lt;none&gt;           &lt;none&gt;<br>linux66-tomcat-app1-deployment-78b9b46cc-7jh7f   1/1     Running   0          5m26s   172.20.1.24   192.168.68.150   &lt;none&gt;           &lt;none&gt;<br>[root@master yaml]<span class="hljs-comment"># kubectl get svc -n linux66  # 查询service名称</span><br>NAME                          TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE<br>linux66-nginx-service         NodePort    10.68.201.209   &lt;none&gt;        80:30006/TCP,443:30443/TCP   123m<br>linux66-tomcat-app1-service   ClusterIP   10.68.235.125   &lt;none&gt;        80/TCP                       73m<br>[root@master yaml]<span class="hljs-comment"># kubectl exec -it linux66-nginx-deployment-5b456947b4-6scvj bash -n linux66  # 进入nginx所在pod</span><br>root@linux66-nginx-deployment-5b456947b4-6scvj:/<span class="hljs-comment"># vim /etc/nginx/conf/default.conf</span><br>server &#123;<br>    listen       80;<br>    listen  [::]:80;<br>    server_name  localhost;<br><br>    <span class="hljs-comment">#access_log  /var/log/nginx/host.access.log  main;</span><br><br>    location / &#123;<br>        root   /usr/share/nginx/html;<br>        index  index.html index.htm;<br>    &#125;<br><br>    location /login &#123;  <span class="hljs-comment"># 添加location,转发流量到tomcat</span><br>        proxy_pass http://linux66-tomcat-app1-service; <span class="hljs-comment"># 流量转发给tomcat所在service（此处用svc名称而不用ip，因为容器ip是有可能变化的）</span><br>        <span class="hljs-comment"># 也可以写全： proxy_pass http://linux66-tomcat-app1-service.linux66.svc.magedu.local；</span><br>    &#125;<br><br>    <span class="hljs-comment">#error_page  404              /404.html;</span><br><br>    <span class="hljs-comment"># redirect server error pages to the static page /50x.html</span><br>    <span class="hljs-comment">#</span><br>    error_page   500 502 503 504  /50x.html;<br>    location = /50x.html &#123;<br>        root   /usr/share/nginx/html;<br>    &#125;<br>&#125;<br><span class="hljs-comment"># 校验无误并重启</span><br>root@linux66-nginx-deployment-5b456947b4-6scvj:/<span class="hljs-comment"># nginx -t</span><br>nginx: the configuration file /etc/nginx/nginx.conf syntax is ok<br>nginx: configuration file /etc/nginx/nginx.conf <span class="hljs-built_in">test</span> is successful<br>root@linux66-nginx-deployment-5b456947b4-6scvj:/<span class="hljs-comment"># nginx -s reload</span><br>2022/05/16 11:06:00 [notice] 468<span class="hljs-comment">#468: signal process started</span><br><br></code></pre></td></tr></table></figure>
+
+<p>此时，访问 <a target="_blank" rel="noopener" href="http://192.168.68.150:30006/login/index.jsp%EF%BC%8C%E5%8F%AF%E4%BB%A5%E5%8F%91%E7%8E%B0%E6%B5%81%E9%87%8F%E6%AD%A3%E7%A1%AE%E8%BD%AC%E5%8F%91%E7%BB%99%E4%BA%86tomcat">http://192.168.68.150:30006/login/index.jsp，可以发现流量正确转发给了tomcat</a></p>
+<p>&#96;<img src="https://s2.loli.net/2022/05/16/i8GaxTlLoNMKn5J.png" alt="image-20220516190715383"></p>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Ops/" rel="tag"># Ops</a>
+              <a href="/tags/k8s/" rel="tag"># k8s</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/05/13/Kubernetes%E7%BB%84%E4%BB%B6etcd%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86%E7%82%B9%E6%80%BB%E7%BB%93/" rel="prev" title="Kubernetes组件etcd相关知识点总结">
+      <i class="fa fa-chevron-left"></i> Kubernetes组件etcd相关知识点总结
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#yaml-%E6%96%87%E4%BB%B6%E8%AF%A6%E8%A7%A3%E5%8F%8A%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.</span> <span class="nav-text">yaml 文件详解及示例</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Kubernetes-%E7%9A%84%E5%87%A0%E4%B8%AA%E9%87%8D%E8%A6%81%E6%A6%82%E5%BF%B5%EF%BC%9A"><span class="nav-number">1.1.</span> <span class="nav-text">Kubernetes 的几个重要概念：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#yaml-%E6%96%87%E4%BB%B6%E8%AF%A6%E8%A7%A3"><span class="nav-number">1.2.</span> <span class="nav-text">yaml 文件详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#yaml-%E6%96%87%E4%BB%B6%E5%BF%85%E9%9C%80%E5%AD%97%E6%AE%B5"><span class="nav-number">1.2.1.</span> <span class="nav-text">yaml 文件必需字段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#yaml-%E4%B8%8Ejson"><span class="nav-number">1.2.2.</span> <span class="nav-text">yaml 与json</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pod-%E8%B5%84%E6%BA%90%E6%B8%85%E5%8D%95%E8%AF%A6%E7%BB%86%E8%A7%A3%E8%AF%BB"><span class="nav-number">1.2.3.</span> <span class="nav-text">pod 资源清单详细解读</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E8%B7%B5nginx-tomcat"><span class="nav-number">1.2.4.</span> <span class="nav-text">实践nginx+tomcat</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="QinTianJun"
+      src="/images/logo.jpeg">
+  <p class="site-author-name" itemprop="name">QinTianJun</p>
+  <div class="site-description" itemprop="description">一个菜鸟的成长之路</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qtj1215" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qtj1215" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:freedom1215@foxmail.com" title="E-Mail → mailto:freedom1215@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.qintianjun.top/atom.xml" title="RSS → https:&#x2F;&#x2F;www.qintianjun.top&#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QinTianJun</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
