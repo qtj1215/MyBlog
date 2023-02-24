@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-CN,en,default">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.qintianjun.top","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="k8s业务容器化实战案例">
+<meta property="og:type" content="article">
+<meta property="og:title" content="k8s业务容器化实战案例">
+<meta property="og:url" content="http://www.qintianjun.top/2023/02/24/k8s%E4%B8%9A%E5%8A%A1%E5%AE%B9%E5%99%A8%E5%8C%96%E5%AE%9E%E6%88%98%E6%A1%88%E4%BE%8B/index.html">
+<meta property="og:site_name" content="Freedom_ATX&#39;s Blog">
+<meta property="og:description" content="k8s业务容器化实战案例">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2023/02/24/y92vHhR3L8mX5Zg.png">
+<meta property="og:image" content="https://s2.loli.net/2023/02/24/9fUlTZu3rjmegEB.png">
+<meta property="og:image" content="http://www.qintianjun.top/">
+<meta property="og:image" content="https://s2.loli.net/2023/02/24/CbhTOLnMr7mKDNR.png">
+<meta property="og:image" content="https://s2.loli.net/2023/02/24/4kPRYBQUriDdvTp.png">
+<meta property="og:image" content="https://s2.loli.net/2023/02/24/vLrYADyNhXuBt87.png">
+<meta property="og:image" content="https://s2.loli.net/2023/02/24/an65DGASjWNLQTB.png">
+<meta property="og:image" content="http://www.qintianjun.top/k8s%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98%E6%A1%88%E4%BE%8B.assets/image-20220731171546181.png">
+<meta property="og:image" content="https://s2.loli.net/2023/02/24/7nDkVpHuX1UfMlA.png">
+<meta property="og:image" content="https://s2.loli.net/2023/02/24/KUfEkxyNlHXC59b.png">
+<meta property="og:image" content="https://s2.loli.net/2023/02/24/L3tzPsq4rfARyak.png">
+<meta property="og:image" content="https://s2.loli.net/2023/02/24/d7oBaTYwkMImivc.png">
+<meta property="og:image" content="http://www.qintianjun.top/k8s%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98%E6%A1%88%E4%BE%8B.assets/image-20220801185537471.png">
+<meta property="og:image" content="https://s2.loli.net/2023/02/24/avIzSKVREBgxCiJ.png">
+<meta property="og:image" content="https://s2.loli.net/2023/02/24/RExAc5BaVJMqINi.png">
+<meta property="og:image" content="https://s2.loli.net/2023/02/24/i46tOrbBj72ecEg.png">
+<meta property="og:image" content="https://s2.loli.net/2023/02/24/gnWakMvmZlXhCVs.png">
+<meta property="og:image" content="https://s2.loli.net/2023/02/24/nvoWQqjlHxf8ziD.png">
+<meta property="og:image" content="https://s2.loli.net/2023/02/24/9iMQNVsBueGvdta.png">
+<meta property="og:image" content="https://s2.loli.net/2023/02/24/GNK7yOEvgz9mpYt.png">
+<meta property="og:image" content="https://s2.loli.net/2023/02/24/fr1WQS7TyhupO9F.png">
+<meta property="article:published_time" content="2023-02-24T11:14:39.000Z">
+<meta property="article:modified_time" content="2023-02-24T11:15:48.389Z">
+<meta property="article:author" content="QinTianJun">
+<meta property="article:tag" content="Ops">
+<meta property="article:tag" content="k8s">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2023/02/24/y92vHhR3L8mX5Zg.png">
+
+<link rel="canonical" href="http://www.qintianjun.top/2023/02/24/k8s%E4%B8%9A%E5%8A%A1%E5%AE%B9%E5%99%A8%E5%8C%96%E5%AE%9E%E6%88%98%E6%A1%88%E4%BE%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>k8s业务容器化实战案例 | Freedom_ATX's Blog</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?b8f33cffae5a7adb95d2bdb812879d09";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Freedom_ATX's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Freedom_ATX's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.qintianjun.top/2023/02/24/k8s%E4%B8%9A%E5%8A%A1%E5%AE%B9%E5%99%A8%E5%8C%96%E5%AE%9E%E6%88%98%E6%A1%88%E4%BE%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/logo.jpeg">
+      <meta itemprop="name" content="QinTianJun">
+      <meta itemprop="description" content="一个菜鸟的成长之路">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Freedom_ATX's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          k8s业务容器化实战案例
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-02-24 19:14:39 / 修改时间：19:15:48" itemprop="dateCreated datePublished" datetime="2023-02-24T19:14:39+08:00">2023-02-24</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Ops/" itemprop="url" rel="index"><span itemprop="name">Ops</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Ops/Cloud/" itemprop="url" rel="index"><span itemprop="name">Cloud</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="k8s-业务容器化实战案例"><a href="#k8s-业务容器化实战案例" class="headerlink" title="k8s 业务容器化实战案例"></a>k8s 业务容器化实战案例</h1><h2 id="1-业务容器化优势"><a href="#1-业务容器化优势" class="headerlink" title="1 业务容器化优势:"></a>1 业务容器化优势:</h2><ol>
+<li>提高资源利用率、节约部署IT成本。</li>
+<li>提高部署效率，基于kubernetes实现微服务的快速部署与交付、 容器的批量调度与秒级启动。</li>
+<li>实现横向扩容、灰度部署、回滚、链路追踪、服务治理等。</li>
+<li>可根据业务负载进行自动弹性伸缩。</li>
+<li>容器将环境和代码打包在镜像内，保证了测试与生产运行环境<br>的一致性。</li>
+<li>紧跟云原生社区技术发展的步伐，不给公司遗留技术债，为后<br>期技术升级夯实了基础。</li>
+<li>为个人储备前沿技术，提高个人level。</li>
+</ol>
+<p><img src="https://s2.loli.net/2023/02/24/y92vHhR3L8mX5Zg.png" alt="image-20220731155255757"></p>
+<h2 id="2-业务规划及镜像分层构建"><a href="#2-业务规划及镜像分层构建" class="headerlink" title="2 业务规划及镜像分层构建"></a>2 业务规划及镜像分层构建</h2><p><img src="https://s2.loli.net/2023/02/24/9fUlTZu3rjmegEB.png" alt="image-20220731155321533"></p>
+<p><img src="/" alt="image-20220731155946942"></p>
+<ul>
+<li>通过基础镜像构建，如：ubuntu: 22.04</li>
+<li>在基础镜像上安装运行必要的环境，如JDK11</li>
+<li>以安装JDK11的镜像为基础，构建tomcat, dubbo, spring 镜像</li>
+<li>通过tomcat&#x2F;dubbo&#x2F;spring镜像打包业务代码，构建具体业务镜像</li>
+</ul>
+<h3 id="2-1-构建基础镜像"><a href="#2-1-构建基础镜像" class="headerlink" title="2.1 构建基础镜像"></a>2.1 构建基础镜像</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@manager centos]# cat build-command.sh  # 构建脚本<br><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/bash</span><br>docker build -t  harbor.qintianjun.local/k8s/centos-base:7.9.2009 .<br><br>docker push harbor.qintianjun.local/k8s/centos-base:7.9.2009  # 上传到本地harbor<br>[root@manager centos]# cat Dockerfile<br><span class="hljs-meta prompt_">#</span><span class="language-bash">自定义Centos 基础镜像</span><br>FROM harbor.qintianjun.local/k8s/centos:7.9.2009  # 使用本地harbor的centos作为基础镜像<br>MAINTAINER qintianjun  &quot;454536188@qq.com&quot;<br><br>ADD filebeat-7.12.1-x86_64.rpm /tmp  # 拷贝统计目录下filebeat<br>RUN yum install -y /tmp/filebeat-7.12.1-x86_64.rpm vim wget tree  lrzsz gcc gcc-c++ automake pcre pcre-devel zlib zlib-devel openssl openssl-devel iproute net-tools iotop &amp;&amp;  rm -rf /etc/localtime /tmp/filebeat-7.12.1-x86_64.rpm &amp;&amp; ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime  # 安装基础组建，filebeat，设置时区<br></code></pre></td></tr></table></figure>
+
+<p>执行<code>sh build-command.sh </code>, 看到如下输出</p>
+<p><img src="https://s2.loli.net/2023/02/24/CbhTOLnMr7mKDNR.png" alt="image-20220731163953352"></p>
+<p><img src="https://s2.loli.net/2023/02/24/4kPRYBQUriDdvTp.png" alt="image-20220731163927478"></p>
+<p>说明镜像构建并上传完成，查看harbor可以看到已上传镜像：</p>
+<p><img src="https://s2.loli.net/2023/02/24/vLrYADyNhXuBt87.png" alt="image-20220731164107851"></p>
+<h3 id="2-2-通过基础镜像构建jdk镜像"><a href="#2-2-通过基础镜像构建jdk镜像" class="headerlink" title="2.2 通过基础镜像构建jdk镜像"></a>2.2 通过基础镜像构建jdk镜像</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@manager jdk-1.8.212]# cat build-command.sh<br><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/bash</span><br>docker build -t harbor.qintianjun.local/k8s/jdk-base:v8.212  .<br>sleep 1<br>docker push  harbor.qintianjun.local/k8s/jdk-base:v8.212<br>[root@manager jdk-1.8.212]# cat Dockerfile<br><span class="hljs-meta prompt_">#</span><span class="language-bash">JDK Base Image</span><br>FROM harbor.qintianjun.local/k8s/centos-base:7.9.2009<br><br>MAINTAINER qintianjun &quot;454536188@qq.com&quot;<br><br><br>ADD jdk-8u212-linux-x64.tar.gz /usr/local/src/<br>RUN ln -sv /usr/local/src/jdk1.8.0_212 /usr/local/jdk<br>ADD profile /etc/profile<br><br><br>ENV JAVA_HOME /usr/local/jdk<br>ENV JRE_HOME $JAVA_HOME/jre<br>ENV CLASSPATH $JAVA_HOME/lib/:$JRE_HOME/lib/<br>ENV PATH $PATH:$JAVA_HOME/bin<br></code></pre></td></tr></table></figure>
+
+<p>构建镜像：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@manager jdk-1.8.212]# sh build-command.sh<br>Sending build context to Docker daemon    195MB<br>Step 1/9 : FROM harbor.qintianjun.local/k8s/centos-base:7.9.2009<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">72b13222d098</span><br>Step 2/9 : MAINTAINER qintianjun &quot;454536188@qq.com&quot;<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">Running <span class="hljs-keyword">in</span> e6d098a60b47</span><br>Removing intermediate container e6d098a60b47<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">a2ae6dace6d2</span><br>Step 3/9 : ADD jdk-8u212-linux-x64.tar.gz /usr/local/src/<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">82bda0383e23</span><br>Step 4/9 : RUN ln -sv /usr/local/src/jdk1.8.0_212 /usr/local/jdk<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">Running <span class="hljs-keyword">in</span> 026500d482c9</span><br>&#x27;/usr/local/jdk&#x27; -&gt; &#x27;/usr/local/src/jdk1.8.0_212&#x27;<br>Removing intermediate container 026500d482c9<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">ff0d3d834344</span><br>Step 5/9 : ADD profile /etc/profile<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">673880b7c07f</span><br>Step 6/9 : ENV JAVA_HOME /usr/local/jdk<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">Running <span class="hljs-keyword">in</span> dc89db687bcb</span><br>Removing intermediate container dc89db687bcb<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">44cbb3fb9715</span><br>Step 7/9 : ENV JRE_HOME $JAVA_HOME/jre<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">Running <span class="hljs-keyword">in</span> f14546ac8229</span><br>Removing intermediate container f14546ac8229<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">72d797a0fcaf</span><br>Step 8/9 : ENV CLASSPATH $JAVA_HOME/lib/:$JRE_HOME/lib/<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">Running <span class="hljs-keyword">in</span> 05c9258eb922</span><br>Removing intermediate container 05c9258eb922<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">2a2f8f6bb43a</span><br>Step 9/9 : ENV PATH $PATH:$JAVA_HOME/bin<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">Running <span class="hljs-keyword">in</span> c5fe236e089b</span><br>Removing intermediate container c5fe236e089b<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">5f53217d7526</span><br>Successfully built 5f53217d7526<br>Successfully tagged harbor.qintianjun.local/k8s/jdk-base:v8.212<br>The push refers to repository [harbor.qintianjun.local/k8s/jdk-base]<br>c5b980123fc0: Pushed<br>707c797f8ec8: Pushed<br>80c1c8f91f96: Pushed<br>12e7ca64edac: Mounted from k8s/centos-base  # Mounted 表示从centos-base挂载，避免重复上传造成浪费<br>1e3f5eb5dee1: Mounted from k8s/centos-base<br>174f56854903: Mounted from k8s/centos-base<br>v8.212: digest: sha256:2ca63a7b441f06388764be5af76ff9dd3b25bbfe59f4b7d96434b49a5fe8cace size: 1582<br></code></pre></td></tr></table></figure>
+
+<p>harbor中查看：</p>
+<p><img src="https://s2.loli.net/2023/02/24/an65DGASjWNLQTB.png" alt="image-20220731164928772"></p>
+<h3 id="2-3-通过基础镜像构建nginx镜像"><a href="#2-3-通过基础镜像构建nginx镜像" class="headerlink" title="2.3 通过基础镜像构建nginx镜像"></a>2.3 通过基础镜像构建nginx镜像</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@manager nginx-base]# cat build-command.sh<br><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/bash</span><br>docker build -t harbor.qintianjun.local/k8s/nginx-base:v1.20.2  .<br>sleep 1<br>docker push  harbor.qintianjun.local/k8s/nginx-base:v1.20.2<br>[root@manager nginx-base]# cat Dockerfile<br><span class="hljs-meta prompt_">#</span><span class="language-bash">Nginx Base Image</span><br>FROM harbor.qintianjun.local/k8s/centos-base:7.9.2009<br><br>MAINTAINER  qintianjun &quot;454536188@qq.com&quot;<br><br>RUN yum install -y vim wget tree  lrzsz gcc gcc-c++ automake pcre pcre-devel zlib zlib-devel openssl openssl-devel iproute net-tools iotop<br>ADD nginx-1.20.2.tar.gz /usr/local/src/<br>RUN cd /usr/local/src/nginx-1.20.2 &amp;&amp; ./configure  &amp;&amp; make &amp;&amp; make install &amp;&amp; ln -sv  /usr/local/nginx/sbin/nginx /usr/sbin/nginx  &amp;&amp;rm -rf /usr/local/src/nginx-1.20.2.tar.gz<br></code></pre></td></tr></table></figure>
+
+<p>构建镜像</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@manager nginx-base]# sh build-command.sh<br>Sending build context to Docker daemon  1.066MB<br>Step 1/5 : FROM harbor.qintianjun.local/k8s/centos-base:7.9.2009<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">72b13222d098</span><br>Step 2/5 : MAINTAINER  qintianjun &quot;454536188@qq.com&quot;<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">Using cache</span><br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">a2ae6dace6d2</span><br>Step 3/5 : RUN yum install -y vim wget tree  lrzsz gcc gcc-c++ automake pcre pcre-devel zlib zlib-devel openssl openssl-devel iproute net-tools iotop<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">Running <span class="hljs-keyword">in</span> f655d2b5c708</span><br>Loaded plugins: fastestmirror, ovl<br>Loading mirror speeds from cached hostfile<br> * base: my.mirrors.thegigabit.com<br> * extras: my.mirrors.thegigabit.com<br> * updates: my.mirrors.thegigabit.com<br>Package 2:vim-enhanced-7.4.629-8.el7_9.x86_64 already installed and latest version<br>Package wget-1.14-18.el7_6.1.x86_64 already installed and latest version<br>Package tree-1.6.0-10.el7.x86_64 already installed and latest version<br>Package lrzsz-0.12.20-36.el7.x86_64 already installed and latest version<br>Package gcc-4.8.5-44.el7.x86_64 already installed and latest version<br>Package gcc-c++-4.8.5-44.el7.x86_64 already installed and latest version<br>Package automake-1.13.4-3.el7.noarch already installed and latest version<br>Package pcre-8.32-17.el7.x86_64 already installed and latest version<br>Package pcre-devel-8.32-17.el7.x86_64 already installed and latest version<br>Package zlib-1.2.7-20.el7_9.x86_64 already installed and latest version<br>Package zlib-devel-1.2.7-20.el7_9.x86_64 already installed and latest version<br>Package 1:openssl-1.0.2k-25.el7_9.x86_64 already installed and latest version<br>Package 1:openssl-devel-1.0.2k-25.el7_9.x86_64 already installed and latest version<br>Package iproute-4.11.0-30.el7.x86_64 already installed and latest version<br>Package net-tools-2.0-0.25.20131004git.el7.x86_64 already installed and latest version<br>Package iotop-0.6-4.el7.noarch already installed and latest version<br>Nothing to do<br>Removing intermediate container f655d2b5c708<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">ffc80b4becf4</span><br>Step 4/5 : ADD nginx-1.20.2.tar.gz /usr/local/src/<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">c19e1687d011</span><br>Step 5/5 : RUN cd /usr/local/src/nginx-1.20.2 &amp;&amp; ./configure  &amp;&amp; make &amp;&amp; make install &amp;&amp; ln -sv  /usr/local/nginx/sbin/nginx /usr/sbin/nginx  &amp;&amp;rm -rf /usr/local/src/nginx-1.20.2.tar.gz<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">Running <span class="hljs-keyword">in</span> c9627a4fd</span><br>......<br><span class="hljs-meta prompt_">---&gt; </span><span class="language-bash">5b1c620f0538</span><br>Successfully built 5b1c620f0538<br>Successfully tagged harbor.qintianjun.local/k8s/nginx-base:v1.20.2<br>The push refers to repository [harbor.qintianjun.local/k8s/nginx-base]<br>23b057fed7cd: Pushed<br>6f43c91a70b0: Pushed<br>49f4662da975: Pushed<br>12e7ca64edac: Mounted from k8s/jdk-base<br>1e3f5eb5dee1: Mounted from k8s/jdk-base<br>174f56854903: Mounted from k8s/jdk-base<br>v1.20.2: digest: sha256:994c8c49e41ad3cf2bcdf681d58dde4391a9128062372ec1d325c6a43fe4ca55 size: 1588<br></code></pre></td></tr></table></figure>
+
+<p>在harbor中查看</p>
+<p><img src="/k8s%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98%E6%A1%88%E4%BE%8B.assets/image-20220731171546181.png" alt="image-20220731171546181"></p>
+<h3 id="2-4-通过JDK镜像构建tomcat镜像"><a href="#2-4-通过JDK镜像构建tomcat镜像" class="headerlink" title="2.4 通过JDK镜像构建tomcat镜像"></a>2.4 通过JDK镜像构建tomcat镜像</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@manager tomcat-base-8.5.43]# ls<br>apache-tomcat-8.5.43.tar.gz  build-command.sh  Dockerfile<br>[root@manager tomcat-base-8.5.43]# cat build-command.sh<br><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/bash</span><br>docker build -t harbor.qintianjun.local/k8s/tomcat-base:v8.5.43  .<br>sleep 3<br>docker push  harbor.qintianjun.local/k8s/tomcat-base:v8.5.43<br>[root@manager tomcat-base-8.5.43]# cat Dockerfile<br><span class="hljs-meta prompt_">#</span><span class="language-bash">Tomcat 8.5.43基础镜像</span><br>FROM harbor.qintianjun.local/k8s/jdk-base:v8.212<br><br>MAINTAINER qintianjun &quot;454536188@qq.com&quot;<br><br>RUN mkdir /apps /data/tomcat/webapps /data/tomcat/logs -pv<br>ADD apache-tomcat-8.5.43.tar.gz  /apps<br>RUN useradd tomcat -u 2050 &amp;&amp; ln -sv /apps/apache-tomcat-8.5.43 /apps/tomcat &amp;&amp; chown -R tomcat.tomcat /apps /data<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-5-通过tomcat镜像构建app镜像"><a href="#2-5-通过tomcat镜像构建app镜像" class="headerlink" title="2.5 通过tomcat镜像构建app镜像"></a>2.5 通过tomcat镜像构建app镜像</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@manager tomcat-app1]# cat Dockerfile<br><span class="hljs-meta prompt_">#</span><span class="language-bash">tomcat web1</span><br>FROM harbor.qintianjun.local/k8s/tomcat-base:v8.5.43<br><span class="hljs-meta prompt_"># </span><span class="language-bash">自行准备对应配置文件</span><br>ADD catalina.sh /apps/tomcat/bin/catalina.sh<br>ADD server.xml /apps/tomcat/conf/server.xml<br>ADD app1.tar.gz /data/tomcat/webapps/myapp/<br>ADD run_tomcat.sh /apps/tomcat/bin/run_tomcat.sh<br>RUN chown  -R tomcat.tomcat /data/ /apps/<br><br>EXPOSE 8080 8443<br><br>CMD [&quot;/apps/tomcat/bin/run_tomcat.sh&quot;]<br>[root@manager tomcat-app1]# cat build-command.sh<br><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/bash</span><br>TAG=$1<br>docker build -t  harbor.qintianjun.local/k8s/tomcat-app1:$&#123;TAG&#125; .<br>sleep 3<br>docker push  harbor.qintianjun.local/k8s/tomcat-app1:$&#123;TAG&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>构建</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@manager tomcat-app1]# ./build-command.sh tomcat-app1-20220731<br>Sending build context to Docker daemon  24.13MB<br>Step 1/8 : FROM harbor.qintianjun.local/k8s/tomcat-base:v8.5.43<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">b92d19e3edb3</span><br>Step 2/8 : ADD catalina.sh /apps/tomcat/bin/catalina.sh<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">67e7db5c915f</span><br>Step 3/8 : ADD server.xml /apps/tomcat/conf/server.xml<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">37e3d4ea6059</span><br>Step 4/8 : ADD app1.tar.gz /data/tomcat/webapps/myapp/<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">94226df8dad7</span><br>Step 5/8 : ADD run_tomcat.sh /apps/tomcat/bin/run_tomcat.sh<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">583b3b1830c3</span><br>Step 6/8 : RUN chown  -R tomcat.tomcat /data/ /apps/<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">Running <span class="hljs-keyword">in</span> 6c707556ca45</span><br>Removing intermediate container 6c707556ca45<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">cf73cc40f72d</span><br>Step 7/8 : EXPOSE 8080 8443<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">Running <span class="hljs-keyword">in</span> d69b80d89ec1</span><br>Removing intermediate container d69b80d89ec1<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">0f4df0fda324</span><br>Step 8/8 : CMD [&quot;/apps/tomcat/bin/run_tomcat.sh&quot;]<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">Running <span class="hljs-keyword">in</span> 7d8d9fa07eea</span><br>Removing intermediate container 7d8d9fa07eea<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">3ea8b69863be</span><br>Successfully built 3ea8b69863be<br>Successfully tagged harbor.qintianjun.local/k8s/tomcat-app1:tomcat-app1-20220731<br>The push refers to repository [harbor.qintianjun.local/k8s/tomcat-app1]<br>d1e27926a945: Pushed<br>b2d8029dc6d4: Pushed<br>f7163ed94019: Pushed<br>e3a0faa1d4f9: Pushed<br>7431aff42bd3: Pushed<br>3e60ee44c08b: Mounted from k8s/tomcat-base<br>ef54031810c7: Mounted from k8s/tomcat-base<br>a0bd3f2ec818: Mounted from k8s/tomcat-base<br>c5b980123fc0: Mounted from k8s/tomcat-base<br>707c797f8ec8: Mounted from k8s/tomcat-base<br>80c1c8f91f96: Mounted from k8s/tomcat-base<br>12e7ca64edac: Mounted from k8s/tomcat-base<br>1e3f5eb5dee1: Mounted from k8s/tomcat-base<br>174f56854903: Mounted from k8s/tomcat-base<br>tomcat-app1-20220731: digest: sha256:4eaa85a5af9e23dce2478473cc8580e2627119e9f6ce2cfec5ee3326c94b84dd size: 3252<br></code></pre></td></tr></table></figure>
+
+<p>下面使用刚才制作好的镜像实现nginx + tomcat + nfs 动静分离</p>
+<h2 id="实战案例一：-自定义镜像运行nginx及tomcat服务并基于NAS实现动静分离"><a href="#实战案例一：-自定义镜像运行nginx及tomcat服务并基于NAS实现动静分离" class="headerlink" title="实战案例一： 自定义镜像运行nginx及tomcat服务并基于NAS实现动静分离"></a>实战案例一： 自定义镜像运行nginx及tomcat服务并基于NAS实现动静分离</h2><p><img src="https://s2.loli.net/2023/02/24/7nDkVpHuX1UfMlA.png" alt="image-20220801181040162"></p>
+<h3 id="基于tomcat-base配置tomcat业务镜像"><a href="#基于tomcat-base配置tomcat业务镜像" class="headerlink" title="基于tomcat-base配置tomcat业务镜像"></a>基于tomcat-base配置tomcat业务镜像</h3><p>构建镜像</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@manager tomcat-app1]# cat Dockerfile <br><span class="hljs-meta prompt_">#</span><span class="language-bash">tomcat web1</span><br>FROM 192.168.88.138/base/tomcat-base:v8.5.43<br>ADD catalina.sh /apps/tomcat/bin/catalina.sh<br>ADD server.xml /apps/tomcat/conf/server.xml<br>ADD app1.tar.gz /data/tomcat/webapps/myapp/<br>ADD run_tomcat.sh /apps/tomcat/bin/run_tomcat.sh<br>RUN chown  -R tomcat.tomcat /data/ /apps/<br>EXPOSE 8080 8443<br>CMD [&quot;/apps/tomcat/bin/run_tomcat.sh&quot;]<br><br><br>[root@manager tomcat-app1]# cat build-command.sh <br><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/bash</span><br>TAG=$1<br>docker build -t 192.168.88.138/k8s/tomcat-app1:$&#123;TAG&#125; .<br>sleep 3<br>docker push  192.168.88.138/k8s/tomcat-app1:$&#123;TAG&#125;<br><br><br>[root@manager tomcat-app1]# sh build-command.sh 2022080701<br>Sending build context to Docker daemon  24.13MB<br>Step 1/8 : FROM 192.168.88.138/base/tomcat-base:v8.5.43<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">ee5755a0eeee</span><br>Step 2/8 : ADD catalina.sh /apps/tomcat/bin/catalina.sh<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">088261a93ba2</span><br>Step 3/8 : ADD server.xml /apps/tomcat/conf/server.xml<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">65e5a76a394c</span><br>Step 4/8 : ADD app1.tar.gz /data/tomcat/webapps/myapp/<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">89ad99b8f780</span><br>Step 5/8 : ADD run_tomcat.sh /apps/tomcat/bin/run_tomcat.sh<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">f7e79a435dd4</span><br>Step 6/8 : RUN chown  -R tomcat.tomcat /data/ /apps/<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">Running <span class="hljs-keyword">in</span> 76a6a9bc8698</span><br>Removing intermediate container 76a6a9bc8698<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">bff60f96c4f9</span><br>Step 7/8 : EXPOSE 8080 8443<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">Running <span class="hljs-keyword">in</span> 0796e1bd118a</span><br>Removing intermediate container 0796e1bd118a<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">36a9fad9a841</span><br>Step 8/8 : CMD [&quot;/apps/tomcat/bin/run_tomcat.sh&quot;]<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">Running <span class="hljs-keyword">in</span> 9dd900d7bf37</span><br>Removing intermediate container 9dd900d7bf37<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">4b20463708f4</span><br>Successfully built 4b20463708f4<br>Successfully tagged 192.168.88.138/k8s/tomcat-app1:2022080701<br>The push refers to repository [192.168.88.138/k8s/tomcat-app1]<br>c595e46af53b: Pushed <br>d6d00542d507: Pushed <br>9350b1765bbb: Pushed <br>f7c55cf260ee: Pushed <br>563e59e4236c: Pushed <br>2f5077e05c3c: Mounted from base/tomcat-base <br>8708aaa5d61a: Mounted from base/tomcat-base <br>9725149d9d5b: Mounted from base/tomcat-base <br>138273c46704: Mounted from base/tomcat-base <br>f5058d269019: Mounted from base/tomcat-base <br>4aa713869ceb: Mounted from base/tomcat-base <br>80cb57ba4a28: Mounted from base/tomcat-base <br>cc31b2a0ae3e: Mounted from base/tomcat-base <br>174f56854903: Mounted from base/tomcat-base <br>2022080701: digest: sha256:f499c15308c6b66760bf650b868aa9331b4ab27895cdb158e36d18829a61c64c size: 3252<br></code></pre></td></tr></table></figure>
+
+
+
+<p>编写yaml文件：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">kind:</span> <span class="hljs-string">Deployment</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">apps/v1</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">labels:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">magedu-tomcat-app1-deployment-label</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">magedu-tomcat-app1-deployment</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">myserver</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">replicas:</span> <span class="hljs-number">2</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">matchLabels:</span><br>      <span class="hljs-attr">app:</span> <span class="hljs-string">magedu-tomcat-app1-selector</span><br>  <span class="hljs-attr">template:</span><br>    <span class="hljs-attr">metadata:</span><br>      <span class="hljs-attr">labels:</span><br>        <span class="hljs-attr">app:</span> <span class="hljs-string">magedu-tomcat-app1-selector</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">containers:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">magedu-tomcat-app1-container</span><br>        <span class="hljs-attr">image:</span> <span class="hljs-string">harbor.qintianjun.local/k8s/tomcat-app1:tomcat-app1-20220731</span><br>        <span class="hljs-attr">imagePullPolicy:</span> <span class="hljs-string">IfNotPresent</span><br>        <span class="hljs-attr">ports:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">8080</span><br>          <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span><br>          <span class="hljs-attr">name:</span> <span class="hljs-string">http</span><br>        <span class="hljs-attr">env:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">&quot;password&quot;</span><br>          <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;123456&quot;</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">&quot;age&quot;</span><br>          <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;18&quot;</span><br>        <span class="hljs-attr">resources:</span><br>          <span class="hljs-attr">limits:</span><br>            <span class="hljs-attr">cpu:</span> <span class="hljs-number">1</span><br>            <span class="hljs-attr">memory:</span> <span class="hljs-string">&quot;512Mi&quot;</span><br>          <span class="hljs-attr">requests:</span><br>            <span class="hljs-attr">cpu:</span> <span class="hljs-string">500m</span><br>            <span class="hljs-attr">memory:</span> <span class="hljs-string">&quot;512Mi&quot;</span><br><span class="hljs-meta">---</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Service</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">labels:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">magedu-tomcat-app1-service-label</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">magedu-tomcat-app1-service</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">myserver</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">type:</span> <span class="hljs-string">NodePort</span><br>  <span class="hljs-attr">ports:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">http</span><br>    <span class="hljs-attr">port:</span> <span class="hljs-number">80</span><br>    <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span><br>    <span class="hljs-attr">targetPort:</span> <span class="hljs-number">8080</span><br>    <span class="hljs-attr">nodePort:</span> <span class="hljs-number">30092</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">magedu-tomcat-app1-selector</span><br></code></pre></td></tr></table></figure>
+
+<p>使用<code>kubectl apply -f tomcat-app1.yaml</code> 命令使之生效，查看状态：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@master lab]# kubectl get pod,svc,ep -n myserver -o wide<br>NAME                                                 READY   STATUS    RESTARTS   AGE   IP             NODE             NOMINATED NODE   READINESS GATES<br>pod/magedu-tomcat-app1-deployment-67b5fdcfff-d4tmn   1/1     Running   1          21h   172.20.1.153   192.168.68.150   &lt;none&gt;           &lt;none&gt;<br>pod/magedu-tomcat-app1-deployment-67b5fdcfff-f5497   1/1     Running   1          21h   172.20.2.171   192.168.68.149   &lt;none&gt;           &lt;none&gt;<br><br>NAME                                 TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE   SELECTOR<br>service/magedu-tomcat-app1-service   NodePort   10.68.107.218   &lt;none&gt;        80:30092/TCP   21h   app=magedu-tomcat-app1-selector<br><br>NAME                                   ENDPOINTS                             AGE<br>endpoints/magedu-tomcat-app1-service   172.20.1.153:8080,172.20.2.171:8080   21h<br></code></pre></td></tr></table></figure>
+
+<p>此时访问宿主机30092端口可以看到之前在tomcat镜像中打好的测试页：</p>
+<p><img src="https://s2.loli.net/2023/02/24/KUfEkxyNlHXC59b.png" alt="image-20220801180910483"></p>
+<p>说明tomcat正常工作。</p>
+<h3 id="基于nginx-base配置nginx的业务镜像"><a href="#基于nginx-base配置nginx的业务镜像" class="headerlink" title="基于nginx-base配置nginx的业务镜像"></a>基于nginx-base配置nginx的业务镜像</h3><p>编写nginx.conf</p>
+<figure class="highlight nginx"><table><tr><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">user</span>  tomcat tomcat;  <span class="hljs-comment"># 统一使用tomcat</span><br><span class="hljs-attribute">worker_processes</span>  auto;<br><span class="hljs-attribute">daemon</span> <span class="hljs-literal">off</span>;<br><span class="hljs-section">events</span> &#123;<br>    <span class="hljs-attribute">worker_connections</span>  <span class="hljs-number">1024</span>;<br>&#125;<br><span class="hljs-section">http</span> &#123;<br>    <span class="hljs-attribute">include</span>       mime.types;<br>    <span class="hljs-attribute">default_type</span>  application/octet-stream;<br>    <span class="hljs-attribute">sendfile</span>        <span class="hljs-literal">on</span>;<br>    <span class="hljs-attribute">keepalive_timeout</span>  <span class="hljs-number">65</span>;<br><span class="hljs-section">upstream</span>  tomcat_webserver &#123;  <span class="hljs-comment"># upstream为刚刚配置的后端tomcat对应的svc</span><br>        <span class="hljs-attribute">server</span>  magedu-tomcat-app1-service.myserver.svc.magedu.local:<span class="hljs-number">80</span>;<br>&#125;<br>    <span class="hljs-section">server</span> &#123;<br>        <span class="hljs-attribute">listen</span>       <span class="hljs-number">80</span>;<br>        <span class="hljs-attribute">server_name</span>  localhost;<br>        <span class="hljs-section">location</span> / &#123;<br>            <span class="hljs-attribute">root</span>   html;<br>            <span class="hljs-attribute">index</span>  index.html index.htm;<br>        &#125;<br>        <span class="hljs-section">location</span> /webapp &#123;  <span class="hljs-comment"># 访问/webapp的uri返回静态资源</span><br>            <span class="hljs-attribute">root</span>   html;<br>            <span class="hljs-attribute">index</span>  index.html index.htm;<br>        &#125;<br>        <span class="hljs-section">location</span> /myapp &#123;  <span class="hljs-comment"># 访问/myapp转给后端tomcat服务</span><br>             <span class="hljs-attribute">proxy_pass</span>  http://tomcat_webserver;<br>             <span class="hljs-attribute">proxy_set_header</span>   Host    <span class="hljs-variable">$host</span>;<br>             <span class="hljs-attribute">proxy_set_header</span>   X-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;<br>             <span class="hljs-attribute">proxy_set_header</span> X-Real-IP <span class="hljs-variable">$remote_addr</span>;<br>        &#125;<br>        <span class="hljs-attribute">error_page</span>   <span class="hljs-number">500</span> <span class="hljs-number">502</span> <span class="hljs-number">503</span> <span class="hljs-number">504</span>  /50x.html;<br>        <span class="hljs-section">location</span> = /50x.html &#123;<br>            <span class="hljs-attribute">root</span>   html;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>编写nginx-web1对应的Dockerfile:</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@manager nginx]# cat Dockerfile<br><span class="hljs-meta prompt_">#</span><span class="language-bash">Nginx 1.20.2</span><br>FROM harbor.qintianjun.local/k8s/nginx-base:v1.20.2<br>RUN useradd tomcat -u 2050<br>ADD nginx.conf /usr/local/nginx/conf/nginx.conf<br>ADD app1.tar.gz  /usr/local/nginx/html/webapp/  #ADD会在拷贝的同时自动解压tar文件<br>ADD index.html  /usr/local/nginx/html/index.html<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">静态资源挂载路径</span><br>RUN mkdir -p /usr/local/nginx/html/webapp/static /usr/local/nginx/html/webapp/images &amp;&amp; chown tomcat.tomcat -R /usr/local/nginx/html/webapp/static /usr/local/nginx/html/webapp/images<br><br>EXPOSE 80 443<br><br>CMD [&quot;nginx&quot;]<br>[root@manager nginx]# cat build-command.sh<br><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/bash</span><br>TAG=$1<br>docker build -t harbor.qintianjun.local/k8s/nginx-web1:$&#123;TAG&#125; .<br>echo &quot;镜像构建完成，即将上传到harbor&quot;<br>sleep 1<br>docker push harbor.qintianjun.local/k8s/nginx-web1:$&#123;TAG&#125;<br>echo &quot;镜像上传到harbor完成&quot;<br></code></pre></td></tr></table></figure>
+
+<p>编辑nginx的yaml:</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml">[<span class="hljs-string">root@master</span> <span class="hljs-string">lab</span>]<span class="hljs-comment"># cat nginx-app1.yaml</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Deployment</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">apps/v1</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">labels:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">magedu-nginx-deployment-label</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">magedu-nginx-deployment</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">myserver</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">replicas:</span> <span class="hljs-number">1</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">matchLabels:</span><br>      <span class="hljs-attr">app:</span> <span class="hljs-string">magedu-nginx-selector</span><br>  <span class="hljs-attr">template:</span><br>    <span class="hljs-attr">metadata:</span><br>      <span class="hljs-attr">labels:</span><br>        <span class="hljs-attr">app:</span> <span class="hljs-string">magedu-nginx-selector</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">containers:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">magedu-nginx-container</span><br>        <span class="hljs-attr">image:</span> <span class="hljs-string">harbor.qintianjun.local/k8s/nginx-web1:20220801-test1</span><br>        <span class="hljs-comment">#command: [&quot;/apps/tomcat/bin/run_tomcat.sh&quot;]</span><br>        <span class="hljs-attr">imagePullPolicy:</span> <span class="hljs-string">IfNotPresent</span><br>        <span class="hljs-comment">#imagePullPolicy: Always</span><br>        <span class="hljs-attr">ports:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">80</span><br>          <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span><br>          <span class="hljs-attr">name:</span> <span class="hljs-string">http</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">443</span><br>          <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span><br>          <span class="hljs-attr">name:</span> <span class="hljs-string">https</span><br>        <span class="hljs-attr">env:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">&quot;password&quot;</span><br>          <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;123456&quot;</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">&quot;age&quot;</span><br>          <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;20&quot;</span><br>        <span class="hljs-attr">resources:</span><br>          <span class="hljs-attr">limits:</span><br>            <span class="hljs-attr">cpu:</span> <span class="hljs-string">500m</span><br>            <span class="hljs-attr">memory:</span> <span class="hljs-string">500Mi</span><br>          <span class="hljs-attr">requests:</span><br>            <span class="hljs-attr">cpu:</span> <span class="hljs-string">500m</span><br>            <span class="hljs-attr">memory:</span> <span class="hljs-string">500Mi</span><br><span class="hljs-meta">---</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Service</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">labels:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">magedu-nginx-service-label</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">magedu-nginx-service</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">myserver</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">type:</span> <span class="hljs-string">NodePort</span><br>  <span class="hljs-attr">ports:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">http</span><br>    <span class="hljs-attr">port:</span> <span class="hljs-number">80</span><br>    <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span><br>    <span class="hljs-attr">targetPort:</span> <span class="hljs-number">80</span><br>    <span class="hljs-attr">nodePort:</span> <span class="hljs-number">30090</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">magedu-nginx-selector</span><br><br></code></pre></td></tr></table></figure>
+
+<p>使用<code>kubectl apply</code>命令生效，访问宿主机30090端口：</p>
+<p><img src="https://s2.loli.net/2023/02/24/L3tzPsq4rfARyak.png" alt="image-20220801185408087"></p>
+<p>访问&#x2F;webapp,返回静态资源页：</p>
+<p><img src="https://s2.loli.net/2023/02/24/d7oBaTYwkMImivc.png" alt="image-20220801185422583"></p>
+<p>访问&#x2F;myapp，转发给后端tomcat：</p>
+<p><img src="/k8s%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98%E6%A1%88%E4%BE%8B.assets/image-20220801185537471.png" alt="image-20220801185537471"></p>
+<p>此时nginx转发后端生效。</p>
+<h3 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h3><p>分别进入两个tomcat容器，修改<code>/data/tomcat/webapps/myapp/index.html</code>为v1,v2:</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@master lab]# kubectl exec -it pod/magedu-tomcat-app1-deployment-67b5fdcfff-f5497 -n myserver -- bash<br>[root@magedu-tomcat-app1-deployment-67b5fdcfff-f5497 /]# cat /data/tomcat/webapps/myapp/index.html<br>&lt;h1&gt;tomcat app1 for linux n66 v1&lt;/h1&gt;<br><br>[root@master lab]# kubectl exec -it pod/magedu-tomcat-app1-deployment-67b5fdcfff-d4tmn  -n myserver -- bash<br>[root@magedu-tomcat-app1-deployment-67b5fdcfff-d4tmn /]# cat /data/tomcat/webapps/myapp/index.html<br>&lt;h1&gt;tomcat app1 for linux n66 v2&lt;/h1&gt;<br></code></pre></td></tr></table></figure>
+
+<p>此时反复刷新页面，可以看到页面交替显示v1,v2</p>
+<p><img src="https://s2.loli.net/2023/02/24/avIzSKVREBgxCiJ.png" alt="image-20220801190445371"></p>
+<p><img src="https://s2.loli.net/2023/02/24/RExAc5BaVJMqINi.png" alt="image-20220801190352880"></p>
+<p>说明后端tomcat服务是交替轮询的</p>
+<p>也可以使用NAS(NFS)存放静态资源文件，参考：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml">[<span class="hljs-string">root@master</span> <span class="hljs-string">lab</span>]<span class="hljs-comment"># cat nginx-app1.yaml</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Deployment</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">apps/v1</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">labels:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">magedu-nginx-deployment-label</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">magedu-nginx-deployment</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">myserver</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">replicas:</span> <span class="hljs-number">1</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">matchLabels:</span><br>      <span class="hljs-attr">app:</span> <span class="hljs-string">magedu-nginx-selector</span><br>  <span class="hljs-attr">template:</span><br>    <span class="hljs-attr">metadata:</span><br>      <span class="hljs-attr">labels:</span><br>        <span class="hljs-attr">app:</span> <span class="hljs-string">magedu-nginx-selector</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">containers:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">magedu-nginx-container</span><br>        <span class="hljs-attr">image:</span> <span class="hljs-string">harbor.qintianjun.local/k8s/nginx-web1:20220801-test1</span><br>        <span class="hljs-comment">#command: [&quot;/apps/tomcat/bin/run_tomcat.sh&quot;]</span><br>        <span class="hljs-attr">imagePullPolicy:</span> <span class="hljs-string">IfNotPresent</span><br>        <span class="hljs-comment">#imagePullPolicy: Always</span><br>        <span class="hljs-attr">ports:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">80</span><br>          <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span><br>          <span class="hljs-attr">name:</span> <span class="hljs-string">http</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">443</span><br>          <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span><br>          <span class="hljs-attr">name:</span> <span class="hljs-string">https</span><br>        <span class="hljs-attr">env:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">&quot;password&quot;</span><br>          <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;123456&quot;</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">&quot;age&quot;</span><br>          <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;20&quot;</span><br>        <span class="hljs-attr">resources:</span><br>          <span class="hljs-attr">limits:</span><br>            <span class="hljs-attr">cpu:</span> <span class="hljs-string">500m</span><br>            <span class="hljs-attr">memory:</span> <span class="hljs-string">500Mi</span><br>          <span class="hljs-attr">requests:</span><br>            <span class="hljs-attr">cpu:</span> <span class="hljs-string">500m</span><br>            <span class="hljs-attr">memory:</span> <span class="hljs-string">500Mi</span><br><span class="hljs-comment"># 挂载nfs存储</span><br>      <span class="hljs-attr">volumeMounts:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">magedu-images</span><br>        <span class="hljs-attr">mountPath:</span> <span class="hljs-string">/usr/local/nginx/html/webapp/images</span><br>        <span class="hljs-attr">readOnly:</span> <span class="hljs-literal">false</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">magedu-static</span><br>        <span class="hljs-attr">mountPath:</span> <span class="hljs-string">/usr/local/nginx/html/webapp/static</span><br>        <span class="hljs-attr">readOnly:</span> <span class="hljs-literal">false</span><br>    <span class="hljs-attr">volumes:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">magedu-images</span><br>      <span class="hljs-attr">nfs:</span><br>        <span class="hljs-attr">server:</span> <span class="hljs-number">172.31</span><span class="hljs-number">.7</span><span class="hljs-number">.109</span><br>        <span class="hljs-attr">path:</span> <span class="hljs-string">/data/k8sdata/magedu/images</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">magedu-static</span><br>      <span class="hljs-attr">nfs:</span><br>        <span class="hljs-attr">server:</span> <span class="hljs-number">172.31</span><span class="hljs-number">.7</span><span class="hljs-number">.109</span><br>        <span class="hljs-attr">path:</span> <span class="hljs-string">/data/k8sdata/magedu/static</span><br>    <span class="hljs-comment">#nodeSelector:</span><br>    <span class="hljs-comment">#  group: magedu</span><br><span class="hljs-meta">---</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Service</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">labels:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">magedu-nginx-service-label</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">magedu-nginx-service</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">myserver</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">type:</span> <span class="hljs-string">NodePort</span><br>  <span class="hljs-attr">ports:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">http</span><br>    <span class="hljs-attr">port:</span> <span class="hljs-number">80</span><br>    <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span><br>    <span class="hljs-attr">targetPort:</span> <span class="hljs-number">80</span><br>    <span class="hljs-attr">nodePort:</span> <span class="hljs-number">30090</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">https</span><br>    <span class="hljs-attr">port:</span> <span class="hljs-number">443</span><br>    <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span><br>    <span class="hljs-attr">targetPort:</span> <span class="hljs-number">443</span><br>    <span class="hljs-attr">nodePort:</span> <span class="hljs-number">30091</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">magedu-nginx-selector</span><br></code></pre></td></tr></table></figure>
+
+<p>至此tomcat+nginx动静分离环境构建完成</p>
+<h2 id="实战案例二：pv-x2F-pvc-zookeeper"><a href="#实战案例二：pv-x2F-pvc-zookeeper" class="headerlink" title="实战案例二：pv&#x2F;pvc + zookeeper"></a>实战案例二：pv&#x2F;pvc + zookeeper</h2><h3 id="通过jdk-镜像构建zookeeper镜像"><a href="#通过jdk-镜像构建zookeeper镜像" class="headerlink" title="通过jdk 镜像构建zookeeper镜像"></a>通过jdk 镜像构建zookeeper镜像</h3><p><img src="https://s2.loli.net/2023/02/24/i46tOrbBj72ecEg.png" alt="image-20220805144125634"></p>
+<p>准备Dockerfile和build脚本</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@manager zookeeper]# cat Dockerfile<br><span class="hljs-meta prompt_">#</span><span class="language-bash">FROM harbor-linux38.local.com/linux38/slim_java:8</span><br>FROM harbor.qintianjun.local/k8s/slim_java:8<br>ENV ZK_VERSION 3.4.14<br>ADD repositories /etc/apk/repositories<br><span class="hljs-meta prompt_"># </span><span class="language-bash">Download Zookeeper</span><br>COPY zookeeper-3.4.14.tar.gz /tmp/zk.tgz<br>COPY zookeeper-3.4.14.tar.gz.asc /tmp/zk.tgz.asc<br>COPY KEYS /tmp/KEYS<br>RUN apk add --no-cache --virtual .build-deps \<br>      ca-certificates   \<br>      gnupg             \<br>      tar               \<br>      wget &amp;&amp;           \<br>    #<br>    # Install dependencies<br>    apk add --no-cache  \<br>      bash &amp;&amp;           \<br>    #<br>    # Verify the signature<br>    #<br>    export GNUPGHOME=&quot;$(mktemp -d)&quot; &amp;&amp; \<br>    gpg -q --batch --import /tmp/KEYS &amp;&amp; \<br>    gpg -q --batch --no-auto-key-retrieve --verify /tmp/zk.tgz.asc /tmp/zk.tgz &amp;&amp; \<br>    #<br>    # Set up directories<br>    #<br>    mkdir -p /zookeeper/data /zookeeper/wal /zookeeper/log &amp;&amp; \<br>    #<br>    # Install<br>    tar -x -C /zookeeper --strip-components=1 --no-same-owner -f /tmp/zk.tgz &amp;&amp; \<br>    #<br>    # Slim down<br>    cd /zookeeper &amp;&amp; \<br>    cp dist-maven/zookeeper-$&#123;ZK_VERSION&#125;.jar . &amp;&amp; \<br>    rm -rf \<br>      *.txt \<br>      *.xml \<br>      bin/README.txt \<br>      bin/*.cmd \<br>      conf/* \<br>      contrib \<br>      dist-maven \<br>      docs \<br>      lib/*.txt \<br>      lib/cobertura \<br>      lib/jdiff \<br>      recipes \<br>      src \<br>      zookeeper-*.asc \<br>      zookeeper-*.md5 \<br>      zookeeper-*.sha1 &amp;&amp; \<br>    #<br>    # Clean up<br>    apk del .build-deps &amp;&amp; \<br>    rm -rf /tmp/* &quot;$GNUPGHOME&quot;<br><br>COPY conf /zookeeper/conf/<br>COPY bin/zkReady.sh /zookeeper/bin/<br>COPY entrypoint.sh /<br><br>ENV PATH=/zookeeper/bin:$&#123;PATH&#125; \<br>    ZOO_LOG_DIR=/zookeeper/log \<br>    ZOO_LOG4J_PROP=&quot;INFO, CONSOLE, ROLLINGFILE&quot; \<br>    JMXPORT=9010<br><br>ENTRYPOINT [ &quot;/entrypoint.sh&quot; ]<br><br>CMD [ &quot;zkServer.sh&quot;, &quot;start-foreground&quot; ]<br><br>EXPOSE 2181 2888 3888 9010<br><br>[root@manager zookeeper]# cat build-command.sh<br><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/bash</span><br>TAG=$1<br>docker build -t harbor.qintianjun.local/k8s/zookeeper:$&#123;TAG&#125; .<br>sleep 1<br>docker push  harbor.qintianjun.local/k8s/zookeeper:$&#123;TAG&#125;<br></code></pre></td></tr></table></figure>
+
+<p>准备zookeeper对应配置文件：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@manager zookeeper]# cat conf/log4j.properties<br>zookeeper.root.logger=INFO, CONSOLE, ROLLINGFILE<br>zookeeper.console.threshold=INFO<br>zookeeper.log.dir=/zookeeper/log<br>zookeeper.log.file=zookeeper.log<br>zookeeper.log.threshold=INFO<br>zookeeper.tracelog.dir=/zookeeper/log<br>zookeeper.tracelog.file=zookeeper_trace.log<br>log4j.rootLogger=$&#123;zookeeper.root.logger&#125;<br>log4j.appender.CONSOLE=org.apache.log4j.ConsoleAppender<br>log4j.appender.CONSOLE.Threshold=$&#123;zookeeper.console.threshold&#125;<br>log4j.appender.CONSOLE.layout=org.apache.log4j.PatternLayout<br>log4j.appender.CONSOLE.layout.ConversionPattern=%d&#123;ISO8601&#125; [myid:%X&#123;myid&#125;] - %-5p [%t:%C&#123;1&#125;@%L] - %m%n<br>log4j.appender.ROLLINGFILE=org.apache.log4j.RollingFileAppender<br>log4j.appender.ROLLINGFILE.Threshold=$&#123;zookeeper.log.threshold&#125;<br>log4j.appender.ROLLINGFILE.File=$&#123;zookeeper.log.dir&#125;/$&#123;zookeeper.log.file&#125;<br>log4j.appender.ROLLINGFILE.MaxFileSize=10MB<br>log4j.appender.ROLLINGFILE.MaxBackupIndex=5<br>log4j.appender.ROLLINGFILE.layout=org.apache.log4j.PatternLayout<br>log4j.appender.ROLLINGFILE.layout.ConversionPattern=%d&#123;ISO8601&#125; [myid:%X&#123;myid&#125;] - %-5p [%t:%C&#123;1&#125;@%L] - %m%n<br>log4j.appender.TRACEFILE=org.apache.log4j.FileAppender<br>log4j.appender.TRACEFILE.Threshold=TRACE<br>log4j.appender.TRACEFILE.File=$&#123;zookeeper.tracelog.dir&#125;/$&#123;zookeeper.tracelog.file&#125;<br>log4j.appender.TRACEFILE.layout=org.apache.log4j.PatternLayout<br>log4j.appender.TRACEFILE.layout.ConversionPattern=%d&#123;ISO8601&#125; [myid:%X&#123;myid&#125;] - %-5p [%t:%C&#123;1&#125;@%L][%x] - %m%n<br><br>[root@manager zookeeper]# cat conf/zoo.cfg<br>tickTime=2000<br>initLimit=10<br>syncLimit=5<br>dataDir=/zookeeper/data<br>dataLogDir=/zookeeper/wal<br><span class="hljs-meta prompt_">#</span><span class="language-bash">snapCount=100000</span><br>autopurge.purgeInterval=1<br>clientPort=2181<br></code></pre></td></tr></table></figure>
+
+<p>准备启动脚本</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@manager zookeeper]# cat bin/zkReady.sh<br><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/bash</span><br>/zookeeper/bin/zkServer.sh status | egrep &#x27;Mode: (standalone|leading|following|observing)&#x27;<br>[root@manager zookeeper]# cat repositories<br>http://mirrors.aliyun.com/alpine/v3.6/main<br>http://mirrors.aliyun.com/alpine/v3.6/community<br></code></pre></td></tr></table></figure>
+
+<p>集群服务的配置文件提供方式：</p>
+<ul>
+<li>提前在镜像中定义</li>
+<li>在部署集群的时候在yaml中传递变量</li>
+<li>在entrypoint脚本中定义</li>
+</ul>
+<p>准备pv及pvc对应yaml：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml">[<span class="hljs-string">root@master1</span> <span class="hljs-string">pv</span>]<span class="hljs-comment"># cat zookeeper-persistentvolume.yaml </span><br><span class="hljs-meta">---</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">PersistentVolume</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">zookeeper-datadir-pv-1</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">capacity:</span><br>    <span class="hljs-attr">storage:</span> <span class="hljs-string">20Gi</span><br>  <span class="hljs-attr">accessModes:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">ReadWriteOnce</span> <br>  <span class="hljs-attr">nfs:</span><br>    <span class="hljs-attr">server:</span> <span class="hljs-number">192.168</span><span class="hljs-number">.88</span><span class="hljs-number">.139</span><br>    <span class="hljs-attr">path:</span> <span class="hljs-string">/data/k8sdata/magedu/zookeeper-datadir-1</span> <br><br><span class="hljs-meta">---</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">PersistentVolume</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">zookeeper-datadir-pv-2</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">capacity:</span><br>    <span class="hljs-attr">storage:</span> <span class="hljs-string">20Gi</span><br>  <span class="hljs-attr">accessModes:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">ReadWriteOnce</span><br>  <span class="hljs-attr">nfs:</span><br>    <span class="hljs-attr">server:</span> <span class="hljs-number">192.168</span><span class="hljs-number">.88</span><span class="hljs-number">.139</span> <br>    <span class="hljs-attr">path:</span> <span class="hljs-string">/data/k8sdata/magedu/zookeeper-datadir-2</span> <br><br><span class="hljs-meta">---</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">PersistentVolume</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">zookeeper-datadir-pv-3</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">capacity:</span><br>    <span class="hljs-attr">storage:</span> <span class="hljs-string">20Gi</span><br>  <span class="hljs-attr">accessModes:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">ReadWriteOnce</span><br>  <span class="hljs-attr">nfs:</span><br>    <span class="hljs-attr">server:</span> <span class="hljs-number">192.168</span><span class="hljs-number">.88</span><span class="hljs-number">.139</span>  <br>    <span class="hljs-attr">path:</span> <span class="hljs-string">/data/k8sdata/magedu/zookeeper-datadir-3</span> <br><br><br>[<span class="hljs-string">root@master1</span> <span class="hljs-string">pv</span>]<span class="hljs-comment"># cat zookeeper-persistentvolumeclaim.yaml </span><br><span class="hljs-meta">---</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">PersistentVolumeClaim</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">zookeeper-datadir-pvc-1</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">myserver</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">accessModes:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">ReadWriteOnce</span><br>  <span class="hljs-attr">volumeName:</span> <span class="hljs-string">zookeeper-datadir-pv-1</span><br>  <span class="hljs-attr">resources:</span><br>    <span class="hljs-attr">requests:</span><br>      <span class="hljs-attr">storage:</span> <span class="hljs-string">10Gi</span><br><span class="hljs-meta">---</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">PersistentVolumeClaim</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">zookeeper-datadir-pvc-2</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">myserver</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">accessModes:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">ReadWriteOnce</span><br>  <span class="hljs-attr">volumeName:</span> <span class="hljs-string">zookeeper-datadir-pv-2</span><br>  <span class="hljs-attr">resources:</span><br>    <span class="hljs-attr">requests:</span><br>      <span class="hljs-attr">storage:</span> <span class="hljs-string">10Gi</span><br><span class="hljs-meta">---</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">PersistentVolumeClaim</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">zookeeper-datadir-pvc-3</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">myserver</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">accessModes:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">ReadWriteOnce</span><br>  <span class="hljs-attr">volumeName:</span> <span class="hljs-string">zookeeper-datadir-pv-3</span><br>  <span class="hljs-attr">resources:</span><br>    <span class="hljs-attr">requests:</span><br>      <span class="hljs-attr">storage:</span> <span class="hljs-string">10Gi</span><br></code></pre></td></tr></table></figure>
+
+<p>确认pv状态为Available：</p>
+<p><img src="https://s2.loli.net/2023/02/24/gnWakMvmZlXhCVs.png" alt="image-20220805152725634"></p>
+<p>确认pvc状态：</p>
+<p><img src="https://s2.loli.net/2023/02/24/nvoWQqjlHxf8ziD.png" alt="image-20220807144332621"></p>
+<p>编写zookeeper.yaml并应用:</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml">[<span class="hljs-string">root@master1</span> <span class="hljs-string">zookeeper</span>]<span class="hljs-comment"># cat zookeeper.yaml </span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Service</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">zookeeper</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">magedu</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">ports:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">client</span><br>      <span class="hljs-attr">port:</span> <span class="hljs-number">2181</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">zookeeper</span><br><span class="hljs-meta">---</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Service</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">zookeeper1</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">magedu</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">type:</span> <span class="hljs-string">NodePort</span>        <br>  <span class="hljs-attr">ports:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">client</span><br>      <span class="hljs-attr">port:</span> <span class="hljs-number">2181</span><br>      <span class="hljs-attr">nodePort:</span> <span class="hljs-number">32181</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">followers</span><br>      <span class="hljs-attr">port:</span> <span class="hljs-number">2888</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">election</span><br>      <span class="hljs-attr">port:</span> <span class="hljs-number">3888</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">zookeeper</span><br>    <span class="hljs-attr">server-id:</span> <span class="hljs-string">&quot;1&quot;</span><br><span class="hljs-meta">---</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Service</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">zookeeper2</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">magedu</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">type:</span> <span class="hljs-string">NodePort</span>        <br>  <span class="hljs-attr">ports:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">client</span><br>      <span class="hljs-attr">port:</span> <span class="hljs-number">2181</span><br>      <span class="hljs-attr">nodePort:</span> <span class="hljs-number">32182</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">followers</span><br>      <span class="hljs-attr">port:</span> <span class="hljs-number">2888</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">election</span><br>      <span class="hljs-attr">port:</span> <span class="hljs-number">3888</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">zookeeper</span><br>    <span class="hljs-attr">server-id:</span> <span class="hljs-string">&quot;2&quot;</span><br><span class="hljs-meta">---</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Service</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">zookeeper3</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">magedu</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">type:</span> <span class="hljs-string">NodePort</span>        <br>  <span class="hljs-attr">ports:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">client</span><br>      <span class="hljs-attr">port:</span> <span class="hljs-number">2181</span><br>      <span class="hljs-attr">nodePort:</span> <span class="hljs-number">32183</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">followers</span><br>      <span class="hljs-attr">port:</span> <span class="hljs-number">2888</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">election</span><br>      <span class="hljs-attr">port:</span> <span class="hljs-number">3888</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">zookeeper</span><br>    <span class="hljs-attr">server-id:</span> <span class="hljs-string">&quot;3&quot;</span><br><span class="hljs-meta">---</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Deployment</span><br><span class="hljs-comment">#apiVersion: extensions/v1beta1</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">apps/v1</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">zookeeper1</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">magedu</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">replicas:</span> <span class="hljs-number">1</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">matchLabels:</span><br>      <span class="hljs-attr">app:</span> <span class="hljs-string">zookeeper</span><br>  <span class="hljs-attr">template:</span><br>    <span class="hljs-attr">metadata:</span><br>      <span class="hljs-attr">labels:</span><br>        <span class="hljs-attr">app:</span> <span class="hljs-string">zookeeper</span><br>        <span class="hljs-attr">server-id:</span> <span class="hljs-string">&quot;1&quot;</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">volumes:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">data</span><br>          <span class="hljs-attr">emptyDir:</span> &#123;&#125;<br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">wal</span><br>          <span class="hljs-attr">emptyDir:</span><br>            <span class="hljs-attr">medium:</span> <span class="hljs-string">Memory</span><br>      <span class="hljs-attr">containers:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">server</span><br>          <span class="hljs-attr">image:</span> <span class="hljs-number">192.168</span><span class="hljs-number">.88</span><span class="hljs-number">.138</span><span class="hljs-string">/k8s/zookeeper:2022080701</span> <br>          <span class="hljs-attr">imagePullPolicy:</span> <span class="hljs-string">IfNotPresent</span><br>          <span class="hljs-attr">env:</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">MYID</span><br>              <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;1&quot;</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">SERVERS</span><br>              <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;zookeeper1,zookeeper2,zookeeper3&quot;</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">JVMFLAGS</span><br>              <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;-Xmx1G&quot;</span><br>          <span class="hljs-attr">ports:</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">2181</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">2888</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">3888</span><br>          <span class="hljs-attr">volumeMounts:</span><br>          <span class="hljs-bullet">-</span> <span class="hljs-attr">mountPath:</span> <span class="hljs-string">&quot;/zookeeper/data&quot;</span><br>            <span class="hljs-attr">name:</span> <span class="hljs-string">zookeeper-datadir-pvc-1</span> <br>      <span class="hljs-attr">volumes:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">zookeeper-datadir-pvc-1</span> <br>          <span class="hljs-attr">persistentVolumeClaim:</span><br>            <span class="hljs-attr">claimName:</span> <span class="hljs-string">zookeeper-datadir-pvc-1</span><br><span class="hljs-meta">---</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Deployment</span><br><span class="hljs-comment">#apiVersion: extensions/v1beta1</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">apps/v1</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">zookeeper2</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">magedu</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">replicas:</span> <span class="hljs-number">1</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">matchLabels:</span><br>      <span class="hljs-attr">app:</span> <span class="hljs-string">zookeeper</span><br>  <span class="hljs-attr">template:</span><br>    <span class="hljs-attr">metadata:</span><br>      <span class="hljs-attr">labels:</span><br>        <span class="hljs-attr">app:</span> <span class="hljs-string">zookeeper</span><br>        <span class="hljs-attr">server-id:</span> <span class="hljs-string">&quot;2&quot;</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">volumes:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">data</span><br>          <span class="hljs-attr">emptyDir:</span> &#123;&#125;<br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">wal</span><br>          <span class="hljs-attr">emptyDir:</span><br>            <span class="hljs-attr">medium:</span> <span class="hljs-string">Memory</span><br>      <span class="hljs-attr">containers:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">server</span><br>          <span class="hljs-attr">image:</span> <span class="hljs-number">192.168</span><span class="hljs-number">.88</span><span class="hljs-number">.138</span><span class="hljs-string">/k8s/zookeeper:2022080701</span> <br>          <span class="hljs-attr">imagePullPolicy:</span> <span class="hljs-string">IfNotPresent</span><br>          <span class="hljs-attr">env:</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">MYID</span><br>              <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;2&quot;</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">SERVERS</span><br>              <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;zookeeper1,zookeeper2,zookeeper3&quot;</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">JVMFLAGS</span><br>              <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;-Xmx1G&quot;</span><br>          <span class="hljs-attr">ports:</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">2181</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">2888</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">3888</span><br>          <span class="hljs-attr">volumeMounts:</span><br>          <span class="hljs-bullet">-</span> <span class="hljs-attr">mountPath:</span> <span class="hljs-string">&quot;/zookeeper/data&quot;</span><br>            <span class="hljs-attr">name:</span> <span class="hljs-string">zookeeper-datadir-pvc-2</span> <br>      <span class="hljs-attr">volumes:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">zookeeper-datadir-pvc-2</span><br>          <span class="hljs-attr">persistentVolumeClaim:</span><br>            <span class="hljs-attr">claimName:</span> <span class="hljs-string">zookeeper-datadir-pvc-2</span><br><span class="hljs-meta">---</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Deployment</span><br><span class="hljs-comment">#apiVersion: extensions/v1beta1</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">apps/v1</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">zookeeper3</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">magedu</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">replicas:</span> <span class="hljs-number">1</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">matchLabels:</span><br>      <span class="hljs-attr">app:</span> <span class="hljs-string">zookeeper</span><br>  <span class="hljs-attr">template:</span><br>    <span class="hljs-attr">metadata:</span><br>      <span class="hljs-attr">labels:</span><br>        <span class="hljs-attr">app:</span> <span class="hljs-string">zookeeper</span><br>        <span class="hljs-attr">server-id:</span> <span class="hljs-string">&quot;3&quot;</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">volumes:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">data</span><br>          <span class="hljs-attr">emptyDir:</span> &#123;&#125;<br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">wal</span><br>          <span class="hljs-attr">emptyDir:</span><br>            <span class="hljs-attr">medium:</span> <span class="hljs-string">Memory</span><br>      <span class="hljs-attr">containers:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">server</span><br>          <span class="hljs-attr">image:</span> <span class="hljs-number">192.168</span><span class="hljs-number">.88</span><span class="hljs-number">.138</span><span class="hljs-string">/k8s/zookeeper:2022080701</span><br>          <span class="hljs-attr">imagePullPolicy:</span> <span class="hljs-string">IfNotPresent</span><br>          <span class="hljs-attr">env:</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">MYID</span><br>              <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;3&quot;</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">SERVERS</span><br>              <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;zookeeper1,zookeeper2,zookeeper3&quot;</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">JVMFLAGS</span><br>              <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;-Xmx1G&quot;</span><br>          <span class="hljs-attr">ports:</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">2181</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">2888</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">3888</span><br>          <span class="hljs-attr">volumeMounts:</span><br>          <span class="hljs-bullet">-</span> <span class="hljs-attr">mountPath:</span> <span class="hljs-string">&quot;/zookeeper/data&quot;</span><br>            <span class="hljs-attr">name:</span> <span class="hljs-string">zookeeper-datadir-pvc-3</span><br>      <span class="hljs-attr">volumes:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">zookeeper-datadir-pvc-3</span><br>          <span class="hljs-attr">persistentVolumeClaim:</span><br>           <span class="hljs-attr">claimName:</span> <span class="hljs-string">zookeeper-datadir-pvc-3</span><br></code></pre></td></tr></table></figure>
+
+<p>查看pod状态：</p>
+<p><img src="https://s2.loli.net/2023/02/24/9iMQNVsBueGvdta.png" alt="image-20220807125245227"></p>
+<p>后面测试过程暂时省略，主要思路就是修改yaml中镜像地址为错误地址，导致其中某个pod创建失败，观察其他pod的follower及leader角色变化。</p>
+<h2 id="实战案例三：-PV-x2F-PVC及Redis单机"><a href="#实战案例三：-PV-x2F-PVC及Redis单机" class="headerlink" title="实战案例三： PV&#x2F;PVC及Redis单机"></a>实战案例三： PV&#x2F;PVC及Redis单机</h2><h3 id="构建redis镜像"><a href="#构建redis镜像" class="headerlink" title="构建redis镜像"></a>构建redis镜像</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@manager redis]# cat Dockerfile <br><span class="hljs-meta prompt_">#</span><span class="language-bash">Redis Image</span><br>FROM 192.168.88.138/base/centos-base:7.9.2009  <br><br>MAINTAINER qintianjun &quot;freedom1215@foxmail.com&quot;<br><br>ADD redis-4.0.14.tar.gz /usr/local/src<br>RUN ln -sv /usr/local/src/redis-4.0.14 /usr/local/redis &amp;&amp; cd /usr/local/redis &amp;&amp; make &amp;&amp; cp src/redis-cli /usr/sbin/ &amp;&amp; cp src/redis-server  /usr/sbin/ &amp;&amp; mkdir -pv /data/redis-data <br>ADD redis.conf /usr/local/redis/redis.conf <br>ADD run_redis.sh /usr/local/redis/run_redis.sh<br><br>EXPOSE 6379<br><br>CMD [&quot;/usr/local/redis/run_redis.sh&quot;]<br>[root@manager redis]# cat build-command.sh <br><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/bash</span><br>TAG=$1<br>docker build -t 192.168.88.138/k8s/redis:$&#123;TAG&#125; .<br>sleep 3<br>docker push  192.168.88.138/k8s/redis:$&#123;TAG&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="创建pv与pvc"><a href="#创建pv与pvc" class="headerlink" title="创建pv与pvc"></a>创建pv与pvc</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml">[<span class="hljs-string">root@master1</span> <span class="hljs-string">pv</span>]<span class="hljs-comment"># cat redis-persistentvolume.yaml </span><br><span class="hljs-meta">---</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">PersistentVolume</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">redis-datadir-pv-1</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">magedu</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">capacity:</span><br>    <span class="hljs-attr">storage:</span> <span class="hljs-string">10Gi</span><br>  <span class="hljs-attr">accessModes:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">ReadWriteOnce</span><br>  <span class="hljs-attr">nfs:</span><br>    <span class="hljs-attr">path:</span> <span class="hljs-string">/data/k8sdata/magedu/redis-datadir-1</span> <br>    <span class="hljs-attr">server:</span> <span class="hljs-number">192.168</span><span class="hljs-number">.88</span><span class="hljs-number">.139</span><br>[<span class="hljs-string">root@master1</span> <span class="hljs-string">pv</span>]<span class="hljs-comment"># cat redis-persistentvolumeclaim.yaml </span><br><span class="hljs-meta">---</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">PersistentVolumeClaim</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">redis-datadir-pvc-1</span> <br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">magedu</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">volumeName:</span> <span class="hljs-string">redis-datadir-pv-1</span> <br>  <span class="hljs-attr">accessModes:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">ReadWriteOnce</span><br>  <span class="hljs-attr">resources:</span><br>    <span class="hljs-attr">requests:</span><br>      <span class="hljs-attr">storage:</span> <span class="hljs-string">10Gi</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="运行redis服务"><a href="#运行redis服务" class="headerlink" title="运行redis服务"></a>运行redis服务</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><code class="hljs yaml">[<span class="hljs-string">root@master1</span> <span class="hljs-string">redis</span>]<span class="hljs-comment"># cat redis.yaml </span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Deployment</span><br><span class="hljs-comment">#apiVersion: extensions/v1beta1</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">apps/v1</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">labels:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">devops-redis</span> <br>  <span class="hljs-attr">name:</span> <span class="hljs-string">deploy-devops-redis</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">magedu</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">replicas:</span> <span class="hljs-number">1</span> <br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">matchLabels:</span><br>      <span class="hljs-attr">app:</span> <span class="hljs-string">devops-redis</span><br>  <span class="hljs-attr">template:</span><br>    <span class="hljs-attr">metadata:</span><br>      <span class="hljs-attr">labels:</span><br>        <span class="hljs-attr">app:</span> <span class="hljs-string">devops-redis</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">containers:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">redis-container</span><br>          <span class="hljs-attr">image:</span> <span class="hljs-number">192.168</span><span class="hljs-number">.88</span><span class="hljs-number">.138</span><span class="hljs-string">/k8s/redis:2022080701</span><br>          <span class="hljs-attr">imagePullPolicy:</span> <span class="hljs-string">IfNotPresent</span><br>          <span class="hljs-attr">volumeMounts:</span><br>          <span class="hljs-bullet">-</span> <span class="hljs-attr">mountPath:</span> <span class="hljs-string">&quot;/data/redis-data/&quot;</span><br>            <span class="hljs-attr">name:</span> <span class="hljs-string">redis-datadir</span><br>      <span class="hljs-attr">volumes:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">redis-datadir</span><br>          <span class="hljs-attr">persistentVolumeClaim:</span><br>            <span class="hljs-attr">claimName:</span> <span class="hljs-string">redis-datadir-pvc-1</span> <br><br><span class="hljs-meta">---</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Service</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">labels:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">devops-redis</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">srv-devops-redis</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">magedu</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">type:</span> <span class="hljs-string">NodePort</span><br>  <span class="hljs-attr">ports:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">tcp</span><br>    <span class="hljs-attr">port:</span> <span class="hljs-number">6379</span> <br>    <span class="hljs-attr">targetPort:</span> <span class="hljs-number">6379</span><br>    <span class="hljs-attr">nodePort:</span> <span class="hljs-number">30379</span> <br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">devops-redis</span><br>  <span class="hljs-attr">sessionAffinity:</span> <span class="hljs-string">ClientIP</span><br>  <span class="hljs-attr">sessionAffinityConfig:</span><br>    <span class="hljs-attr">clientIP:</span><br>      <span class="hljs-attr">timeoutSeconds:</span> <span class="hljs-number">10800</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="验证redis数据读写"><a href="#验证redis数据读写" class="headerlink" title="验证redis数据读写"></a>验证redis数据读写</h3><p>访问对应node节点30379端口</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@node2 ~]# telnet 192.168.88.136  30379<br>Trying 192.168.88.136...<br>Connected to 192.168.88.136.<br>Escape character is &#x27;^]&#x27;.<br>auth 123456<br>+OK<br>set key1 value1<br>+OK<br>get key1<br><span class="hljs-meta prompt_">$</span><span class="language-bash">6</span><br>value1<br>quit<br>+OK<br></code></pre></td></tr></table></figure>
+
+<p>此时进入nfs服务挂载点所在目录</p>
+<p><img src="https://s2.loli.net/2023/02/24/GNK7yOEvgz9mpYt.png" alt="image-20220807173006223"></p>
+<p>可以看到文件被写入对应pvc, 查看aof文件可以看到刚才执行的命令：</p>
+<p><img src="https://s2.loli.net/2023/02/24/fr1WQS7TyhupO9F.png" alt="image-20220807173106104"></p>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Ops/" rel="tag"># Ops</a>
+              <a href="/tags/k8s/" rel="tag"># k8s</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/05/16/yaml%E6%96%87%E4%BB%B6%E8%AF%A6%E8%A7%A3%E5%8F%8A%E7%A4%BA%E4%BE%8B/" rel="prev" title="yaml文件详解及示例">
+      <i class="fa fa-chevron-left"></i> yaml文件详解及示例
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#k8s-%E4%B8%9A%E5%8A%A1%E5%AE%B9%E5%99%A8%E5%8C%96%E5%AE%9E%E6%88%98%E6%A1%88%E4%BE%8B"><span class="nav-number">1.</span> <span class="nav-text">k8s 业务容器化实战案例</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E4%B8%9A%E5%8A%A1%E5%AE%B9%E5%99%A8%E5%8C%96%E4%BC%98%E5%8A%BF"><span class="nav-number">1.1.</span> <span class="nav-text">1 业务容器化优势:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E4%B8%9A%E5%8A%A1%E8%A7%84%E5%88%92%E5%8F%8A%E9%95%9C%E5%83%8F%E5%88%86%E5%B1%82%E6%9E%84%E5%BB%BA"><span class="nav-number">1.2.</span> <span class="nav-text">2 业务规划及镜像分层构建</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E6%9E%84%E5%BB%BA%E5%9F%BA%E7%A1%80%E9%95%9C%E5%83%8F"><span class="nav-number">1.2.1.</span> <span class="nav-text">2.1 构建基础镜像</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E9%80%9A%E8%BF%87%E5%9F%BA%E7%A1%80%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BAjdk%E9%95%9C%E5%83%8F"><span class="nav-number">1.2.2.</span> <span class="nav-text">2.2 通过基础镜像构建jdk镜像</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E9%80%9A%E8%BF%87%E5%9F%BA%E7%A1%80%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BAnginx%E9%95%9C%E5%83%8F"><span class="nav-number">1.2.3.</span> <span class="nav-text">2.3 通过基础镜像构建nginx镜像</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-%E9%80%9A%E8%BF%87JDK%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BAtomcat%E9%95%9C%E5%83%8F"><span class="nav-number">1.2.4.</span> <span class="nav-text">2.4 通过JDK镜像构建tomcat镜像</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-%E9%80%9A%E8%BF%87tomcat%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BAapp%E9%95%9C%E5%83%8F"><span class="nav-number">1.2.5.</span> <span class="nav-text">2.5 通过tomcat镜像构建app镜像</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E6%88%98%E6%A1%88%E4%BE%8B%E4%B8%80%EF%BC%9A-%E8%87%AA%E5%AE%9A%E4%B9%89%E9%95%9C%E5%83%8F%E8%BF%90%E8%A1%8Cnginx%E5%8F%8Atomcat%E6%9C%8D%E5%8A%A1%E5%B9%B6%E5%9F%BA%E4%BA%8ENAS%E5%AE%9E%E7%8E%B0%E5%8A%A8%E9%9D%99%E5%88%86%E7%A6%BB"><span class="nav-number">1.3.</span> <span class="nav-text">实战案例一： 自定义镜像运行nginx及tomcat服务并基于NAS实现动静分离</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8Etomcat-base%E9%85%8D%E7%BD%AEtomcat%E4%B8%9A%E5%8A%A1%E9%95%9C%E5%83%8F"><span class="nav-number">1.3.1.</span> <span class="nav-text">基于tomcat-base配置tomcat业务镜像</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8Enginx-base%E9%85%8D%E7%BD%AEnginx%E7%9A%84%E4%B8%9A%E5%8A%A1%E9%95%9C%E5%83%8F"><span class="nav-number">1.3.2.</span> <span class="nav-text">基于nginx-base配置nginx的业务镜像</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81"><span class="nav-number">1.3.3.</span> <span class="nav-text">验证</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E6%88%98%E6%A1%88%E4%BE%8B%E4%BA%8C%EF%BC%9Apv-x2F-pvc-zookeeper"><span class="nav-number">1.4.</span> <span class="nav-text">实战案例二：pv&#x2F;pvc + zookeeper</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E8%BF%87jdk-%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BAzookeeper%E9%95%9C%E5%83%8F"><span class="nav-number">1.4.1.</span> <span class="nav-text">通过jdk 镜像构建zookeeper镜像</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E6%88%98%E6%A1%88%E4%BE%8B%E4%B8%89%EF%BC%9A-PV-x2F-PVC%E5%8F%8ARedis%E5%8D%95%E6%9C%BA"><span class="nav-number">1.5.</span> <span class="nav-text">实战案例三： PV&#x2F;PVC及Redis单机</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9E%84%E5%BB%BAredis%E9%95%9C%E5%83%8F"><span class="nav-number">1.5.1.</span> <span class="nav-text">构建redis镜像</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BApv%E4%B8%8Epvc"><span class="nav-number">1.5.2.</span> <span class="nav-text">创建pv与pvc</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%90%E8%A1%8Credis%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.5.3.</span> <span class="nav-text">运行redis服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81redis%E6%95%B0%E6%8D%AE%E8%AF%BB%E5%86%99"><span class="nav-number">1.5.4.</span> <span class="nav-text">验证redis数据读写</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="QinTianJun"
+      src="/images/logo.jpeg">
+  <p class="site-author-name" itemprop="name">QinTianJun</p>
+  <div class="site-description" itemprop="description">一个菜鸟的成长之路</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qtj1215" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qtj1215" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:freedom1215@foxmail.com" title="E-Mail → mailto:freedom1215@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.qintianjun.top/atom.xml" title="RSS → https:&#x2F;&#x2F;www.qintianjun.top&#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QinTianJun</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
