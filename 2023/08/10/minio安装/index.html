@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN,en,default">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.qintianjun.top","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="minio的部署安装，目前采用主机模式部署，后续添加k8s模式部署实验步骤">
+<meta property="og:type" content="article">
+<meta property="og:title" content="minio安装">
+<meta property="og:url" content="http://www.qintianjun.top/2023/08/10/minio%E5%AE%89%E8%A3%85/index.html">
+<meta property="og:site_name" content="Freedom_ATX&#39;s Blog">
+<meta property="og:description" content="minio的部署安装，目前采用主机模式部署，后续添加k8s模式部署实验步骤">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.qintianjun.top/minio%E5%AE%89%E8%A3%85.assets/console-login.png">
+<meta property="article:published_time" content="2023-08-10T10:27:14.000Z">
+<meta property="article:modified_time" content="2023-08-11T04:27:23.249Z">
+<meta property="article:author" content="QinTianJun">
+<meta property="article:tag" content="Ops">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="minio">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://www.qintianjun.top/minio%E5%AE%89%E8%A3%85.assets/console-login.png">
+
+<link rel="canonical" href="http://www.qintianjun.top/2023/08/10/minio%E5%AE%89%E8%A3%85/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>minio安装 | Freedom_ATX's Blog</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?b8f33cffae5a7adb95d2bdb812879d09";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Freedom_ATX's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Freedom_ATX's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.qintianjun.top/2023/08/10/minio%E5%AE%89%E8%A3%85/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/logo.jpeg">
+      <meta itemprop="name" content="QinTianJun">
+      <meta itemprop="description" content="一个菜鸟的成长之路">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Freedom_ATX's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          minio安装
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-08-10 18:27:14" itemprop="dateCreated datePublished" datetime="2023-08-10T18:27:14+08:00">2023-08-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-08-11 12:27:23" itemprop="dateModified" datetime="2023-08-11T12:27:23+08:00">2023-08-11</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Ops/" itemprop="url" rel="index"><span itemprop="name">Ops</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Ops/Cloud/" itemprop="url" rel="index"><span itemprop="name">Cloud</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p> 本文收集整理自minio.io官方, 2023年6月文档</p>
+</blockquote>
+<h1 id="单节点单驱动器"><a href="#单节点单驱动器" class="headerlink" title="单节点单驱动器"></a>单节点单驱动器</h1><p>本页上的过程介绍了在单节点单驱动器（SNSD）配置中部署 MinIO，以便进行早期开发和评估。SNSD 除了底层存储卷实现的内容（RAID、LVM、ZFS 等）之外，部署不提供额外的可靠性或可用性。</p>
+<p>从开始 <a target="_blank" rel="noopener" href="https://github.com/minio/minio/releases/tag/RELEASE.2022-06-02T02-11-04Z">RELEASE.2022-06-02T02-11-04Z</a>，MinIO 为单节点单驱动器部署实现了零奇偶校验纠删码后端。此功能允许在不需要多个驱动器的情况下访问 <a target="_blank" rel="noopener" href="https://www.minio.org.cn/docs/cn/minio/linux/operations/concepts/erasure-coding.html#minio-erasure-coding">纠删码相关功能</a>。</p>
+<p>MinIO仅从 SNSD（Single-Node,Single-Drive） 模式，如果存储卷或路径为空 _or_，则仅包含由以前的 SNSD 部署。有关详细信息，请参阅上的 <a target="_blank" rel="noopener" href="https://www.minio.org.cn/docs/cn/minio/linux/operations/install-deploy-manage/deploy-minio-single-node-single-drive.html#minio-snsd-pre-existing-data">具有预先存在数据的 SNSD 行为</a> 文档。</p>
+<p>对于扩展的开发或生产环境，请在拓扑中 <a target="_blank" rel="noopener" href="https://www.minio.org.cn/docs/cn/minio/linux/operations/install-deploy-manage/deploy-minio-multi-node-multi-drive.html#minio-mnmd">多节点多驱动器（分布式）</a> 部署 MinIO</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/minio/minio/releases/tag/RELEASE.2022-10-29T06-21-33Z">RELEASE.2022-10-29T06-21-33Z</a> 完全删除 <a target="_blank" rel="noopener" href="https://blog.min.io/deprecation-of-the-minio-gateway/">已弃用的网关&#x2F;文件系统</a> 后端。如果 MinIO 启动并检测到现有的文件系统后端文件，则会返回错误。</p>
+</blockquote>
+<p>要从 FS 后端部署迁移，请使用 <a target="_blank" rel="noopener" href="https://www.minio.org.cn/docs/cn/minio/linux/reference/minio-mc/mc-mirror.html#command-mc.mirror" title="mc.mirror"><code>mc mirror</code></a> 或 <a target="_blank" rel="noopener" href="https://www.minio.org.cn/docs/cn/minio/linux/reference/minio-mc/mc-cp.html#command-mc.cp" title="mc.cp"><code>mc cp</code></a> 将数据复制到新的 MinIO SNSD 部署。你还应该在 SNSD 部署。</p>
+<h2 id="预先存在的数据"><a href="#预先存在的数据" class="headerlink" title="预先存在的数据"></a>预先存在的数据</h2><p>MinIO 启动行为取决于指定存储卷或路径的内容。服务器检查 MinIO 内部后端数据以及现有文件夹和文件的结构。下表列出了可能的存储卷状态和 MinIO 行为：<br>![[Pasted image 20230512115759.png]]</p>
+<h2 id="部署单节点单驱动器-MinIO"><a href="#部署单节点单驱动器-MinIO" class="headerlink" title="部署单节点单驱动器 MinIO"></a>部署单节点单驱动器 MinIO</h2><p>以下过程部署由单个 MinIO 服务器和单个驱动器或存储卷组成的 MinIO。</p>
+<h3 id="1-下载-MinIO-服务器"><a href="#1-下载-MinIO-服务器" class="headerlink" title="1) 下载 MinIO 服务器"></a>1) 下载 MinIO 服务器</h3><p><strong>rpm</strong>:</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><code class="hljs awk">wget https:<span class="hljs-regexp">//</span>dl.min.io<span class="hljs-regexp">/server/mi</span>nio<span class="hljs-regexp">/release/</span>linux-amd64<span class="hljs-regexp">/archive/mi</span>nio-<span class="hljs-number">20230504214430.0</span>.<span class="hljs-number">0</span>.x86_64.rpm -O minio.rpm<br>rpm -ivh install minio.rpm<br></code></pre></td></tr></table></figure>
+
+<p><strong>二进制</strong></p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><code class="hljs awk">wget https:<span class="hljs-regexp">//</span>dl.min.io<span class="hljs-regexp">/server/mi</span>nio<span class="hljs-regexp">/release/</span>linux-amd64/minio<br>chmod +x minio<br>sudo mv minio <span class="hljs-regexp">/usr/</span>local<span class="hljs-regexp">/bin/</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-systemd-创建服务文件"><a href="#2-systemd-创建服务文件" class="headerlink" title="2) systemd 创建服务文件"></a>2) <code>systemd</code> 创建服务文件</h3><p><code>.deb</code>或软件包<code>.rpm</code>将以下 <a target="_blank" rel="noopener" href="https://www.freedesktop.org/wiki/Software/systemd/">systemd</a>服务文件安装到 <code>/etc/systemd/system/minio.service</code>. 对于二进制安装，在所有 MinIO 主机上手动创建此文件：</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Unit]</span><br><span class="hljs-attr">Description</span>=MinIO<br><span class="hljs-attr">Documentation</span>=https://min.io/docs/minio/linux/index.html<br><span class="hljs-attr">Wants</span>=network-<span class="hljs-literal">on</span>line.target<br><span class="hljs-attr">After</span>=network-<span class="hljs-literal">on</span>line.target<br><span class="hljs-attr">AssertFileIsExecutable</span>=/usr/local/bin/minio<br><br><span class="hljs-section">[Service]</span><br><span class="hljs-attr">WorkingDirectory</span>=/usr/local<br><br><span class="hljs-attr">User</span>=minio-user<br><span class="hljs-attr">Group</span>=minio-user<br><span class="hljs-attr">ProtectProc</span>=invisible<br><br><span class="hljs-attr">EnvironmentFile</span>=-/etc/default/minio<br><span class="hljs-attr">ExecStartPre</span>=/bin/bash -c <span class="hljs-string">&quot;if [ -z \&quot;$&#123;MINIO_VOLUMES&#125;\&quot; ]; then echo \&quot;Variable MINIO_VOLUMES not set in /etc/default/minio\&quot;; exit 1; fi&quot;</span><br><span class="hljs-attr">ExecStart</span>=/usr/local/bin/minio server <span class="hljs-variable">$MINIO_OPTS</span> <span class="hljs-variable">$MINIO_VOLUMES</span><br><br><span class="hljs-comment"># Let systemd restart this service always</span><br><span class="hljs-attr">Restart</span>=always<br><br><span class="hljs-comment"># Specifies the maximum file descriptor number that can be opened by this process</span><br><span class="hljs-attr">LimitNOFILE</span>=<span class="hljs-number">65536</span><br><br><span class="hljs-comment"># Specifies the maximum number of threads this process can create</span><br><span class="hljs-attr">TasksMax</span>=infinity<br><br><span class="hljs-comment"># Disable timeout logic and wait until process is stopped</span><br><span class="hljs-attr">TimeoutStopSec</span>=infinity<br><span class="hljs-attr">SendSIGKILL</span>=<span class="hljs-literal">no</span><br><br><span class="hljs-section">[Install]</span><br><span class="hljs-attr">WantedBy</span>=multi-user.target<br><br><span class="hljs-comment"># Built for $&#123;project.name&#125;-$&#123;project.version&#125; ($&#123;project.name&#125;)</span><br></code></pre></td></tr></table></figure>
+
+<p>默认情况下，该<code>minio.service</code>文件作为<code>minio-user</code>用户和组运行。<code>groupadd</code>您可以使用和命令创建用户和组<code>useradd</code> 。以下示例创建用户、组并设置权限以访问旨在供 MinIO 使用的文件夹路径。这些命令通常需要 root ( <code>sudo</code>) 权限。</p>
+<figure class="highlight crmsh"><table><tr><td class="code"><pre><code class="hljs crmsh">groupadd -r minio-<span class="hljs-keyword">user</span><br><span class="hljs-title">useradd</span> -M -r -g minio-<span class="hljs-keyword">user</span> <span class="hljs-title">minio-user</span><br>chown minio-user:minio-<span class="hljs-keyword">user</span> <span class="hljs-title">/mnt</span>/disk1 /mnt/disk2 /mnt/disk3 /mnt/disk4<br></code></pre></td></tr></table></figure>
+
+<p>指定的驱动器路径作为示例提供。更改它们以匹配 MinIO 打算使用的那些驱动器的路径。</p>
+<p><code>User</code>或者，将和值更改<code>Group</code>为系统主机上具有必要访问权限和权限的另一个用户和组。<br>附：<br><a target="_blank" rel="noopener" href="https://github.com/minio/minio-service">MinIO 在github.com&#x2F;minio&#x2F;minio-service</a>上发布了额外的启动脚本示例 。</p>
+<h3 id="3-创建环境变量文件"><a href="#3-创建环境变量文件" class="headerlink" title="3) 创建环境变量文件"></a>3) 创建环境变量文件</h3><p>创建一个环境变量文件在<code>/etc/default/minio</code><br>例子：</p>
+<figure class="highlight pgsql"><table><tr><td class="code"><pre><code class="hljs pgsql"># cat /etc/<span class="hljs-keyword">default</span>/minio<br># MINIO_ROOT_USER <span class="hljs-keyword">and</span> MINIO_ROOT_PASSWORD sets the root account <span class="hljs-keyword">for</span> the MinIO <span class="hljs-keyword">server</span>.<br># This <span class="hljs-keyword">user</span> has unrestricted permissions <span class="hljs-keyword">to</span> <span class="hljs-keyword">perform</span> S3 <span class="hljs-keyword">and</span> administrative API operations <span class="hljs-keyword">on</span> <span class="hljs-keyword">any</span> resource <span class="hljs-keyword">in</span> the deployment.<br># Omit <span class="hljs-keyword">to</span> use the <span class="hljs-keyword">default</span> <span class="hljs-keyword">values</span> <span class="hljs-string">&#x27;minioadmin:minioadmin&#x27;</span>.<br># MinIO recommends setting non-<span class="hljs-keyword">default</span> <span class="hljs-keyword">values</span> <span class="hljs-keyword">as</span> a best practice, regardless <span class="hljs-keyword">of</span> environment<br><br>MINIO_ROOT_USER=<span class="hljs-keyword">USER</span><br>MINIO_ROOT_PASSWORD=<span class="hljs-keyword">PASSWORD</span><br><br># Use <span class="hljs-keyword">if</span> you want <span class="hljs-keyword">to</span> run MinIO <span class="hljs-keyword">on</span> a custom port.<br># MINIO_OPTS=&quot;--address :9199 --console-address :9001&quot;<br>MINIO_OPTS=&quot;--console-address :40167&quot;<br><br># MINIO_VOLUMES sets the <span class="hljs-keyword">storage</span> volume <span class="hljs-keyword">or</span> <span class="hljs-type">path</span> <span class="hljs-keyword">to</span> use <span class="hljs-keyword">for</span> the MinIO <span class="hljs-keyword">server</span>.<br><br>MINIO_VOLUMES=&quot;/data/web_server/minio_data&quot;<br><br># MINIO_SERVER_URL sets the hostname <span class="hljs-keyword">of</span> the <span class="hljs-keyword">local</span> machine <span class="hljs-keyword">for</span> use <span class="hljs-keyword">with</span> the MinIO <span class="hljs-keyword">Server</span><br># MinIO assumes your network control plane can correctly resolve this hostname <span class="hljs-keyword">to</span> the <span class="hljs-keyword">local</span> machine<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-启动-MinIO-服务"><a href="#4-启动-MinIO-服务" class="headerlink" title="4) 启动 MinIO 服务"></a>4) 启动 MinIO 服务</h3><p>在本地主机上发出以下命令以启动 MinIO SNSD部署作为服务：</p>
+<p><code>sudo systemctl start minio.service</code></p>
+<p>使用以下命令确认服务在线且正常运行：</p>
+<p><code>sudo systemctl status minio.service</code><br><code>journalctl -f -u minio.service</code></p>
+<p>当服务器进程连接和同步时，MinIO 可能会记录更多的非严重警告。这些警告通常是暂时的，应该会在部署上线时解决。<br>如果任何驱动器在启动 MinIO 后仍处于脱机状态，请在开始生产工作负载之前检查并解决任何阻碍其功能的问题。</p>
+<p>输出<code>journalctl</code>应类似于以下内容：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">systemctl status  minio -l</span><br>● minio.service - MinIO<br>   Loaded: loaded (/etc/systemd/system/minio.service; disabled; vendor preset: disabled)<br>   Active: active (running) since Fri 2023-05-12 11:44:29 CST; 16s ago<br>     Docs: https://min.io/docs/minio/linux/index.html<br>  Process: 1702456 ExecStartPre=/bin/bash -c if [ -z &quot;$&#123;MINIO_VOLUMES&#125;&quot; ]; then echo &quot;Variable MINIO_VOLUMES not set in /etc/default/minio&quot;; exit 1; fi (code=exited, status=0/SUCCESS)<br> Main PID: 1702459 (minio)<br>   CGroup: /system.slice/minio.service<br>           └─1702459 /usr/local/bin/minio server --console-address :40167 /data/web_server/minio_data<br><br>May 12 11:44:30 ksgame-gamecloud-minio-test-1.hb.txyun minio[1702459]: Copyright: 2015-2023 MinIO, Inc.<br>May 12 11:44:30 ksgame-gamecloud-minio-test-1.hb.txyun minio[1702459]: License: GNU AGPLv3 &lt;https://www.gnu.org/licenses/agpl-3.0.html&gt;<br>May 12 11:44:30 ksgame-gamecloud-minio-test-1.hb.txyun minio[1702459]: Version: RELEASE.2023-04-13T03-08-07Z (go1.20.3 linux/amd64)<br>May 12 11:44:30 ksgame-gamecloud-minio-test-1.hb.txyun minio[1702459]: Status:         1 Online, 0 Offline.<br>May 12 11:44:30 ksgame-gamecloud-minio-test-1.hb.txyun minio[1702459]: API: http://10.73.198.192:9000  http://127.0.0.1:9000<br>May 12 11:44:30 ksgame-gamecloud-minio-test-1.hb.txyun minio[1702459]: Console: http://10.73.198.192:40167 http://127.0.0.1:40167<br>May 12 11:44:30 ksgame-gamecloud-minio-test-1.hb.txyun minio[1702459]: Documentation: https://min.io/docs/minio/linux/index.html<br>May 12 11:44:30 ksgame-gamecloud-minio-test-1.hb.txyun minio[1702459]: Warning: The standard parity is set to 0. This can lead to data loss.<br>May 12 11:44:30 ksgame-gamecloud-minio-test-1.hb.txyun minio[1702459]: You are running an older version of MinIO released 3 weeks ago<br>May 12 11:44:30 ksgame-gamecloud-minio-test-1.hb.txyun minio[1702459]: Update: Run `mc admin update`<br></code></pre></td></tr></table></figure>
+
+<h3 id="5-连接到-MinIO-服务"><a href="#5-连接到-MinIO-服务" class="headerlink" title="5) 连接到 MinIO 服务"></a>5) 连接到 MinIO 服务</h3><h1 id="多节点多驱动器"><a href="#多节点多驱动器" class="headerlink" title="多节点多驱动器"></a>多节点多驱动器</h1><h2 id="顺序主机名"><a href="#顺序主机名" class="headerlink" title="顺序主机名"></a>顺序主机名</h2><p>MinIO_需要_在创建服务器池时使用扩展符号<code>&#123;x...y&#125;</code>来表示一系列连续的 MinIO 主机。因此，MinIO_需要_ 使用按顺序编号的主机名来表示 部署中的每个进程。</p>
+<p>例如，以下主机名将支持 4 节点分布式部署：</p>
+<ul>
+<li>ksgame-gamecloud-minio-test-1.hb.txyun</li>
+<li>ksgame-gamecloud-minio-test-2.hb.txyun</li>
+<li>ksgame-gamecloud-minio-test-3.hb.txyun</li>
+<li>ksgame-gamecloud-minio-test-4.hb.txyun</li>
+</ul>
+<h2 id="顺序挂载的本地-JBOD-存储"><a href="#顺序挂载的本地-JBOD-存储" class="headerlink" title="顺序挂载的本地 JBOD 存储"></a>顺序挂载的本地 JBOD 存储</h2><p>MinIO 强烈建议使用 XFS 格式磁盘的直连JBOD 阵列以获得最佳性能。</p>
+<ul>
+<li><p>与网络存储（NAS、SAN、NFS）相比，直连存储 (DAS) 具有显着的性能和一致性优势。</p>
+</li>
+<li><p>使用非 XFS 文件系统（ext4、btrfs、zfs）的部署往往性能较低，同时会出现意外或不良行为。</p>
+</li>
+<li><p>RAID 或类似技术在与分布式 MinIO 部署一起使用时不会提供额外的弹性或可用性优势，并且通常会降低系统性能。</p>
+</li>
+</ul>
+<blockquote>
+<p>确保部署中的所有节点都使用具有相同容量（例如<code>N</code>TB）的相同类型（NVMe、SSD 或 HDD）的驱动器。MinIO 不区分驱动器类型，也不受益于混合存储类型。此外。MinIO 将每个驱动器使用的大小限制为部署中的最小驱动器。例如，如果部署有 15 个 10TB 驱动器和 1 个 1TB 驱动器，MinIO 将每个驱动器的容量限制为 1TB。</p>
+</blockquote>
+<p>MinIO_要求_在创建新部署时使用扩展符号<code>&#123;x...y&#125;</code>来表示一系列连续的驱动器，其中部署中的所有节点都有一组相同的已安装驱动器。MinIO 还要求物理驱动器的顺序在重启后保持不变，这样给定的挂载点总是指向相同格式的驱动器。因此，MinIO<strong>强烈建议</strong>使用<code>/etc/fstab</code>或类似的基于文件的挂载配置，以确保驱动器顺序在重启后不会更改。例如：</p>
+<p>![[Pasted image 20230518115359.png]]</p>
+<p>然后您可以使用扩展符号指定整个驱动器范围 <code>/mnt/disk&#123;1...2&#125;</code>。如果要在每个驱动器上使用特定的子文件夹，请将其指定为<code>/mnt/disk&#123;1...2&#125;/minio</code>.</p>
+<p>挂载数据盘：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># mkdir /mnt/disk1</span><br><span class="hljs-comment"># mount /dev/vdb /mnt/disk1</span><br><span class="hljs-comment"># mkdir /mnt/disk2</span><br><span class="hljs-comment"># mount /dev/vdc /mnt/disk2</span><br><span class="hljs-comment"># df -Th</span><br>Filesystem     Type      Size  Used Avail Use% Mounted on<br>devtmpfs       devtmpfs  3.9G     0  3.9G   0% /dev<br>tmpfs          tmpfs     3.9G   52K  3.9G   1% /dev/shm<br>tmpfs          tmpfs     3.9G  780K  3.9G   1% /run<br>tmpfs          tmpfs     3.9G     0  3.9G   0% /sys/fs/cgroup<br>/dev/vda1      ext4       99G  5.6G   89G   6% /<br>tmpfs          tmpfs     785M     0  785M   0% /run/user/0<br>tmpfs          tmpfs     785M     0  785M   0% /run/user/1000<br>tmpfs          tmpfs     785M     0  785M   0% /run/user/1101<br>/dev/vdb       xfs       500G   33M  500G   1% /mnt/disk1<br>/dev/vdc       xfs       500G   33M  500G   1% /mnt/disk2<br></code></pre></td></tr></table></figure>
+
+<p>写入fstab，开机自动挂载：</p>
+<figure class="highlight gradle"><table><tr><td class="code"><pre><code class="hljs gradle"># cat <span class="hljs-regexp">/etc/</span>fstab<br>....<br># &lt;<span class="hljs-keyword">file</span> system&gt;  &lt;mount point&gt;  &lt;type&gt;  &lt;<span class="hljs-keyword">options</span>&gt;         &lt;<span class="hljs-keyword">dump</span>&gt;  &lt;pass&gt;<br>LABEL=DISK1      <span class="hljs-regexp">/mnt/</span>disk1     xfs     defaults,noatime  <span class="hljs-number">0</span>       <span class="hljs-number">2</span><br>LABEL=DISK2      <span class="hljs-regexp">/mnt/</span>disk2     xfs     defaults,noatime  <span class="hljs-number">0</span>       <span class="hljs-number">2</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="部署分布式-MinIO"><a href="#部署分布式-MinIO" class="headerlink" title="部署分布式 MinIO"></a>部署分布式 MinIO</h1><p>以下过程创建一个新的分布式 MinIO 部署，其中包含一个<a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/operations/concepts.html#minio-intro-server-pool">Server Pool</a>。</p>
+<p>下面提供的所有命令都使用示例值。将这些值替换为适合部署的值。</p>
+<h2 id="1-在每个节点上安装-MinIO-二进制文件"><a href="#1-在每个节点上安装-MinIO-二进制文件" class="headerlink" title="1 在每个节点上安装 MinIO 二进制文件"></a>1 在每个节点上安装 MinIO 二进制文件</h2><p>以下选项卡提供了使用 RPM、DEB 或二进制将 MinIO 安装到 64 位 Linux 操作系统上的示例。RPM 和 DEB 包自动将 MinIO 安装到必要的系统路径并<code>minio</code>为<code>systemctl</code>. MinIO 强烈建议使用 RPM 或 DEB 安装路径。要更新使用管理的部署<code>systemctl</code>，请参阅<a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/operations/install-deploy-manage/upgrade-minio-deployment.html#minio-upgrade-systemctl">更新 systemctl-Managed MinIO 部署</a>。</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><code class="hljs awk">wget https:<span class="hljs-regexp">//</span>dl.min.io<span class="hljs-regexp">/server/mi</span>nio<span class="hljs-regexp">/release/</span>linux-amd64/minio<br>chmod +x minio<br>sudo mv minio <span class="hljs-regexp">/usr/</span>local<span class="hljs-regexp">/bin/</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="2-创建systemd服务文件"><a href="#2-创建systemd服务文件" class="headerlink" title="2 创建systemd服务文件"></a>2 创建<code>systemd</code>服务文件</h2><p><code>.deb</code>或软件包<code>.rpm</code>将以下 <a target="_blank" rel="noopener" href="https://www.freedesktop.org/wiki/Software/systemd/">systemd</a>服务文件安装到 <code>/etc/systemd/system/minio.service</code>. 对于二进制安装，在所有 MinIO 主机上手动创建此文件：</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Unit]</span><br><span class="hljs-attr">Description</span>=MinIO<br><span class="hljs-attr">Documentation</span>=https://min.io/docs/minio/linux/index.html<br><span class="hljs-attr">Wants</span>=network-<span class="hljs-literal">on</span>line.target<br><span class="hljs-attr">After</span>=network-<span class="hljs-literal">on</span>line.target<br><span class="hljs-attr">AssertFileIsExecutable</span>=/usr/local/bin/minio<br><br><span class="hljs-section">[Service]</span><br><span class="hljs-attr">WorkingDirectory</span>=/usr/local<br><br><span class="hljs-attr">User</span>=minio-user<br><span class="hljs-attr">Group</span>=minio-user<br><span class="hljs-attr">ProtectProc</span>=invisible <span class="hljs-comment"># 官网这个参数加上以后运行提示不识别，我给注释了</span><br><br><span class="hljs-attr">EnvironmentFile</span>=-/etc/default/minio<br><span class="hljs-attr">ExecStartPre</span>=/bin/bash -c <span class="hljs-string">&quot;if [ -z \&quot;$&#123;MINIO_VOLUMES&#125;\&quot; ]; then echo \&quot;Variable MINIO_VOLUMES not set in /etc/default/minio\&quot;; exit 1; fi&quot;</span><br><span class="hljs-attr">ExecStart</span>=/usr/local/bin/minio server <span class="hljs-variable">$MINIO_OPTS</span> <span class="hljs-variable">$MINIO_VOLUMES</span><br><br><span class="hljs-comment"># MinIO RELEASE.2023-05-04T21-44-30Z adds support for Type=notify (https://www.freedesktop.org/software/systemd/man/systemd.service.html#Type=)</span><br><span class="hljs-comment"># This may improve systemctl setups where other services use `After=minio.server`</span><br><span class="hljs-comment"># Uncomment the line to enable the functionality</span><br><span class="hljs-comment"># Type=notify</span><br><br><span class="hljs-comment"># Let systemd restart this service always</span><br><span class="hljs-attr">Restart</span>=always<br><br><span class="hljs-comment"># Specifies the maximum file descriptor number that can be opened by this process</span><br><span class="hljs-attr">LimitNOFILE</span>=<span class="hljs-number">65536</span><br><br><span class="hljs-comment"># Specifies the maximum number of threads this process can create</span><br><span class="hljs-attr">TasksMax</span>=infinity<br><br><span class="hljs-comment"># Disable timeout logic and wait until process is stopped</span><br><span class="hljs-attr">TimeoutStopSec</span>=infinity<br><span class="hljs-attr">SendSIGKILL</span>=<span class="hljs-literal">no</span><br><br><span class="hljs-section">[Install]</span><br><span class="hljs-attr">WantedBy</span>=multi-user.target<br><br><span class="hljs-comment"># Built for $&#123;project.name&#125;-$&#123;project.version&#125; ($&#123;project.name&#125;)</span><br></code></pre></td></tr></table></figure>
+
+<p>默认情况下，该<code>minio.service</code>文件作为<code>minio-user</code>用户和组运行。<code>groupadd</code>您可以使用和命令创建用户和组<code>useradd</code> 。以下示例创建用户、组并设置权限以访问旨在供 MinIO 使用的文件夹路径。这些命令通常需要 root ( <code>sudo</code>) 权限。</p>
+<figure class="highlight crmsh"><table><tr><td class="code"><pre><code class="hljs crmsh">groupadd -r minio-<span class="hljs-keyword">user</span><br><span class="hljs-title">useradd</span> -M -r -g minio-<span class="hljs-keyword">user</span> <span class="hljs-title">minio-user</span><br>chown minio-user:minio-<span class="hljs-keyword">user</span> <span class="hljs-title">/mnt</span>/disk1 /mnt/disk2 /mnt/disk3 /mnt/disk4<br></code></pre></td></tr></table></figure>
+
+<p><code>User</code>或者，将和值更改<code>Group</code>为系统主机上具有必要访问权限和权限的另一个用户和组。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/minio/minio-service">MinIO 在github.com&#x2F;minio&#x2F;minio-service</a>上发布了额外的启动脚本示例 。</p>
+<h2 id="3-创建服务环境文件"><a href="#3-创建服务环境文件" class="headerlink" title="3 创建服务环境文件"></a>3 创建服务环境文件</h2><p>在 处创建一个环境文件<code>/etc/default/minio</code>。MinIO 服务使用这个文件作为 MinIO和_文件使用的所有 <a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/reference/minio-server/minio-server.html#minio-server-environment-variables">环境变量</a>的来源 。<code>minio.service</code></p>
+<blockquote>
+<p>目前测试环境有4台实例<br>ksgame-gamecloud-minio-test-1.hb.txyun<br>ksgame-gamecloud-minio-test-2hb.txyun<br>ksgame-gamecloud-minio-test-3.hb.txyun<br>ksgame-gamecloud-minio-test-4.hb.txyun<br>每台实例挂载2块数据盘<br>&#x2F;mnt&#x2F;disk1<br>&#x2F;mnt&#x2F;disk2</p>
+</blockquote>
+<p>修改示例以反映您的部署拓扑：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">cat minio<br><span class="hljs-meta prompt_"># </span><span class="language-bash">MINIO_ROOT_USER and MINIO_ROOT_PASSWORD sets the root account <span class="hljs-keyword">for</span> the MinIO server.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">This user has unrestricted permissions to perform S3 and administrative API operations on any resource <span class="hljs-keyword">in</span> the deployment.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Omit to use the default values <span class="hljs-string">&#x27;minioadmin:minioadmin&#x27;</span>.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">MinIO recommends setting non-default values as a best practice, regardless of environment</span><br><br>MINIO_ROOT_USER=USER<br>MINIO_ROOT_PASSWORD=PASSWORD<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Use <span class="hljs-keyword">if</span> you want to run MinIO on a custom port.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">MINIO_OPTS=<span class="hljs-string">&quot;--address :9199 --console-address :9001&quot;</span></span><br>MINIO_OPTS=&quot;--console-address :40167 --address :9000&quot;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">MINIO_VOLUMES sets the storage volume or path to use <span class="hljs-keyword">for</span> the MinIO server.</span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">MINIO_VOLUMES=<span class="hljs-string">&quot;/minio_data&quot;</span></span><br>MINIO_VOLUMES=&quot;http://ksgame-gamecloud-minio-test-&#123;1...4&#125;.hb.txyun:9000/mnt/disk&#123;1...2&#125;&quot;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">MINIO_SERVER_URL sets the hostname of the <span class="hljs-built_in">local</span> machine <span class="hljs-keyword">for</span> use with the MinIO Server</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">MinIO assumes your network control plane can correctly resolve this hostname to the <span class="hljs-built_in">local</span> machine</span><br>[sre@game-cs002 /home/sre/game-scripts/minio]$cat minio<br><span class="hljs-meta prompt_"># </span><span class="language-bash">MINIO_ROOT_USER and MINIO_ROOT_PASSWORD sets the root account <span class="hljs-keyword">for</span> the MinIO server.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">This user has unrestricted permissions to perform S3 and administrative API operations on any resource <span class="hljs-keyword">in</span> the deployment.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Omit to use the default values <span class="hljs-string">&#x27;minioadmin:minioadmin&#x27;</span>.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">MinIO recommends setting non-default values as a best practice, regardless of environment</span><br><br>MINIO_ROOT_USER=USER<br>MINIO_ROOT_PASSWORD=$PASSWORD<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Use <span class="hljs-keyword">if</span> you want to run MinIO on a custom port.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">MINIO_OPTS=<span class="hljs-string">&quot;--address :9199 --console-address :9001&quot;</span></span><br>MINIO_OPTS=&quot;--console-address :9001 --address :9000&quot;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">MINIO_VOLUMES sets the storage volume or path to use <span class="hljs-keyword">for</span> the MinIO server.</span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">MINIO_VOLUMES=<span class="hljs-string">&quot;/minio_data&quot;</span></span><br>MINIO_VOLUMES=&quot;http://ksgame-gamecloud-minio-test-&#123;1...4&#125;.hb.txyun:9000/mnt/disk&#123;1...2&#125;&quot;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">MINIO_SERVER_URL sets the hostname of the <span class="hljs-built_in">local</span> machine <span class="hljs-keyword">for</span> use with the MinIO Server</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">MinIO assumes your network control plane can correctly resolve this hostname to the <span class="hljs-built_in">local</span> machine</span><br></code></pre></td></tr></table></figure>
+
+<p>您可以根据部署的需要指定其他<a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/reference/minio-server/minio-server.html#minio-server-environment-variables">环境变量或服务器命令行选项。</a>部署中的所有 MinIO 节点都应该包含相同的环境变量，每个变量的值都相同。</p>
+<h2 id="4-添加-TLS-x2F-SSL-证书"><a href="#4-添加-TLS-x2F-SSL-证书" class="headerlink" title="4 添加 TLS&#x2F;SSL 证书"></a>4 添加 TLS&#x2F;SSL 证书</h2><blockquote>
+<p>因为我们有nginx集群，证书统一托管，故未在minio机器上单独部署证书，姑且一看</p>
+</blockquote>
+<p>MinIO在 MinIO目录中检测到有效的 x.509 证书 ( ) 和私钥 ( ) 后自动启用<a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/operations/network-encryption.html#minio-tls">传输层安全 (TLS)</a> 1.2+ 。<code>.crt``.key``$&#123;HOME&#125;/.minio/certs</code></p>
+<p>对于<code>systemd</code>托管部署，使用<code>$HOME</code>运行 MinIO 服务器进程的用户的目录。提供的<code>minio.service</code> 文件以<code>minio-user</code>. 前面的步骤包括使用主目录创建此用户的说明<code>/home/minio-user</code>。</p>
+<ul>
+<li><p>将 TLS 证书放入<code>/home/minio-user/.minio/certs</code>.</p>
+</li>
+<li><p>如果_任何_MinIO 服务器或客户端使用由未知证书颁发机构（自签名或内部 CA）签名的证书，则必须_将_CA 证书放在<code>/home/minio-user/.minio/certs/CAs</code>部署中的所有 MinIO 主机上。MinIO 拒绝无效证书（不受信任、过期或格式错误）。</p>
+</li>
+</ul>
+<p>如果该<code>minio.service</code>文件指定了不同的用户帐户，请使用 <code>$HOME</code>该帐户的目录。或者，使用命令行参数指定自定义证书目录 。修改中的变量 以设置此选项。运行 MinIO 服务器进程的用户必须_对_指定目录具有读取和列出权限。<a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/reference/minio-server/minio-server.html#minio.server.-certs-dir" title="minio.server.--证书目录"><code>minio server --certs-dir</code></a><code>MINIO_OPTS``/etc/defaults/minio``systemd</code></p>
+<p>有关为 TLS 配置 MinIO 的更多具体指南，包括通过服务器名称指示 (SNI) 的多域支持，请参阅<a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/operations/network-encryption.html#minio-tls">网络加密 (TLS)</a>。您可以选择跳过此步骤以在不启用 TLS 的情况下进行部署。MinIO 强烈建议_不要在早期开发之外进行_非 TLS 部署。</p>
+<h2 id="5-运行-MinIO-服务器进程"><a href="#5-运行-MinIO-服务器进程" class="headerlink" title="5 运行 MinIO 服务器进程"></a>5 运行 MinIO 服务器进程</h2><p>在部署中的每个节点上发出以下命令以启动 MinIO 服务：</p>
+<p>sudo systemctl start minio.service</p>
+<p>使用以下命令确认服务在线且正常运行：</p>
+<p>sudo systemctl status minio.service<br>journalctl -f -u minio.service</p>
+<p>当服务器进程连接和同步时，MinIO 可能会记录更多的非严重警告。这些警告通常是暂时的，应该会在部署上线时解决。</p>
+<h2 id="6-nginx配置"><a href="#6-nginx配置" class="headerlink" title="6 nginx配置"></a>6 nginx配置</h2><p>参考</p>
+<figure class="highlight nginx"><table><tr><td class="code"><pre><code class="hljs nginx"><span class="hljs-section">upstream</span> minio-minio-api &#123;<br>  <span class="hljs-attribute">server</span> <span class="hljs-number">10.73.198.192:9000</span> weight=<span class="hljs-number">10</span>;<br>  <span class="hljs-attribute">server</span> <span class="hljs-number">10.73.198.162:9000</span> weight=<span class="hljs-number">10</span>;<br>  <span class="hljs-attribute">server</span> <span class="hljs-number">10.73.195.139:9000</span> weight=<span class="hljs-number">10</span>;<br>  <span class="hljs-attribute">server</span> <span class="hljs-number">10.73.195.171:9000</span> weight=<span class="hljs-number">10</span>;<br>  <span class="hljs-attribute">keepalive</span> <span class="hljs-number">1000</span>;<br>  <span class="hljs-attribute">check</span> interval=<span class="hljs-number">5000</span> rise=<span class="hljs-number">2</span> fall=<span class="hljs-number">3</span> timeout=<span class="hljs-number">30000</span> type=tcp default_down=<span class="hljs-literal">false</span>;<br>&#125;<br><br><span class="hljs-section">server</span> &#123;<br>  <span class="hljs-attribute">listen</span>      <span class="hljs-number">80</span>;<br>  <span class="hljs-attribute">listen</span>      <span class="hljs-number">443</span> ssl;<br>  <span class="hljs-attribute">include</span>     extra/YOURCERT;<br>  <span class="hljs-attribute">ssl_session_cache</span> shared:SSL:<span class="hljs-number">50m</span>;<br>  <span class="hljs-attribute">ssl_session_timeout</span>  <span class="hljs-number">5m</span>;<br>  <span class="hljs-attribute">ssl_prefer_server_ciphers</span> <span class="hljs-literal">on</span>;<br>  <span class="hljs-attribute">ssl_ciphers</span> AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:DHE-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4;<br>  <span class="hljs-attribute">ssl_protocols</span>   TLSv1 TLSv1.<span class="hljs-number">1</span> TLSv1.<span class="hljs-number">2</span>;<br><br>  <span class="hljs-attribute">server_name</span> YOURDOMAIN;<br><br>  <span class="hljs-attribute">access_log</span>  /data/logs/nginx/gifshow.access.log  main;<br>  <span class="hljs-attribute">error_log</span>  /data/logs/nginx/gifshow.<span class="hljs-literal">error</span>.log;<br><br>  <span class="hljs-attribute">error_page</span>   <span class="hljs-number">500</span> <span class="hljs-number">502</span> <span class="hljs-number">503</span> <span class="hljs-number">504</span>  /50x.html;<br>  <span class="hljs-section">location</span> = /50x.html &#123;<br>    <span class="hljs-attribute">root</span>   html;<br>  &#125;<br><br>  <span class="hljs-attribute">if</span> ( <span class="hljs-variable">$scheme</span> = http ) &#123;<br>    <span class="hljs-attribute">return</span> <span class="hljs-number">301</span> https://<span class="hljs-variable">$host</span><span class="hljs-variable">$request_uri</span>;<br>  &#125;<br><br>  <span class="hljs-attribute">include</span>   extra/logid.conf;<br>  <span class="hljs-attribute">include</span>   limit/waf_anticc.conf;<br>  <span class="hljs-attribute">include</span>   extra/proxy.conf;<br><br>  <span class="hljs-section">location</span> / &#123;<br>    <span class="hljs-attribute">client_body_buffer_size</span> <span class="hljs-number">10m</span>;<br>    <span class="hljs-attribute">client_max_body_size</span> <span class="hljs-number">100m</span>;<br>    <span class="hljs-attribute">proxy_buffers</span> <span class="hljs-number">1024</span> <span class="hljs-number">4k</span>;<br>    <span class="hljs-attribute">proxy_read_timeout</span> <span class="hljs-number">300</span>;<br>    <span class="hljs-attribute">proxy_pass</span> http://minio-api;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="7-打开-MinIO-控制台"><a href="#7-打开-MinIO-控制台" class="headerlink" title="7 打开 MinIO 控制台"></a>7 打开 MinIO 控制台</h2><p>打开浏览器并在端口访问任何 MinIO 主机名<code>:9001</code>以打开<a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/administration/minio-console.html#minio-console">MinIO 控制台</a>登录页面。例如， <code>https://minio1.example.com:9001</code>。</p>
+<p>使用上一步中的minio_root_user和minio_root_password登录。</p>
+<p><a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/_images/console-login.png"><img src="/minio%E5%AE%89%E8%A3%85.assets/console-login.png" alt="MinIO 控制台登录页面"></a></p>
+<p>您可以使用 MinIO 控制台执行一般管理任务，例如身份和访问管理、指标和日志监控或服务器配置。每个 MinIO 服务器都包含自己的嵌入式 MinIO 控制台。</p>
+<p>多节点多驱动器部署完成</p>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Ops/" rel="tag"># Ops</a>
+              <a href="/tags/k8s/" rel="tag"># k8s</a>
+              <a href="/tags/minio/" rel="tag"># minio</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/06/01/harbor%E9%AB%98%E5%8F%AF%E7%94%A8%E5%AE%89%E8%A3%85%EF%BC%88%E7%A6%BB%E7%BA%BF%E6%96%B9%E5%BC%8F%EF%BC%89/" rel="prev" title="harbor高可用安装（离线方式）">
+      <i class="fa fa-chevron-left"></i> harbor高可用安装（离线方式）
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8D%95%E8%8A%82%E7%82%B9%E5%8D%95%E9%A9%B1%E5%8A%A8%E5%99%A8"><span class="nav-number">1.</span> <span class="nav-text">单节点单驱动器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%84%E5%85%88%E5%AD%98%E5%9C%A8%E7%9A%84%E6%95%B0%E6%8D%AE"><span class="nav-number">1.1.</span> <span class="nav-text">预先存在的数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%83%A8%E7%BD%B2%E5%8D%95%E8%8A%82%E7%82%B9%E5%8D%95%E9%A9%B1%E5%8A%A8%E5%99%A8-MinIO"><span class="nav-number">1.2.</span> <span class="nav-text">部署单节点单驱动器 MinIO</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%B8%8B%E8%BD%BD-MinIO-%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">1.2.1.</span> <span class="nav-text">1) 下载 MinIO 服务器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-systemd-%E5%88%9B%E5%BB%BA%E6%9C%8D%E5%8A%A1%E6%96%87%E4%BB%B6"><span class="nav-number">1.2.2.</span> <span class="nav-text">2) systemd 创建服务文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%88%9B%E5%BB%BA%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E6%96%87%E4%BB%B6"><span class="nav-number">1.2.3.</span> <span class="nav-text">3) 创建环境变量文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%90%AF%E5%8A%A8-MinIO-%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.2.4.</span> <span class="nav-text">4) 启动 MinIO 服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E8%BF%9E%E6%8E%A5%E5%88%B0-MinIO-%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.2.5.</span> <span class="nav-text">5) 连接到 MinIO 服务</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%9A%E8%8A%82%E7%82%B9%E5%A4%9A%E9%A9%B1%E5%8A%A8%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">多节点多驱动器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A1%BA%E5%BA%8F%E4%B8%BB%E6%9C%BA%E5%90%8D"><span class="nav-number">2.1.</span> <span class="nav-text">顺序主机名</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A1%BA%E5%BA%8F%E6%8C%82%E8%BD%BD%E7%9A%84%E6%9C%AC%E5%9C%B0-JBOD-%E5%AD%98%E5%82%A8"><span class="nav-number">2.2.</span> <span class="nav-text">顺序挂载的本地 JBOD 存储</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%83%A8%E7%BD%B2%E5%88%86%E5%B8%83%E5%BC%8F-MinIO"><span class="nav-number">3.</span> <span class="nav-text">部署分布式 MinIO</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%9C%A8%E6%AF%8F%E4%B8%AA%E8%8A%82%E7%82%B9%E4%B8%8A%E5%AE%89%E8%A3%85-MinIO-%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%96%87%E4%BB%B6"><span class="nav-number">3.1.</span> <span class="nav-text">1 在每个节点上安装 MinIO 二进制文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%88%9B%E5%BB%BAsystemd%E6%9C%8D%E5%8A%A1%E6%96%87%E4%BB%B6"><span class="nav-number">3.2.</span> <span class="nav-text">2 创建systemd服务文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E5%88%9B%E5%BB%BA%E6%9C%8D%E5%8A%A1%E7%8E%AF%E5%A2%83%E6%96%87%E4%BB%B6"><span class="nav-number">3.3.</span> <span class="nav-text">3 创建服务环境文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E6%B7%BB%E5%8A%A0-TLS-x2F-SSL-%E8%AF%81%E4%B9%A6"><span class="nav-number">3.4.</span> <span class="nav-text">4 添加 TLS&#x2F;SSL 证书</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E8%BF%90%E8%A1%8C-MinIO-%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%BF%9B%E7%A8%8B"><span class="nav-number">3.5.</span> <span class="nav-text">5 运行 MinIO 服务器进程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-nginx%E9%85%8D%E7%BD%AE"><span class="nav-number">3.6.</span> <span class="nav-text">6 nginx配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E6%89%93%E5%BC%80-MinIO-%E6%8E%A7%E5%88%B6%E5%8F%B0"><span class="nav-number">3.7.</span> <span class="nav-text">7 打开 MinIO 控制台</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="QinTianJun"
+      src="/images/logo.jpeg">
+  <p class="site-author-name" itemprop="name">QinTianJun</p>
+  <div class="site-description" itemprop="description">一个菜鸟的成长之路</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qtj1215" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qtj1215" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:freedom1215@foxmail.com" title="E-Mail → mailto:freedom1215@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.qintianjun.top/atom.xml" title="RSS → https:&#x2F;&#x2F;www.qintianjun.top&#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QinTianJun</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
