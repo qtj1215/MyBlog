@@ -27,15 +27,17 @@
 <meta property="og:site_name" content="Freedom_ATX&#39;s Blog">
 <meta property="og:description" content="minio的部署安装，目前采用主机模式部署，后续添加k8s模式部署实验步骤">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://www.qintianjun.top/minio%E5%AE%89%E8%A3%85.assets/console-login.png">
+<meta property="og:image" content="https://s2.loli.net/2023/08/11/y5kfK49zCeHRYlc.png">
+<meta property="og:image" content="http://www.qintianjun.top/minio%E5%AE%89%E8%A3%85.assets/YVWImN1FTv7xO4U.png">
+<meta property="og:image" content="http://www.qintianjun.top/minio%E5%AE%89%E8%A3%85.assets/2P9Xfa1sqdtgebl.png">
 <meta property="article:published_time" content="2023-08-10T10:27:14.000Z">
-<meta property="article:modified_time" content="2023-08-11T04:27:23.249Z">
+<meta property="article:modified_time" content="2023-08-11T05:07:22.986Z">
 <meta property="article:author" content="QinTianJun">
 <meta property="article:tag" content="Ops">
 <meta property="article:tag" content="k8s">
 <meta property="article:tag" content="minio">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://www.qintianjun.top/minio%E5%AE%89%E8%A3%85.assets/console-login.png">
+<meta name="twitter:image" content="https://s2.loli.net/2023/08/11/y5kfK49zCeHRYlc.png">
 
 <link rel="canonical" href="http://www.qintianjun.top/2023/08/10/minio%E5%AE%89%E8%A3%85/">
 
@@ -210,7 +212,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-08-11 12:27:23" itemprop="dateModified" datetime="2023-08-11T12:27:23+08:00">2023-08-11</time>
+                <time title="修改时间：2023-08-11 13:07:22" itemprop="dateModified" datetime="2023-08-11T13:07:22+08:00">2023-08-11</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -248,7 +250,7 @@
 <p><a target="_blank" rel="noopener" href="https://github.com/minio/minio/releases/tag/RELEASE.2022-10-29T06-21-33Z">RELEASE.2022-10-29T06-21-33Z</a> 完全删除 <a target="_blank" rel="noopener" href="https://blog.min.io/deprecation-of-the-minio-gateway/">已弃用的网关&#x2F;文件系统</a> 后端。如果 MinIO 启动并检测到现有的文件系统后端文件，则会返回错误。</p>
 </blockquote>
 <p>要从 FS 后端部署迁移，请使用 <a target="_blank" rel="noopener" href="https://www.minio.org.cn/docs/cn/minio/linux/reference/minio-mc/mc-mirror.html#command-mc.mirror" title="mc.mirror"><code>mc mirror</code></a> 或 <a target="_blank" rel="noopener" href="https://www.minio.org.cn/docs/cn/minio/linux/reference/minio-mc/mc-cp.html#command-mc.cp" title="mc.cp"><code>mc cp</code></a> 将数据复制到新的 MinIO SNSD 部署。你还应该在 SNSD 部署。</p>
-<h2 id="预先存在的数据"><a href="#预先存在的数据" class="headerlink" title="预先存在的数据"></a>预先存在的数据</h2><p>MinIO 启动行为取决于指定存储卷或路径的内容。服务器检查 MinIO 内部后端数据以及现有文件夹和文件的结构。下表列出了可能的存储卷状态和 MinIO 行为：<br>![[Pasted image 20230512115759.png]]</p>
+<h2 id="预先存在的数据"><a href="#预先存在的数据" class="headerlink" title="预先存在的数据"></a>预先存在的数据</h2><p>MinIO 启动行为取决于指定存储卷或路径的内容。服务器检查 MinIO 内部后端数据以及现有文件夹和文件的结构。下表列出了可能的存储卷状态和 MinIO 行为：<br><img src="https://s2.loli.net/2023/08/11/y5kfK49zCeHRYlc.png"></p>
 <h2 id="部署单节点单驱动器-MinIO"><a href="#部署单节点单驱动器-MinIO" class="headerlink" title="部署单节点单驱动器 MinIO"></a>部署单节点单驱动器 MinIO</h2><p>以下过程部署由单个 MinIO 服务器和单个驱动器或存储卷组成的 MinIO。</p>
 <h3 id="1-下载-MinIO-服务器"><a href="#1-下载-MinIO-服务器" class="headerlink" title="1) 下载 MinIO 服务器"></a>1) 下载 MinIO 服务器</h3><p><strong>rpm</strong>:</p>
 <figure class="highlight awk"><table><tr><td class="code"><pre><code class="hljs awk">wget https:<span class="hljs-regexp">//</span>dl.min.io<span class="hljs-regexp">/server/mi</span>nio<span class="hljs-regexp">/release/</span>linux-amd64<span class="hljs-regexp">/archive/mi</span>nio-<span class="hljs-number">20230504214430.0</span>.<span class="hljs-number">0</span>.x86_64.rpm -O minio.rpm<br>rpm -ivh install minio.rpm<br></code></pre></td></tr></table></figure>
@@ -296,7 +298,7 @@
 <p>确保部署中的所有节点都使用具有相同容量（例如<code>N</code>TB）的相同类型（NVMe、SSD 或 HDD）的驱动器。MinIO 不区分驱动器类型，也不受益于混合存储类型。此外。MinIO 将每个驱动器使用的大小限制为部署中的最小驱动器。例如，如果部署有 15 个 10TB 驱动器和 1 个 1TB 驱动器，MinIO 将每个驱动器的容量限制为 1TB。</p>
 </blockquote>
 <p>MinIO_要求_在创建新部署时使用扩展符号<code>&#123;x...y&#125;</code>来表示一系列连续的驱动器，其中部署中的所有节点都有一组相同的已安装驱动器。MinIO 还要求物理驱动器的顺序在重启后保持不变，这样给定的挂载点总是指向相同格式的驱动器。因此，MinIO<strong>强烈建议</strong>使用<code>/etc/fstab</code>或类似的基于文件的挂载配置，以确保驱动器顺序在重启后不会更改。例如：</p>
-<p>![[Pasted image 20230518115359.png]]</p>
+<p><img src="/minio%E5%AE%89%E8%A3%85.assets/YVWImN1FTv7xO4U.png"></p>
 <p>然后您可以使用扩展符号指定整个驱动器范围 <code>/mnt/disk&#123;1...2&#125;</code>。如果要在每个驱动器上使用特定的子文件夹，请将其指定为<code>/mnt/disk&#123;1...2&#125;/minio</code>.</p>
 <p>挂载数据盘：</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># mkdir /mnt/disk1</span><br><span class="hljs-comment"># mount /dev/vdb /mnt/disk1</span><br><span class="hljs-comment"># mkdir /mnt/disk2</span><br><span class="hljs-comment"># mount /dev/vdc /mnt/disk2</span><br><span class="hljs-comment"># df -Th</span><br>Filesystem     Type      Size  Used Avail Use% Mounted on<br>devtmpfs       devtmpfs  3.9G     0  3.9G   0% /dev<br>tmpfs          tmpfs     3.9G   52K  3.9G   1% /dev/shm<br>tmpfs          tmpfs     3.9G  780K  3.9G   1% /run<br>tmpfs          tmpfs     3.9G     0  3.9G   0% /sys/fs/cgroup<br>/dev/vda1      ext4       99G  5.6G   89G   6% /<br>tmpfs          tmpfs     785M     0  785M   0% /run/user/0<br>tmpfs          tmpfs     785M     0  785M   0% /run/user/1000<br>tmpfs          tmpfs     785M     0  785M   0% /run/user/1101<br>/dev/vdb       xfs       500G   33M  500G   1% /mnt/disk1<br>/dev/vdc       xfs       500G   33M  500G   1% /mnt/disk2<br></code></pre></td></tr></table></figure>
@@ -348,7 +350,7 @@
 
 <h2 id="7-打开-MinIO-控制台"><a href="#7-打开-MinIO-控制台" class="headerlink" title="7 打开 MinIO 控制台"></a>7 打开 MinIO 控制台</h2><p>打开浏览器并在端口访问任何 MinIO 主机名<code>:9001</code>以打开<a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/administration/minio-console.html#minio-console">MinIO 控制台</a>登录页面。例如， <code>https://minio1.example.com:9001</code>。</p>
 <p>使用上一步中的minio_root_user和minio_root_password登录。</p>
-<p><a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/_images/console-login.png"><img src="/minio%E5%AE%89%E8%A3%85.assets/console-login.png" alt="MinIO 控制台登录页面"></a></p>
+<p><img src="/minio%E5%AE%89%E8%A3%85.assets/2P9Xfa1sqdtgebl.png"></p>
 <p>您可以使用 MinIO 控制台执行一般管理任务，例如身份和访问管理、指标和日志监控或服务器配置。每个 MinIO 服务器都包含自己的嵌入式 MinIO 控制台。</p>
 <p>多节点多驱动器部署完成</p>
 
