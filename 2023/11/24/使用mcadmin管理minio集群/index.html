@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-CN,en,default">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.qintianjun.top","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="使用minio官方的mc客户端管理minio集群">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用mc admin管理minio集群">
+<meta property="og:url" content="http://www.qintianjun.top/2023/11/24/%E4%BD%BF%E7%94%A8mcadmin%E7%AE%A1%E7%90%86minio%E9%9B%86%E7%BE%A4/index.html">
+<meta property="og:site_name" content="Freedom_ATX&#39;s Blog">
+<meta property="og:description" content="使用minio官方的mc客户端管理minio集群">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2023/11/24/JWSexaR476BDMCo.jpg">
+<meta property="og:image" content="https://s2.loli.net/2023/11/24/5CPl2f8wcIoxdkN.jpg">
+<meta property="og:image" content="https://s2.loli.net/2023/11/24/L8FBnTa3rzsGe59.jpg">
+<meta property="og:image" content="https://s2.loli.net/2023/11/24/7KzdRZWQlvD2fY3.jpg">
+<meta property="og:image" content="https://s2.loli.net/2023/11/24/IbPHhMNqs4ZnwUB.jpg">
+<meta property="og:image" content="https://s2.loli.net/2023/11/24/sT2Aih9oeqD5L7Z.jpg">
+<meta property="og:image" content="https://s2.loli.net/2023/11/24/4Iz6FkoUnlSJ7te.jpg">
+<meta property="og:image" content="https://s2.loli.net/2023/11/24/zfPodm4MC9jNSq2.jpg">
+<meta property="og:image" content="https://s2.loli.net/2023/11/24/pXkgAQK2dhZE5Tf.jpg">
+<meta property="og:image" content="https://s2.loli.net/2023/11/24/HGRiUA8mBqTEM9j.jpg">
+<meta property="og:image" content="https://s2.loli.net/2023/11/24/rub2nAQPHtvNLpx.jpg">
+<meta property="og:image" content="https://s2.loli.net/2023/11/24/Yys67C5ODeLJohn.jpg">
+<meta property="og:image" content="https://s2.loli.net/2023/11/24/uDTLERldGiQ2ScJ.jpg">
+<meta property="og:image" content="https://s2.loli.net/2023/11/24/YK2GmrCqhL91Qg7.jpg">
+<meta property="og:image" content="https://s2.loli.net/2023/11/24/5b1UJ46ZHwdoq7t.jpg">
+<meta property="og:image" content="https://s2.loli.net/2023/11/24/dUvIsu4JKfraPQH.jpg">
+<meta property="og:image" content="http://www.qintianjun.top/%E4%BD%BF%E7%94%A8mc%E7%AE%A1%E7%90%86minio%E9%9B%86%E7%BE%A4.assets/clip_image036.jpg">
+<meta property="og:image" content="https://s2.loli.net/2023/11/24/e5LYuhQZqbGDvHM.jpg">
+<meta property="og:image" content="https://s2.loli.net/2023/11/24/uHUnmhz24CjgVfs.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/24/Ek71GwaD4jFgqxV.jpg">
+<meta property="article:published_time" content="2023-11-24T12:09:30.000Z">
+<meta property="article:modified_time" content="2023-11-24T12:29:43.099Z">
+<meta property="article:author" content="QinTianJun">
+<meta property="article:tag" content="Ops">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="minio">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2023/11/24/JWSexaR476BDMCo.jpg">
+
+<link rel="canonical" href="http://www.qintianjun.top/2023/11/24/%E4%BD%BF%E7%94%A8mcadmin%E7%AE%A1%E7%90%86minio%E9%9B%86%E7%BE%A4/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>使用mc admin管理minio集群 | Freedom_ATX's Blog</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?b8f33cffae5a7adb95d2bdb812879d09";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Freedom_ATX's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Freedom_ATX's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.qintianjun.top/2023/11/24/%E4%BD%BF%E7%94%A8mcadmin%E7%AE%A1%E7%90%86minio%E9%9B%86%E7%BE%A4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/logo.jpeg">
+      <meta itemprop="name" content="QinTianJun">
+      <meta itemprop="description" content="一个菜鸟的成长之路">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Freedom_ATX's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用mc admin管理minio集群
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-11-24 20:09:30 / 修改时间：20:29:43" itemprop="dateCreated datePublished" datetime="2023-11-24T20:09:30+08:00">2023-11-24</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Ops/" itemprop="url" rel="index"><span itemprop="name">Ops</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Ops/Cloud/" itemprop="url" rel="index"><span itemprop="name">Cloud</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="在mc中添加集群"><a href="#在mc中添加集群" class="headerlink" title="在mc中添加集群"></a>在mc中添加集群</h2><p>在控制台添加aksk </p>
+<p><img src="https://s2.loli.net/2023/11/24/JWSexaR476BDMCo.jpg" alt="img"></p>
+<p>使用<code>mc config host add &lt;ALIAS&gt; &lt;ENDPOINT&gt; ACCESS_KEY SECRET_KEY</code>添加minio实例</p>
+<p><img src="https://s2.loli.net/2023/11/24/5CPl2f8wcIoxdkN.jpg" alt="img"></p>
+<p>使用命令测试与新添加的 MinIO 部署的连接：</p>
+<figure class="highlight pgsql"><table><tr><td class="code"><pre><code class="hljs pgsql">mc <span class="hljs-keyword">admin</span> <span class="hljs-keyword">info</span> &lt;<span class="hljs-keyword">ALIAS</span>&gt;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://s2.loli.net/2023/11/24/L8FBnTa3rzsGe59.jpg" alt="img"></p>
+<h2 id="将webhook添加到Minio"><a href="#将webhook添加到Minio" class="headerlink" title="将webhook添加到Minio"></a>将webhook添加到Minio</h2><p>MinIO 支持 使用命令和配置密钥在正在运行的进程上添加或更新 Webhook 端点。您必须重新启动该 过程才能应用任何新的或更新的配置设置。<a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/reference/minio-server/minio-server.html#command-minio.server" title="minio服务器"><code>minio server</code></a><a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/reference/minio-mc-admin/mc-admin-config.html#mc.admin.config.set" title="mc.admin.config.set"><code>mc admin config set</code></a><a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/reference/minio-mc-admin/mc-admin-config.html#mc-conf.notify_webhook" title="mc-conf.notify_webhook"><code>notify_webhook</code></a><a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/reference/minio-server/minio-server.html#command-minio.server" title="minio服务器"><code>minio server</code></a></p>
+<p>以下示例代码设置 与配置 Webhook 服务端点相关的_所有设置。必须要有的设置是 ：<a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/reference/minio-mc-admin/mc-admin-config.html#mc-conf.notify_webhook.endpoint" title="mc-conf.notify_webhook.endpoint"><code>notify_webhook endpoint</code></a></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$</span><span class="language-bash">mc admin config  <span class="hljs-built_in">set</span> ALIAS/ notify_webhook:IDENTIFIER \</span><br><span class="language-bash">endpoint=<span class="hljs-string">&quot;&lt;ENDPOINT&gt;&quot;</span> \ </span>   <br>auth_token=&quot;&lt;string&gt;&quot; \    <br>queue_dir=&quot;&lt;string&gt;&quot; \    <br>queue_limit=&quot;&lt;string&gt;&quot; \    <br>client_cert=&quot;&lt;string&gt;&quot; \    <br>client_key=&quot;&lt;string&gt;&quot; \    <br>comment=&quot;&lt;string&gt;&quot;  <br></code></pre></td></tr></table></figure>
+
+
+
+<p> ● 替换<code>IDENTIFIER</code>为 Webhook 服务端点的唯一描述性字符串。此过程中的以下示例假定标识符为<code>PRIMARY</code>。</p>
+<p>● 如果指定的值<code>IDENTIFIER</code>与 MinIO 部署上的现有 Webhook 服务端点匹配，则新设置_将覆盖_ 该端点的任何现有设置。用于 查看 MinIO 部署上当前配置的 Webhook 端点。<a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/reference/minio-mc-admin/mc-admin-config.html#mc.admin.config.get" title="mc.admin.config.get"><code>mc admin config get notify_webhook</code></a></p>
+<p>● 替换<code>ENDPOINT</code>为 Webhook 服务端点的 URL。例如： <code>https://webhook.example.com</code></p>
+<p>有关每个设置的完整文档，请参阅<a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/reference/minio-mc-admin/mc-admin-config.html#minio-server-config-bucket-notification-webhook"> </a><a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/reference/minio-mc-admin/mc-admin-config.html#minio-server-config-bucket-notification-webhook">Webhook 存储桶通知配置设置。</a></p>
+<p><strong>识别存储桶通知的 ARN</strong></p>
+<p><code>&lt;IDENTIFIER&gt;</code>在之前创建终端节点时定义了分配给存储桶通知的目标 ARN。以下步骤返回在部署中配置的 ARN。通过查找<code>&lt;IDENTIFIER&gt;</code>您指定的 ARN 来识别之前创建的 ARN。</p>
+<p><strong>查看 JSON 输出</strong></p>
+<ol>
+<li>复制并运行以下命令，替换<code>ALIAS</code>为部署的<a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/reference/minio-mc/mc-alias-set.html#alias">别名。</a></li>
+<li>mc admin info –json ALIAS</li>
+<li>在 JSON 输出中，查找 key <code>info.sqsARN</code>。</li>
+<li>您需要的 ARN 是与您指定的密钥相匹配的值<code>&lt;IDENTIFIER&gt;</code>。</li>
+<li>例如，<code>arn:minio:sqs::primary:webhook</code>.</li>
+</ol>
+<p><strong>使用 jq 解析 JSON 中的值</strong></p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://stedolan.github.io/jq/">安装jq</a></li>
+<li>复制并运行以下命令，替换<code>ALIAS</code>为部署的<a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/reference/minio-mc/mc-alias-set.html#alias">别名。</a></li>
+<li>mc admin info –json ALIAS | jq .info.sqsARN</li>
+<li>这将返回用于通知的 ARN，例如<code>arn:minio:sqs::primary:webhook</code></li>
+</ol>
+<p><img src="https://s2.loli.net/2023/11/24/7KzdRZWQlvD2fY3.jpg" alt="img"></p>
+<p><img src="https://s2.loli.net/2023/11/24/IbPHhMNqs4ZnwUB.jpg" alt="img"></p>
+<p><img src="https://s2.loli.net/2023/11/24/sT2Aih9oeqD5L7Z.jpg" alt="img"></p>
+<p><img src="https://s2.loli.net/2023/11/24/4Iz6FkoUnlSJ7te.jpg" alt="img"></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">mc config host  add hotfix-test http://10.73.195.24:19000 AK  SK       <br>mc admin config  set hotfix-test/ notify_webhook:SECONDARY \     <br>endpoint=&quot;http://10.73.195.24:19000&quot;        <br>mc event add  hotfix-test/hotfix-test arn:minio:sqs::SECONDARY:webhook --event  s3:ObjectCreated:*,s3:ObjectAccessed:*,s3:ObjectRemoved:*,s3:Replication:*,s3:ObjectRestore:*,s3:ObjectTransition:*     <br>mc admin config  set minio-domestic notify_webhook:PRIMARY \   <br>endpoint=&quot;http://ksgame-public-minio-event-webhook-domestic.internal:80/webhook/&quot;  \     queue_dir=&quot;/data/logs/minio/event&quot; \    <br>queue_limit=&quot;100000&quot;   <br></code></pre></td></tr></table></figure>
+
+<h2 id="mc操作远程集群"><a href="#mc操作远程集群" class="headerlink" title="mc操作远程集群"></a>mc操作远程集群</h2><h3 id="添加远程集群"><a href="#添加远程集群" class="headerlink" title="添加远程集群"></a>添加远程集群</h3><figure class="highlight bash"><table><tr><td class="code"><pre><code class="hljs bash"><span class="hljs-variable">$mc</span> <span class="hljs-built_in">alias</span> <span class="hljs-built_in">set</span>  minio-test-1 http://ksgame-gamecloud-hotfix-minio-test-1.hb.txyun:9000  MINIOUSER MINIOPASSWD  Added  `minio-test-1` successfully  <br><span class="hljs-variable">$mc</span> <span class="hljs-built_in">alias</span> <span class="hljs-built_in">set</span>  minio-test-2 http://ksgame-gamecloud-hotfix-minio-test2-1.hb.txyun:9000  MINIOUSER MINIOPASSWD  Added `minio-test-2`  successfully.  <br></code></pre></td></tr></table></figure>
+
+
+
+<p> 验证 <code>mc alias list</code>, 如下输出代表成功</p>
+<figure class="highlight ada"><table><tr><td class="code"><pre><code class="hljs ada">minio-test-<span class="hljs-number">1</span>   <br>URL     : <span class="hljs-type">http</span>://ksgame-gamecloud-hotfix-minio-test-<span class="hljs-number">1</span>.hb.txyun:<span class="hljs-number">9000</span> <br>AccessKey : <span class="hljs-type">MINIOUSER</span>   <br>SecretKey : <span class="hljs-type">MINIOPASSWD</span>   <br>API     : <span class="hljs-type">s3v4</span>   <br>Path     : <span class="hljs-type">auto</span>     <br>minio-test-<span class="hljs-number">2</span>   <br>URL     : <span class="hljs-type">http</span>://ksgame-gamecloud-hotfix-minio-test2-<span class="hljs-number">1</span>.hb.txyun:<span class="hljs-number">9000</span>   <br>AccessKey : <span class="hljs-type">MINIOUSER</span>   <br>SecretKey : <span class="hljs-type">MINIOPASSWD</span>   <br>API     : <span class="hljs-type">s3v4</span>   <br>Path     : <span class="hljs-type">auto</span>  <br></code></pre></td></tr></table></figure>
+
+<p><code>mc admin info</code>, 如下输出代表成功 </p>
+<p><img src="https://s2.loli.net/2023/11/24/zfPodm4MC9jNSq2.jpg" alt="img"></p>
+<p><img src="https://s2.loli.net/2023/11/24/pXkgAQK2dhZE5Tf.jpg" alt="img"></p>
+<h3 id="跨集群桶的单向复制"><a href="#跨集群桶的单向复制" class="headerlink" title="跨集群桶的单向复制"></a>跨集群桶的单向复制</h3><h4 id="创建桶"><a href="#创建桶" class="headerlink" title="创建桶"></a>创建桶</h4><figure class="highlight cmake"><table><tr><td class="code"><pre><code class="hljs cmake"><span class="hljs-comment"># mc mb 创建桶 </span><br><span class="hljs-comment"># -p 存在则不执行，不存在则创建 </span><br>$ mc mb -p minio-<span class="hljs-keyword">test</span>-<span class="hljs-number">1</span>/hotfix-<span class="hljs-keyword">test</span> <br>$ mc mb -p minio-<span class="hljs-keyword">test</span>-<span class="hljs-number">2</span>/hotfix-<span class="hljs-keyword">test</span> <br></code></pre></td></tr></table></figure>
+
+<p>验证 </p>
+<p><img src="https://s2.loli.net/2023/11/24/HGRiUA8mBqTEM9j.jpg" alt="img"></p>
+<h4 id="启用桶版本控制"><a href="#启用桶版本控制" class="headerlink" title="启用桶版本控制"></a>启用桶版本控制</h4><p>对上一步创建的桶开启版本控制</p>
+<p> <code> mc version  enable minio-test-1/hotfix-test  mc version  eanble minio-test-2/hotfix-test </code></p>
+<p> 为目标集群创建复制目标</p>
+<p>使用<code>mc replicate add</code>命令添加复制规则，语法</p>
+<figure class="highlight dsconfig"><table><tr><td class="code"><pre><code class="hljs dsconfig"><span class="hljs-string">mc</span> <span class="hljs-string">replicate</span> <span class="hljs-string">add</span>  <span class="hljs-string">ALIAS</span>/<span class="hljs-string">BUCKET</span> \    <span class="hljs-built_in">--remote-bucket</span>  <span class="hljs-string">&#x27;https://USER:PASSWORD@HOSTNAME:PORT/BUCKET&#x27;</span> \    <span class="hljs-built_in">--replicate</span>  <span class="hljs-string">&quot;delete,delete-marker,existing-objects&quot;</span>  <br></code></pre></td></tr></table></figure>
+
+
+
+<p>使用该命令向每个 MinIO 部署添加新的复制规则。</p>
+<p>● 替换<code>ALIAS</code>为原始 MinIO 部署的<a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/reference/minio-mc/mc-alias-set.html#alias">别名。</a>该名称_必须_与上一步中创建远程目标时指定的存储桶匹配。</p>
+<p>● 替换<code>BUCKET</code>为要从源部署上复制的存储桶的名称。</p>
+<p>● 替换<code>--remote-bucket</code>来指定远程 MinIO 部署和<code>ALIAS/BUCKET</code>复制到的存储桶。</p>
+<p>● 必须对应于远程部署上具有<a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/administration/bucket-replication/enable-server-side-two-way-bucket-replication.html#minio-bucket-replication-serverside-twoway-permissions">必要复制权限</a><code>USER:PASSWORD</code>的用户。</p>
+<p>● 必须<code>HOSTNAME:PORT</code>解析为远程部署上可访问的 MinIO 实例。必须<code>BUCKET</code>存在并且满足所有其他<a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/administration/bucket-replication/bucket-replication-requirements.html#minio-bucket-replication-requirements">复制要求</a>。</p>
+<p>● 该标志启用以下复制功能：<code>--replicate &quot;delete,delete-marker,existing-objects&quot;</code></p>
+<p>○<a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/administration/bucket-replication.html#minio-replication-behavior-delete">删除的复制</a></p>
+<p>○<a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/administration/bucket-replication.html#minio-replication-behavior-existing-objects">现有对象的复制</a></p>
+<p>请参阅参考资料 更完整的文档。省略任何字段即可禁用该组件的复制。<a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/reference/minio-mc/mc-replicate-add.html#mc.replicate.add.-replicate" title="mc.replicate.add.--复制"><code>mc replicate add --replicate</code></a></p>
+<p>此处将minio-test-1集群的hotfix-test桶同步到minio-test-2的同名桶，执行：</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">mc</span> replicate add  minio-test-<span class="hljs-number">1</span>/hotfix-test   --remote-bucket  &#x27;http://MINIOUSER:MINIOPASSWD@ksgame-gamecloud-hotfix-minio-test2-<span class="hljs-number">1</span>.hb.txyun:<span class="hljs-number">9000</span>/hotfix-test&#x27;  --replicate  <span class="hljs-string">&quot;delete,delete-marker,existing-objects&quot;</span> <br></code></pre></td></tr></table></figure>
+
+<p>返回</p>
+<p> <img src="https://s2.loli.net/2023/11/24/rub2nAQPHtvNLpx.jpg" alt="img"></p>
+<p>使用</p>
+<p><img src="https://s2.loli.net/2023/11/24/Yys67C5ODeLJohn.jpg" alt="img"></p>
+<p>打开minio-test-1&#x2F;hotfix-test桶配置页，可以看到同步相关配置</p>
+<p><img src="https://s2.loli.net/2023/11/24/uDTLERldGiQ2ScJ.jpg" alt="img"></p>
+<p><img src="https://s2.loli.net/2023/11/24/YK2GmrCqhL91Qg7.jpg" alt="img"></p>
+<h4 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h4><p>打开minio-test-1及minio-test-2的hotfix-test桶，可以看到文件已经从minio-test-1集群同步至minio-test-2集群 使用<code>mc ls ALIAS/BUCKET</code> 可以验证目标桶是否存在对象</p>
+<p><img src="https://s2.loli.net/2023/11/24/5b1UJ46ZHwdoq7t.jpg" alt="img"></p>
+<p>此时在minio-test-1上传一个test1.zip的压缩包</p>
+<p><img src="https://s2.loli.net/2023/11/24/dUvIsu4JKfraPQH.jpg" alt="img"></p>
+<p>可以看到test1.zip被同步给了minio-test-2 </p>
+<p><img src="/%E4%BD%BF%E7%94%A8mc%E7%AE%A1%E7%90%86minio%E9%9B%86%E7%BE%A4.assets/clip_image036.jpg" alt="img"></p>
+<p>● 使用该命令修改现有的复制规则。<a href="**%5B**https://min.io/docs/minio/linux/reference/minio-mc/mc-replicate-update.html#command-mc.replicate.update**%5D(https://min.io/docs/minio/linux/reference/minio-mc/mc-replicate-update.html#command-mc.replicate.update"><code>mc replicate update</code></a> **”mc.****复制.更新”)</p>
+<p>○使用带有标志的命令来禁用现有的复制规则。<a href="**%5B**https://min.io/docs/minio/linux/reference/minio-mc/mc-replicate-update.html#command-mc.replicate.update**%5D(https://min.io/docs/minio/linux/reference/minio-mc/mc-replicate-update.html#command-mc.replicate.update"><code>mc replicate update</code></a> **”mc.****复制.更新”)<a href="**%5B**https://min.io/docs/minio/linux/reference/minio-mc/mc-replicate-update.html#mc.replicate.update.-state**%5D(https://min.io/docs/minio/linux/reference/minio-mc/mc-replicate-update.html#mc.replicate.update.-state"><code>--state &quot;disable&quot;</code></a> **”mc.replicate.update.–****状态”)</p>
+<p>○使用该命令删除现有的复制规则。<a href="**%5B**https://min.io/docs/minio/linux/reference/minio-mc/mc-replicate-rm.html#command-mc.replicate.rm**%5D(https://min.io/docs/minio/linux/reference/minio-mc/mc-replicate-rm.html#command-mc.replicate.rm"><code>mc replicate rm</code></a> **”mc.replicate.rm”)</p>
+<h2 id="server-版本更新"><a href="#server-版本更新" class="headerlink" title="server 版本更新"></a>server 版本更新</h2><p>此处以systemctl托管minio部署为例 使用<code>mc admin info ALIAS</code> 命令查看当前版本信息</p>
+<p><img src="https://s2.loli.net/2023/11/24/e5LYuhQZqbGDvHM.jpg" alt="img"></p>
+<h3 id="更新节点上minio二进制文件"><a href="#更新节点上minio二进制文件" class="headerlink" title="更新节点上minio二进制文件"></a>更新节点上minio二进制文件</h3><p>下载最新稳定的 MinIO 二进制文件：</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><code class="hljs awk">wget  https:<span class="hljs-regexp">//</span>dl.min.io<span class="hljs-regexp">/server/mi</span>nio<span class="hljs-regexp">/release/</span>linux-amd64/minio  <br>chmod +x minio  <br></code></pre></td></tr></table></figure>
+
+
+
+<p>使用ansible命令分发至各服务器<code>/usr/local/bin</code> 目录下，并覆盖现有二进制文件：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$</span><span class="language-bash">ansible -i hosts2 hosts2 -m copy -a  <span class="hljs-string">&quot;src=./bin/minio dest=/usr/local/bin/minio&quot;</span> -b --become-user=root  ksgame-gamecloud-hotfix-minio-test2-4.hb.txyun  | CHANGED =&gt; &#123;    <span class="hljs-string">&quot;changed&quot;</span>: <span class="hljs-literal">true</span>,    <span class="hljs-string">&quot;checksum&quot;</span>: <span class="hljs-string">&quot;abd60fdc8f830680f6a78bb50f757a28f1849f2c&quot;</span>,    <span class="hljs-string">&quot;dest&quot;</span>:  <span class="hljs-string">&quot;/usr/local/bin/minio&quot;</span>,    <span class="hljs-string">&quot;gid&quot;</span>: 0,    <span class="hljs-string">&quot;group&quot;</span>: <span class="hljs-string">&quot;root&quot;</span>,    <span class="hljs-string">&quot;md5sum&quot;</span>:  <span class="hljs-string">&quot;405051193782db9dbeb84f5fbd9f383d&quot;</span>,    <span class="hljs-string">&quot;mode&quot;</span>: <span class="hljs-string">&quot;0755&quot;</span>,    <span class="hljs-string">&quot;owner&quot;</span>: <span class="hljs-string">&quot;root&quot;</span>,    <span class="hljs-string">&quot;size&quot;</span>: 97423360,    <span class="hljs-string">&quot;src&quot;</span>:  <span class="hljs-string">&quot;/home/sre/.ansible/tmp/ansible-tmp-1695112504.53-187677157269723/source&quot;</span>,    <span class="hljs-string">&quot;state&quot;</span>: <span class="hljs-string">&quot;file&quot;</span>,    <span class="hljs-string">&quot;uid&quot;</span>: 0  &#125;</span> <br>ksgame-gamecloud-hotfix-minio-test2-1.hb.txyun  | CHANGED =&gt; &#123;    &quot;changed&quot;: true,    &quot;checksum&quot;:  &quot;abd60fdc8f830680f6a78bb50f757a28f1849f2c&quot;,    &quot;dest&quot;:  &quot;/usr/local/bin/minio&quot;,    &quot;gid&quot;: 0,    &quot;group&quot;: &quot;root&quot;,    &quot;md5sum&quot;:  &quot;405051193782db9dbeb84f5fbd9f383d&quot;,    &quot;mode&quot;: &quot;0755&quot;,    &quot;owner&quot;: &quot;root&quot;,    &quot;size&quot;: 97423360,    &quot;src&quot;: &quot;/home/sre/.ansible/tmp/ansible-tmp-1695112504.51-77545080547971/source&quot;,    &quot;state&quot;: &quot;file&quot;,    &quot;uid&quot;: 0  &#125;  <br>ksgame-gamecloud-hotfix-minio-test2-2.hb.txyun  | CHANGED =&gt; &#123;    &quot;changed&quot;: true,    &quot;checksum&quot;:  &quot;abd60fdc8f830680f6a78bb50f757a28f1849f2c&quot;,    &quot;dest&quot;:  &quot;/usr/local/bin/minio&quot;,    &quot;gid&quot;: 0,    &quot;group&quot;: &quot;root&quot;,    &quot;md5sum&quot;:  &quot;405051193782db9dbeb84f5fbd9f383d&quot;,    &quot;mode&quot;: &quot;0755&quot;,    &quot;owner&quot;: &quot;root&quot;,    &quot;size&quot;: 97423360,    &quot;src&quot;:  &quot;/home/sre/.ansible/tmp/ansible-tmp-1695112504.52-33563145091871/source&quot;,    &quot;state&quot;: &quot;file&quot;,    &quot;uid&quot;: 0  &#125;  <br>ksgame-gamecloud-hotfix-minio-test2-3.hb.txyun  | CHANGED =&gt; &#123;    &quot;changed&quot;: true,    &quot;checksum&quot;:  &quot;abd60fdc8f830680f6a78bb50f757a28f1849f2c&quot;,    &quot;dest&quot;:  &quot;/usr/local/bin/minio&quot;,    &quot;gid&quot;: 0,    &quot;group&quot;: &quot;root&quot;,    &quot;md5sum&quot;:  &quot;405051193782db9dbeb84f5fbd9f383d&quot;,    &quot;mode&quot;: &quot;0755&quot;,    &quot;owner&quot;: &quot;root&quot;,    &quot;size&quot;: 97423360,    &quot;src&quot;:  &quot;/home/sre/.ansible/tmp/ansible-tmp-1695112504.52-117741071403493/source&quot;,    &quot;state&quot;: &quot;file&quot;,    &quot;uid&quot;: 0  &#125;  <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">$</span><span class="language-bash">ansible -i hosts2 hosts2 -m shell -a  <span class="hljs-string">&quot;ls -lh /usr/local/bin/minio&quot;</span> -b --become-user=root</span>  <br>ksgame-gamecloud-hotfix-minio-test2-1.hb.txyun  | CHANGED | rc=0 &gt;&gt;  -rwxr-xr-x 1  root root 93M Sep 19 16:35 /usr/local/bin/minio     <br>ksgame-gamecloud-hotfix-minio-test2-4.hb.txyun  | CHANGED | rc=0 &gt;&gt;  -rwxr-xr-x 1  root root 93M Sep 19 16:35 /usr/local/bin/minio     <br>ksgame-gamecloud-hotfix-minio-test2-2.hb.txyun  | CHANGED | rc=0 &gt;&gt;  -rwxr-xr-x 1  root root 93M Sep 19 16:35 /usr/local/bin/minio     <br>ksgame-gamecloud-hotfix-minio-test2-3.hb.txyun  | CHANGED | rc=0 &gt;&gt;  -rwxr-xr-x 1  root root 93M Sep 19 16:35 /usr/local/bin/minio  <br><br><br></code></pre></td></tr></table></figure>
+
+<h3 id="重新启动部署"><a href="#重新启动部署" class="headerlink" title="重新启动部署"></a>重新启动部署</h3><p>运行命令以同时重新启动部署中的所有 MinIO 服务器进程。<a target="_blank" rel="noopener" href="https://min.io/docs/minio/linux/reference/minio-mc-admin/mc-admin-service.html#mc.admin.service.restart" title="mc.admin.service.restart"><code>mc admin service restart</code></a></p>
+<p>重新启动过程通常会在几秒钟内完成，并且_不会中断_正在进行的操作。 </p>
+<p><img src="https://s2.loli.net/2023/11/24/uHUnmhz24CjgVfs.png" alt="image-20231124202325194"></p>
+<p>提示重启完成</p>
+<h3 id="验证升级"><a href="#验证升级" class="headerlink" title="验证升级"></a>验证升级</h3><p>再次使用<code>mc admin info ALIAS</code> 命令查看当前版本信息</p>
+<p><img src="https://s2.loli.net/2023/11/24/Ek71GwaD4jFgqxV.jpg" alt="img"></p>
+<p>确认版本已被更新</p>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Ops/" rel="tag"># Ops</a>
+              <a href="/tags/k8s/" rel="tag"># k8s</a>
+              <a href="/tags/minio/" rel="tag"># minio</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/08/10/minio%E5%AE%89%E8%A3%85/" rel="prev" title="minio安装">
+      <i class="fa fa-chevron-left"></i> minio安装
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8mc%E4%B8%AD%E6%B7%BB%E5%8A%A0%E9%9B%86%E7%BE%A4"><span class="nav-number">1.</span> <span class="nav-text">在mc中添加集群</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%86webhook%E6%B7%BB%E5%8A%A0%E5%88%B0Minio"><span class="nav-number">2.</span> <span class="nav-text">将webhook添加到Minio</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mc%E6%93%8D%E4%BD%9C%E8%BF%9C%E7%A8%8B%E9%9B%86%E7%BE%A4"><span class="nav-number">3.</span> <span class="nav-text">mc操作远程集群</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E8%BF%9C%E7%A8%8B%E9%9B%86%E7%BE%A4"><span class="nav-number">3.1.</span> <span class="nav-text">添加远程集群</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B7%A8%E9%9B%86%E7%BE%A4%E6%A1%B6%E7%9A%84%E5%8D%95%E5%90%91%E5%A4%8D%E5%88%B6"><span class="nav-number">3.2.</span> <span class="nav-text">跨集群桶的单向复制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E6%A1%B6"><span class="nav-number">3.2.1.</span> <span class="nav-text">创建桶</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%90%AF%E7%94%A8%E6%A1%B6%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6"><span class="nav-number">3.2.2.</span> <span class="nav-text">启用桶版本控制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81"><span class="nav-number">3.2.3.</span> <span class="nav-text">验证</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#server-%E7%89%88%E6%9C%AC%E6%9B%B4%E6%96%B0"><span class="nav-number">4.</span> <span class="nav-text">server 版本更新</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9B%B4%E6%96%B0%E8%8A%82%E7%82%B9%E4%B8%8Aminio%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%96%87%E4%BB%B6"><span class="nav-number">4.1.</span> <span class="nav-text">更新节点上minio二进制文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8D%E6%96%B0%E5%90%AF%E5%8A%A8%E9%83%A8%E7%BD%B2"><span class="nav-number">4.2.</span> <span class="nav-text">重新启动部署</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81%E5%8D%87%E7%BA%A7"><span class="nav-number">4.3.</span> <span class="nav-text">验证升级</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="QinTianJun"
+      src="/images/logo.jpeg">
+  <p class="site-author-name" itemprop="name">QinTianJun</p>
+  <div class="site-description" itemprop="description">一个菜鸟的成长之路</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qtj1215" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qtj1215" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:freedom1215@foxmail.com" title="E-Mail → mailto:freedom1215@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.qintianjun.top/atom.xml" title="RSS → https:&#x2F;&#x2F;www.qintianjun.top&#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QinTianJun</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
